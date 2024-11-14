@@ -31,3 +31,9 @@ export const exams = pgTable("exams", {
   teacher: text("teacher"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const timetables = pgTable("timetables", {
+  userId: uuid("user_id").primaryKey(),
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -4,9 +4,73 @@ import { supabase } from '../supabaseClient';
 function Timetable() {
   const [timetable, setTimetable] = createSignal([]);
   const [loading, setLoading] = createSignal(false);
+  const [error, setError] = createSignal(null);
 
-  const fetchTimetable = async () => {
+  const fetchSavedTimetable = async () => {
     setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Fetch saved timetable
+      const response = await fetch('/api/getTimetable', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        if (data) {
+          setTimetable(data);
+        } else {
+          // If no saved timetable, generate a new one
+          await generateAndSaveTimetable();
+        }
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching timetable');
+      }
+    } catch (error) {
+      console.error('Error fetching timetable:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateAndSaveTimetable = async () => {
+    try {
+      setLoading(true);
+      // Generate the timetable
+      const generatedTimetable = await generateTimetable();
+      setTimetable(generatedTimetable);
+
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Save the generated timetable
+      const response = await fetch('/api/saveTimetable', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: generatedTimetable }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error saving timetable');
+      }
+    } catch (error) {
+      console.error('Error generating and saving timetable:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateTimetable = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -45,16 +109,16 @@ function Timetable() {
       }
 
       // Generate timetable logic
-      const generatedTimetable = generateTimetable(preferencesData, examsData);
-      setTimetable(generatedTimetable);
+      const generatedTimetable = await generateTimetableLogic(preferencesData, examsData);
+      return generatedTimetable;
     } catch (error) {
       console.error('Error generating timetable:', error);
-    } finally {
+      setError(error.message);
       setLoading(false);
     }
   };
 
-  const generateTimetable = (preferences, exams) => {
+  const generateTimetableLogic = (preferences, exams) => {
     const startDate = new Date(preferences.startDate);
     const endDate = new Date(
       exams.reduce((latest, exam) => (new Date(exam.examDate) > new Date(latest) ? exam.examDate : latest), exams[0].examDate)
@@ -66,11 +130,7 @@ function Timetable() {
       const currentDate = new Date(startDate);
       currentDate.setDate(currentDate.getDate() + i);
       const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-      const daySlots = preferences.revisionTimes[dayName];
       const dateString = currentDate.toISOString().split('T')[0];
-
-      // Skip if no available times
-      if (!daySlots.length) continue;
 
       // Check for exams on this date
       const examsToday = exams.filter((exam) => exam.examDate === dateString);
@@ -85,9 +145,20 @@ function Timetable() {
         continue;
       }
 
+      // Get available times for this day
+      const daySlots = preferences.revisionTimes[dayName];
+      // Skip if no available times
+      if (!daySlots.length) continue;
+
+      // Filter out subjects whose exams have already passed
+      const subjects = exams
+        .filter((exam) => new Date(exam.examDate) >= currentDate)
+        .map((exam) => exam.subject);
+
+      if (!subjects.length) continue;
+
       // Allocate revision sessions
       const sessions = [];
-      const subjects = exams.map((exam) => exam.subject);
 
       // Evenly distribute subjects
       let subjectIndex = 0;
@@ -110,32 +181,47 @@ function Timetable() {
     return timetable;
   };
 
-  onMount(fetchTimetable);
+  onMount(() => {
+    fetchSavedTimetable();
+  });
 
   return (
     <div class="max-w-6xl mx-auto">
       <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
-      <Show when={!loading()} fallback={<p>Generating timetable...</p>}>
-        <For each={timetable()}>
-          {(day) => (
-            <div class="mb-6">
-              <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
-              <Show when={day.exams.length}>
-                <p class="text-red-500">Exam Day: {day.exams.join(', ')}</p>
-              </Show>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <For each={day.sessions}>
-                  {(session) => (
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                      <p class="font-semibold">{session.time}</p>
-                      <p>Subject: {session.subject}</p>
-                    </div>
-                  )}
-                </For>
+      <button
+        class={`w-full mb-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
+          loading() ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+        onClick={generateAndSaveTimetable}
+        disabled={loading()}
+      >
+        <Show when={loading()} fallback="Regenerate Timetable">
+          Generating...
+        </Show>
+      </button>
+      <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
+        <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
+          <For each={timetable()}>
+            {(day) => (
+              <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
+                <Show when={day.exams.length}>
+                  <p class="text-red-500">Exam Day: {day.exams.join(', ')}</p>
+                </Show>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={day.sessions}>
+                    {(session) => (
+                      <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="font-semibold">{session.time}</p>
+                        <p>Subject: {session.subject}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
               </div>
-            </div>
-          )}
-        </For>
+            )}
+          </For>
+        </Show>
       </Show>
     </div>
   );

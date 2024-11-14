@@ -1,8 +1,8 @@
-import { createSignal, onMount, createEffect, For, Show } from 'solid-js';
+import { createSignal, onMount, createEffect, Show } from 'solid-js';
 import { supabase } from './supabaseClient';
 import { Auth } from '@supabase/auth-ui-solid';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useNavigate, Route, Routes } from '@solidjs/router';
+import { useNavigate, Route, Routes, Link } from '@solidjs/router';
 import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
@@ -11,7 +11,6 @@ function App() {
   const navigate = useNavigate();
   const [user, setUser] = createSignal(null);
   const [currentPage, setCurrentPage] = createSignal('login');
-  const [loading, setLoading] = createSignal(false);
 
   const checkUserSignedIn = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -33,6 +32,7 @@ function App() {
       } else {
         setUser(null);
         setCurrentPage('login');
+        navigate('/');
       }
     });
 
@@ -80,6 +80,29 @@ function App() {
         <div class="flex flex-col h-full">
           <header class="flex justify-between items-center mb-8">
             <h1 class="text-4xl font-bold">UpGrade</h1>
+            <nav class="flex space-x-4">
+              <Link
+                href="/preferences"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/preferences' }}
+              >
+                Preferences
+              </Link>
+              <Link
+                href="/exams"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/exams' }}
+              >
+                Exams
+              </Link>
+              <Link
+                href="/timetable"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/timetable' }}
+              >
+                Timetable
+              </Link>
+            </nav>
             <button
               class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handleSignOut}

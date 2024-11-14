@@ -29,7 +29,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 
 ### 3. **Manage Your Exams**
 
-- On the Exams page, you can add all your upcoming exams.
+- Navigate to the **Exams** page using the navigation links at the top.
 - **Add New Exam**:
   - **Subject**: Enter the subject name.
   - **Exam Date**: Select the exam date using the date picker.
@@ -41,9 +41,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - **Delete** an exam by clicking the **Delete** button next to it.
 - Past exams are automatically excluded from the list.
 
-### 4. **Generate Your Personalized Timetable**
+### 4. **View and Manage Your Timetable**
 
-- Click **Generate Timetable** to create your revision schedule.
+- Navigate to the **Timetable** page using the navigation links at the top.
 - **Revision Timetable**:
   - View your timetable presented as a calendar.
   - Each day displays scheduled revision sessions based on your preferences and exams.
@@ -55,17 +55,20 @@ UpGrade is a personalized revision timetable app designed to help students effic
     - No revision sessions are scheduled on exam days.
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
-  - On the day before an exam, at least one revision session is scheduled for that subject.
-  - No sessions are scheduled after an exam for that subject.
-  - Past exams and their sessions are excluded.
+  - **Subjects are not scheduled after their exam date**.
+- **Regenerate Timetable**:
+  - If you've made changes to your preferences or exams, click **Regenerate Timetable** to update your schedule.
+  - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 
-### 5. **Manage Your Account**
+### 5. **Switch Between Pages**
 
-- **Edit Preferences**:
-  - You can go back to the preferences page to update your revision times, session duration, or start date.
-- **Add/Edit Exams**:
-  - Continue to add or delete exams as needed.
-  - The timetable updates automatically to reflect any changes.
+- Use the navigation links at the top of the app to switch between:
+  - **Preferences**: Update your revision times, session durations, or start date.
+  - **Exams**: Add or delete exams from your list.
+  - **Timetable**: View or regenerate your personalized revision schedule.
+
+### 6. **Manage Your Account**
+
 - **Logout**:
   - Click **Sign Out** in the header to securely log out of your account.
 
