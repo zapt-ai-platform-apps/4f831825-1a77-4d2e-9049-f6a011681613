@@ -1,6 +1,7 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/browser';
 
 function Preferences() {
   const navigate = useNavigate();
@@ -74,13 +75,21 @@ function Preferences() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error saving preferences');
+        let errorText = 'Error saving preferences';
+        try {
+          const errorData = await response.json();
+          errorText = errorData.error || errorText;
+        } catch (e) {
+          // Response is not JSON, get text
+          errorText = await response.text();
+        }
+        throw new Error(errorText);
       }
 
       navigate('/exams');
     } catch (error) {
       console.error('Error saving preferences:', error);
+      Sentry.captureException(error);
       setError(error.message);
     } finally {
       setLoading(false);

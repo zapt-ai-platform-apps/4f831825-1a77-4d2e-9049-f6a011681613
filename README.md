@@ -23,6 +23,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Start Date**:
   - Select the date you want your revision timetable to start.
 - Click **Save Preferences** to proceed.
+- **Error Handling**:
+  - If there is an issue saving your preferences, an error message will be displayed.
+  - All errors are logged and monitored to ensure a smooth user experience.
 
 ### 3. **Manage Your Exams**
 
@@ -71,6 +74,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Supabase**:
   - Used for user authentication and real-time database services.
   - Provides secure login options and data storage for user preferences and exams.
+- **Sentry**:
+  - Implemented for error tracking and monitoring.
+  - Helps in identifying and resolving issues promptly to enhance user experience.
 
 ## Environment Variables
 
@@ -83,6 +89,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - The app is free to use and does not require any subscription.
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
+- If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
 
 ---
 

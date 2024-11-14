@@ -16,15 +16,25 @@ Sentry.init({
 });
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-
   try {
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', ['POST']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     const user = await authenticateUser(req);
 
-    const { data } = req.body;
+    let body = '';
+    for await (const chunk of req) {
+      body += chunk;
+    }
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      throw new Error('Invalid JSON');
+    }
+
+    const { data } = body;
 
     if (!data) {
       return res.status(400).json({ error: 'Preferences data is required' });
@@ -47,6 +57,6 @@ export default async function handler(req, res) {
   } catch (error) {
     Sentry.captureException(error);
     console.error('Error saving preferences:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
