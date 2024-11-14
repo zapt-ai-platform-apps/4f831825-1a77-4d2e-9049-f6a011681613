@@ -17,18 +17,21 @@ function App() {
     if (user) {
       setUser(user);
       setCurrentPage('homePage');
-      navigate('/preferences');
+      // Removed navigate call to prevent redirecting to Preferences on tab switch
     }
   };
 
   onMount(checkUserSignedIn);
 
   createEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(session.user);
         setCurrentPage('homePage');
-        navigate('/preferences');
+        if (event === 'SIGNED_IN') {
+          navigate('/preferences');
+        }
+        // Do not navigate on other auth events to prevent unwanted redirects
       } else {
         setUser(null);
         setCurrentPage('login');
