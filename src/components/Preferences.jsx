@@ -74,14 +74,15 @@ function Preferences() {
         body: JSON.stringify({ data: preferences() }),
       });
 
+      const responseBody = await response.text();
+
       if (!response.ok) {
         let errorText = 'Error saving preferences';
         try {
-          const errorData = await response.json();
+          const errorData = JSON.parse(responseBody);
           errorText = errorData.error || errorText;
         } catch (e) {
-          // Response is not JSON, get text
-          errorText = await response.text();
+          errorText = responseBody || errorText;
         }
         throw new Error(errorText);
       }
