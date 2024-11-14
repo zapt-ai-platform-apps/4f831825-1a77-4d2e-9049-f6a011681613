@@ -13,7 +13,9 @@ function App() {
   const [currentPage, setCurrentPage] = createSignal('login');
 
   const checkUserSignedIn = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       setUser(user);
       setCurrentPage('homePage');
@@ -28,9 +30,7 @@ function App() {
       if (session?.user) {
         setUser(session.user);
         setCurrentPage('homePage');
-        if (event === 'SIGNED_IN') {
-          navigate('/preferences');
-        }
+        // Removed navigate('/preferences') call to prevent redirecting on tab switch
         // Do not navigate on other auth events to prevent unwanted redirects
       } else {
         setUser(null);
