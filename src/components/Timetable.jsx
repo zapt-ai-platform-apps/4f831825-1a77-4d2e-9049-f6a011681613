@@ -188,17 +188,6 @@ function Timetable() {
   return (
     <div class="max-w-6xl mx-auto">
       <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
-      <button
-        class={`w-full mb-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-          loading() ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-        onClick={generateAndSaveTimetable}
-        disabled={loading()}
-      >
-        <Show when={loading()} fallback="Regenerate Timetable">
-          Generating...
-        </Show>
-      </button>
       <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
         <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
           <For each={timetable()}>

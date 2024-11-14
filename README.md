@@ -41,7 +41,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - **Delete** an exam by clicking the **Delete** button next to it.
 - Past exams are automatically excluded from the list.
 
-### 4. **View and Manage Your Timetable**
+### 4. **View Your Timetable**
 
 - Navigate to the **Timetable** page using the navigation links at the top.
 - **Revision Timetable**:
@@ -56,8 +56,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
   - **Subjects are not scheduled after their exam date**.
-- **Regenerate Timetable**:
-  - If you've made changes to your preferences or exams, click **Regenerate Timetable** to update your schedule.
+- **Automatic Timetable Generation**:
+  - The timetable is automatically generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 
 ### 5. **Switch Between Pages**
@@ -65,7 +65,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Use the navigation links at the top of the app to switch between:
   - **Preferences**: Update your revision times, session durations, or start date.
   - **Exams**: Add or delete exams from your list.
-  - **Timetable**: View or regenerate your personalized revision schedule.
+  - **Timetable**: View your personalized revision schedule.
 
 ### 6. **Manage Your Account**
 
