@@ -3,6 +3,7 @@ import { authenticateUser } from "./_apiUtils.js";
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { preferences } from '../drizzle/schema.js';
+import getRawBody from 'raw-body';
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -10,7 +11,7 @@ Sentry.init({
   initialScope: {
     tags: {
       type: 'backend',
-      projectId: process.env.PROJECT_ID
+      projectId: process.env.VITE_PUBLIC_APP_ID
     }
   }
 });
@@ -24,12 +25,11 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    let body = '';
-    for await (const chunk of req) {
-      body += chunk;
-    }
+    const bodyBuffer = await getRawBody(req);
+    const bodyString = bodyBuffer.toString('utf-8');
+    let body;
     try {
-      body = JSON.parse(body);
+      body = JSON.parse(bodyString);
     } catch (e) {
       throw new Error('Invalid JSON');
     }

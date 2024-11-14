@@ -20,7 +20,8 @@
     "@solidjs/router": "^0.8.4",
     "@sentry/browser": "^7.63.0",
     "@sentry/node": "^7.63.0",
-    "@sentry/tracing": "^7.63.0"
+    "@sentry/tracing": "^7.63.0",
+    "raw-body": "^2.5.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
