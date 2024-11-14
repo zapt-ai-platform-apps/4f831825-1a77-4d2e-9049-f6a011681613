@@ -93,6 +93,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
+- **The app is fully responsive and optimized for all screen sizes, including mobile devices.**
 
 ---
 

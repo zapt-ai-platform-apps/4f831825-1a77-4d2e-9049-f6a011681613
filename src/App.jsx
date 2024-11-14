@@ -78,37 +78,39 @@ function App() {
         }
       >
         <div class="flex flex-col h-full">
-          <header class="flex justify-between items-center mb-8">
+          <header class="flex flex-col sm:flex-row items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
             <h1 class="text-4xl font-bold">UpGrade</h1>
-            <nav class="flex space-x-4">
-              <Link
-                href="/preferences"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/preferences' }}
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <nav class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <Link
+                  href="/preferences"
+                  class="hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/preferences' }}
+                >
+                  Preferences
+                </Link>
+                <Link
+                  href="/exams"
+                  class="hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/exams' }}
+                >
+                  Exams
+                </Link>
+                <Link
+                  href="/timetable"
+                  class="hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/timetable' }}
+                >
+                  Timetable
+                </Link>
+              </nav>
+              <button
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+                onClick={handleSignOut}
               >
-                Preferences
-              </Link>
-              <Link
-                href="/exams"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/exams' }}
-              >
-                Exams
-              </Link>
-              <Link
-                href="/timetable"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/timetable' }}
-              >
-                Timetable
-              </Link>
-            </nav>
-            <button
-              class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </button>
+                Sign Out
+              </button>
+            </div>
           </header>
           <main class="flex-grow">
             <Routes>
