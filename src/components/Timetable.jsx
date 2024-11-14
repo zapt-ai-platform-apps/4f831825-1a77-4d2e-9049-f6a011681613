@@ -4,27 +4,48 @@ import { supabase } from '../supabaseClient';
 function Timetable() {
   const [timetable, setTimetable] = createSignal([]);
   const [loading, setLoading] = createSignal(false);
-  const [timeSlots, setTimeSlots] = createSignal([]);
 
   const fetchTimetable = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: prefs } = await supabase
-        .from('preferences')
-        .select('data')
-        .eq('user_id', user.id)
-        .single();
+      const { data: { session } } = await supabase.auth.getSession();
 
-      const { data: exams } = await supabase
-        .from('exams')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('exam_date', new Date().toISOString().split('T')[0])
-        .order('exam_date', { ascending: true });
+      // Fetch preferences
+      let preferencesData = null;
+      let response = await fetch('/api/getPreferences', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        preferencesData = data;
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching preferences');
+      }
+
+      // Fetch exams
+      let examsData = null;
+      response = await fetch('/api/getExams', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        examsData = data;
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching exams');
+      }
 
       // Generate timetable logic
-      const generatedTimetable = generateTimetable(prefs.data, exams);
+      const generatedTimetable = generateTimetable(preferencesData, examsData);
       setTimetable(generatedTimetable);
     } catch (error) {
       console.error('Error generating timetable:', error);
@@ -36,7 +57,7 @@ function Timetable() {
   const generateTimetable = (preferences, exams) => {
     const startDate = new Date(preferences.startDate);
     const endDate = new Date(
-      exams.reduce((latest, exam) => (new Date(exam.exam_date) > new Date(latest) ? exam.exam_date : latest), exams[0].exam_date)
+      exams.reduce((latest, exam) => (new Date(exam.examDate) > new Date(latest) ? exam.examDate : latest), exams[0].examDate)
     );
     const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
     const timetable = [];
@@ -52,7 +73,7 @@ function Timetable() {
       if (!daySlots.length) continue;
 
       // Check for exams on this date
-      const examsToday = exams.filter((exam) => exam.exam_date === dateString);
+      const examsToday = exams.filter((exam) => exam.examDate === dateString);
 
       // Skip revision on exam days
       if (examsToday.length) {

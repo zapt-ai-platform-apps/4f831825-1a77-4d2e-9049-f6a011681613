@@ -16,15 +16,22 @@ function Exams() {
   const fetchExams = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      let { data, error } = await supabase
-        .from('exams')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('exam_date', new Date().toISOString().split('T')[0])
-        .order('exam_date', { ascending: true });
-      if (error) throw error;
-      setExams(data);
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/getExams', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        setExams(data);
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching exams');
+      }
     } catch (error) {
       console.error('Error fetching exams:', error);
     } finally {
@@ -41,18 +48,29 @@ function Exams() {
   const handleAddExam = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from('exams')
-        .insert({ ...newExam(), user_id: user.id });
-      if (error) throw error;
-      setNewExam({
-        subject: '',
-        examDate: '',
-        board: '',
-        teacher: '',
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/saveExams', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: newExam() }),
       });
-      fetchExams();
+
+      if (response.ok) {
+        setNewExam({
+          subject: '',
+          examDate: '',
+          board: '',
+          teacher: '',
+        });
+        fetchExams();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error adding exam');
+      }
     } catch (error) {
       console.error('Error adding exam:', error);
     } finally {
@@ -64,12 +82,23 @@ function Exams() {
     if (!confirm('Are you sure you want to delete this exam?')) return;
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('exams')
-        .delete()
-        .eq('id', examId);
-      if (error) throw error;
-      fetchExams();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/deleteExam', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: examId }),
+      });
+
+      if (response.ok) {
+        fetchExams();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error deleting exam');
+      }
     } catch (error) {
       console.error('Error deleting exam:', error);
     } finally {
@@ -145,7 +174,7 @@ function Exams() {
                 <div class="bg-gray-800 p-4 rounded-lg flex justify-between items-center mb-2">
                   <div>
                     <p class="font-semibold text-lg">{exam.subject}</p>
-                    <p>Exam Date: {exam.exam_date}</p>
+                    <p>Exam Date: {exam.examDate}</p>
                     <p>Board: {exam.board}</p>
                     <p>Teacher: {exam.teacher}</p>
                   </div>

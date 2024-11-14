@@ -28,7 +28,41 @@ function Preferences() {
       slots.push(`${i}:00`);
     }
     setTimeSlots(slots);
+
+    // Fetch existing preferences
+    fetchPreferences();
   });
+
+  const fetchPreferences = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/getPreferences', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        if (data) {
+          setPreferences(data);
+        }
+      } else {
+        // Preferences not found or error occurred
+        if (response.status !== 404) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Error fetching preferences');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleTimeSelection = (day, time) => {
     const dayTimes = preferences().revisionTimes[day];
