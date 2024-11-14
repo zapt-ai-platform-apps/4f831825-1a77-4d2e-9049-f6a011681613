@@ -1,130 +1,113 @@
-import { createSignal, onMount, createEffect, Show } from 'solid-js';
+import { createSignal, onMount, createEffect } from 'solid-js';
 import { supabase } from './supabaseClient';
-import { Auth } from '@supabase/auth-ui-solid';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useNavigate, Route, Routes, Link } from '@solidjs/router';
+import { Routes, Route, useNavigate, useLocation } from '@solidjs/router';
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
 import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
 
 function App() {
-  const navigate = useNavigate();
   const [user, setUser] = createSignal(null);
-  const [currentPage, setCurrentPage] = createSignal('login');
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const checkUserSignedIn = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      setUser(user);
-      setCurrentPage('homePage');
-      // Removed navigate call to prevent redirecting to Preferences on tab switch
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
   };
 
-  onMount(checkUserSignedIn);
+  onMount(async () => {
+    await checkUserSignedIn();
+    if (!user() && location.pathname !== '/' && location.pathname !== '/login') {
+      navigate('/login');
+    }
+  });
 
   createEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        setCurrentPage('homePage');
-        // Removed navigate('/preferences') call to prevent redirecting on tab switch
-        // Do not navigate on other auth events to prevent unwanted redirects
-      } else {
-        setUser(null);
-        setCurrentPage('login');
-        navigate('/');
+      setUser(session?.user ?? null);
+      if (session?.user && (location.pathname === '/login' || location.pathname === '/')) {
+        navigate('/preferences');
+      } else if (!session?.user && location.pathname !== '/' && location.pathname !== '/login') {
+        navigate('/login');
       }
     });
 
     return () => {
-      authListener.unsubscribe();
+      authListener?.unsubscribe();
     };
   });
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setCurrentPage('login');
-    navigate('/');
+    navigate('/login');
+  };
+
+  const ProtectedRoute = (Component) => {
+    return (
+      <div class="flex flex-col min-h-screen bg-black text-white">
+        <header class="flex flex-col sm:flex-row items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 p-4">
+          <h1 class="text-4xl font-bold">UpGrade</h1>
+          <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <nav class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+              <Link
+                href="/preferences"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/preferences' }}
+              >
+                Preferences
+              </Link>
+              <Link
+                href="/exams"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/exams' }}
+              >
+                Exams
+              </Link>
+              <Link
+                href="/timetable"
+                class="hover:underline cursor-pointer"
+                classList={{ 'font-bold': location.pathname === '/timetable' }}
+              >
+                Timetable
+              </Link>
+            </nav>
+            <button
+              class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </button>
+          </div>
+        </header>
+        <main class="flex-grow p-4">
+          {Component}
+        </main>
+      </div>
+    );
   };
 
   return (
-    <div class="min-h-screen bg-black text-white p-4">
-      <Show
-        when={currentPage() === 'homePage'}
-        fallback={
-          <div class="flex items-center justify-center min-h-screen">
-            <div class="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-lg">
-              <h2 class="text-3xl font-bold mb-6 text-center text-white">Sign in with ZAPT</h2>
-              <a
-                href="https://www.zapt.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-blue-500 hover:underline mb-6 block text-center"
-              >
-                Learn more about ZAPT
-              </a>
-              <Auth
-                supabaseClient={supabase}
-                appearance={{ theme: ThemeSupa }}
-                providers={['google', 'facebook', 'apple']}
-                magicLink={true}
-                showLinks={false}
-                view="magic_link"
-                class="cursor-pointer"
-              />
-            </div>
-          </div>
-        }
-      >
-        <div class="flex flex-col h-full">
-          <header class="flex flex-col sm:flex-row items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
-            <h1 class="text-4xl font-bold">UpGrade</h1>
-            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <nav class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-                <Link
-                  href="/preferences"
-                  class="hover:underline cursor-pointer"
-                  classList={{ 'font-bold': location.pathname === '/preferences' }}
-                >
-                  Preferences
-                </Link>
-                <Link
-                  href="/exams"
-                  class="hover:underline cursor-pointer"
-                  classList={{ 'font-bold': location.pathname === '/exams' }}
-                >
-                  Exams
-                </Link>
-                <Link
-                  href="/timetable"
-                  class="hover:underline cursor-pointer"
-                  classList={{ 'font-bold': location.pathname === '/timetable' }}
-                >
-                  Timetable
-                </Link>
-              </nav>
-              <button
-                class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </button>
-            </div>
-          </header>
-          <main class="flex-grow">
-            <Routes>
-              <Route path="/preferences" component={Preferences} />
-              <Route path="/exams" component={Exams} />
-              <Route path="/timetable" component={Timetable} />
-              <Route path="*" element={<Preferences />} />
-            </Routes>
-          </main>
-        </div>
-      </Show>
+    <div>
+      <Routes>
+        <Route path="/" component={LandingPage} />
+        <Route path="/login" component={Login} />
+        <Route
+          path="/preferences"
+          element={user() ? ProtectedRoute(<Preferences />) : <Login />}
+        />
+        <Route
+          path="/exams"
+          element={user() ? ProtectedRoute(<Exams />) : <Login />}
+        />
+        <Route
+          path="/timetable"
+          element={user() ? ProtectedRoute(<Timetable />) : <Login />}
+        />
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
     </div>
   );
 }

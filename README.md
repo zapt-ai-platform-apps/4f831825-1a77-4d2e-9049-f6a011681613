@@ -4,14 +4,22 @@ UpGrade is a personalized revision timetable app designed to help students effic
 
 ## User Guide
 
-### 1. **User Authentication**
+### 1. **Landing Page**
 
-- Upon launching the app, you are prompted to **Sign in with ZAPT**.
+- When you first visit UpGrade, you are greeted with a welcoming **Landing Page**.
+- **Welcome Message**:
+  - A brief introduction to the app's purpose and benefits.
+- **Get Started**:
+  - Click the **Get Started** button to begin.
+
+### 2. **User Authentication**
+
+- After clicking **Get Started**, you are prompted to **Sign in with ZAPT**.
 - You can sign up or log in using:
   - **School Email**: Use your school email to receive a magic link for password-less login.
   - **Social Accounts**: Sign in with **Google**, **Facebook**, or **Apple**.
 
-### 2. **Set Up Your Revision Preferences**
+### 3. **Set Up Your Revision Preferences**
 
 - After signing in, you are directed to set your revision preferences.
 - **Available Revision Times**:
@@ -27,7 +35,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - If there is an issue saving your preferences, an error message will be displayed.
   - All errors are logged and monitored to ensure a smooth user experience.
 
-### 3. **Manage Your Exams**
+### 4. **Manage Your Exams**
 
 - Navigate to the **Exams** page using the navigation links at the top.
 - **Add New Exam**:
@@ -42,7 +50,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - **Delete** an exam by clicking the **Delete** button next to it.
 - Past exams are automatically excluded from the list.
 
-### 4. **View Your Timetable**
+### 5. **View Your Timetable**
 
 - Navigate to the **Timetable** page using the navigation links at the top.
 - **Revision Timetable**:
@@ -61,14 +69,14 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - The timetable is automatically generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 
-### 5. **Switch Between Pages**
+### 6. **Switch Between Pages**
 
 - Use the navigation links at the top of the app to switch between:
   - **Preferences**: Update your revision times, session durations, or start date.
   - **Exams**: Add or delete exams from your list.
   - **Timetable**: View your personalized revision schedule.
 
-### 6. **Manage Your Account**
+### 7. **Manage Your Account**
 
 - **Logout**:
   - Click **Sign Out** in the header to securely log out of your account.
