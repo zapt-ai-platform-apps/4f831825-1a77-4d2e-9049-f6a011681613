@@ -1,6 +1,6 @@
 import { createSignal, onMount, createEffect } from 'solid-js';
 import { supabase } from './supabaseClient';
-import { Routes, Route, useNavigate, useLocation } from '@solidjs/router';
+import { Routes, Route, useNavigate, useLocation, Link } from '@solidjs/router';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Preferences from './components/Preferences';
@@ -12,14 +12,13 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const checkUserSignedIn = async () => {
+  onMount(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
-  };
 
-  onMount(async () => {
-    await checkUserSignedIn();
-    if (!user() && location.pathname !== '/' && location.pathname !== '/login') {
+    if (user && (location.pathname === '/' || location.pathname === '/login')) {
+      navigate('/preferences');
+    } else if (!user && location.pathname !== '/' && location.pathname !== '/login') {
       navigate('/login');
     }
   });
