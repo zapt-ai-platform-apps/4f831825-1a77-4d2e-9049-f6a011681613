@@ -18,6 +18,7 @@ function Preferences() {
     startDate: '',
   });
   const [loading, setLoading] = createSignal(false);
+  const [error, setError] = createSignal(null);
   const [timeSlots, setTimeSlots] = createSignal([]);
 
   onMount(() => {
@@ -59,22 +60,35 @@ function Preferences() {
 
   const handleSavePreferences = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from('preferences')
-        .upsert({ user_id: user.id, data: preferences() }, { onConflict: 'user_id' });
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/savePreferences', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: preferences() }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error saving preferences');
+      }
+
       navigate('/exams');
     } catch (error) {
       console.error('Error saving preferences:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto h-full">
       <h2 class="text-2xl font-bold mb-4">Set Your Revision Preferences</h2>
       <div class="space-y-6">
         <div>
@@ -109,7 +123,7 @@ function Preferences() {
           <h3 class="text-xl font-semibold mb-2">Session Duration</h3>
           <select
             value={preferences().sessionDuration}
-            onChange={handleDurationChange}
+            onInput={handleDurationChange}
             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
           >
             <For each={[30, 45, 60, 75, 90, 105, 120]}>
@@ -126,10 +140,13 @@ function Preferences() {
           <input
             type="date"
             value={preferences().startDate}
-            onChange={handleStartDateChange}
+            onInput={handleStartDateChange}
             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
           />
         </div>
+        <Show when={error()}>
+          <p class="text-red-500">{error()}</p>
+        </Show>
         <button
           class={`w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
             loading() ? 'opacity-50 cursor-not-allowed' : ''
