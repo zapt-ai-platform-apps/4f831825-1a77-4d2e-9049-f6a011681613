@@ -18,8 +18,9 @@
     "solid-chartjs": "^1.3.11",
     "@neondatabase/serverless": "^0.9.5",
     "@solidjs/router": "^0.8.4",
-    "@sentry/browser": "^8.35.0",
-    "@sentry/node": "^8.35.0"
+    "@sentry/browser": "^7.63.0",
+    "@sentry/node": "^7.63.0",
+    "@sentry/tracing": "^7.63.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
