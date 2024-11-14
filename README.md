@@ -35,6 +35,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - **Exam Date**: Select the exam date using the date picker.
   - **Examination Board**: Specify the examination board.
   - **Teacher's Name**: Enter your teacher's name.
+  - **Note**: **All fields are required.** You cannot add an exam unless all four pieces of information are provided.
 - Click **Add Exam** to save the exam to your list.
 - **Upcoming Exams**:
   - View all your upcoming exams in a list.

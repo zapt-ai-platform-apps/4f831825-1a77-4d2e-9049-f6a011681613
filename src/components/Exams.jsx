@@ -13,6 +13,11 @@ function Exams() {
   });
   const [loading, setLoading] = createSignal(false);
 
+  const isFormValid = () => {
+    const exam = newExam();
+    return exam.subject && exam.examDate && exam.board && exam.teacher;
+  };
+
   const fetchExams = async () => {
     setLoading(true);
     try {
@@ -46,6 +51,7 @@ function Exams() {
   };
 
   const handleAddExam = async () => {
+    if (!isFormValid()) return;
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -155,11 +161,11 @@ function Exams() {
             />
           </div>
           <button
-            class={`w-full mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-              loading() ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            class={`w-full mt-4 px-6 py-3 ${
+              loading() || !isFormValid() ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 transform hover:scale-105'
+            } text-white rounded-lg transition duration-300 ease-in-out cursor-pointer`}
             onClick={handleAddExam}
-            disabled={loading()}
+            disabled={loading() || !isFormValid()}
           >
             <Show when={loading()} fallback="Add Exam">
               Saving...
