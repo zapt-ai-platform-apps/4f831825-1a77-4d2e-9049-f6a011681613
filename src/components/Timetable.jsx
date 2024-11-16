@@ -186,7 +186,7 @@ function Timetable() {
   });
 
   return (
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto text-white">
       <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
       <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
         <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>

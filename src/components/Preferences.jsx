@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show } from 'solid-js';
+import { createSignal, onMount, Show, For } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -132,7 +132,7 @@ function Preferences() {
   };
 
   return (
-    <div class="max-w-4xl mx-auto h-full">
+    <div class="max-w-4xl mx-auto h-full text-white">
       <h2 class="text-2xl font-bold mb-4">Set Your Revision Preferences</h2>
       <div class="space-y-6">
         <div>

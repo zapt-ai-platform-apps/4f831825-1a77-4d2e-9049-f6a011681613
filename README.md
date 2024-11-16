@@ -1,12 +1,12 @@
 # UpGrade
 
-UpGrade is a personalized revision timetable app designed to help students efficiently prepare for their school examinations. By inputting exam details and personal study preferences, the app generates a customized study schedule presented in a detailed calendar format. It ensures focused and organized revision by allocating study sessions based on the student's availability and exam dates.
+UpGrade is a personalized revision timetable app designed to help students efficiently prepare for their school examinations. The app features a visually appealing design with a soothing vertical gradient background from deep blue (#004AAD) at the top to light blue (#5DE0E6) at the bottom, enhancing user experience.
 
 ## User Guide
 
 ### 1. **Landing Page**
 
-- When you first visit UpGrade, you are greeted with a welcoming **Landing Page**.
+- When you first visit UpGrade, you are greeted with a welcoming **Landing Page** set against the gradient background.
 - **Welcome Message**:
   - A brief introduction to the app's purpose and benefits.
 - **Get Started**:
@@ -25,6 +25,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Available Revision Times**:
   - For each day of the week, select the hours you are available to study between **8 AM and 8 PM**.
   - Click on the time slots to toggle your availability.
+  - Selected time slots are highlighted for clarity.
 - **Session Duration**:
   - Choose how long each revision session should be.
   - Options range from **30 minutes to 2 hours** in **15-minute increments**.

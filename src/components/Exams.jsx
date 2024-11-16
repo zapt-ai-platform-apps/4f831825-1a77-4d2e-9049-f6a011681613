@@ -112,16 +112,12 @@ function Exams() {
     }
   };
 
-  const handleEditExam = async (exam) => {
-    // Implement edit functionality if needed
-  };
-
   const handleNext = () => {
     navigate('/timetable');
   };
 
   return (
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto text-white">
       <h2 class="text-2xl font-bold mb-4">Manage Your Exams</h2>
       <div class="space-y-6">
         <div>
@@ -185,13 +181,6 @@ function Exams() {
                     <p>Teacher: {exam.teacher}</p>
                   </div>
                   <div class="flex space-x-2">
-                    {/* Uncomment when edit functionality is implemented */}
-                    {/* <button
-                      class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                      onClick={() => handleEditExam(exam)}
-                    >
-                      Edit
-                    </button> */}
                     <button
                       class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
                       onClick={() => handleDeleteExam(exam.id)}
