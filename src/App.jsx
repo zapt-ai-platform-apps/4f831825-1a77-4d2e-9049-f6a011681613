@@ -46,7 +46,7 @@ function App() {
 
   const ProtectedRoute = (Component) => {
     return (
-      <div class="flex flex-col h-full bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
+      <div class="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
         <header class="flex flex-col sm:flex-row items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 p-4">
           <h1 class="text-4xl font-bold">UpGrade</h1>
           <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -81,7 +81,7 @@ function App() {
             </button>
           </div>
         </header>
-        <main class="flex-grow p-4">
+        <main class="flex-grow p-4 flex items-center justify-center">
           {Component}
         </main>
       </div>
@@ -89,7 +89,7 @@ function App() {
   };
 
   return (
-    <div class="h-full">
+    <div class="min-h-screen">
       <Routes>
         <Route path="/" component={LandingPage} />
         <Route path="/login" component={Login} />
