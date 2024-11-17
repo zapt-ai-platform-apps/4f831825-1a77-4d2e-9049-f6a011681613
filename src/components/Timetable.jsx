@@ -186,32 +186,36 @@ function Timetable() {
   });
 
   return (
-    <div class="max-w-6xl mx-auto text-white">
-      <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
-      <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
-        <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-          <For each={timetable()}>
-            {(day) => (
-              <div class="mb-6">
-                <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
-                <Show when={day.exams.length}>
-                  <p class="text-red-500">Exam Day: {day.exams.join(', ')}</p>
-                </Show>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <For each={day.sessions}>
-                    {(session) => (
-                      <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold">{session.time}</p>
-                        <p>Subject: {session.subject}</p>
-                      </div>
-                    )}
-                  </For>
-                </div>
-              </div>
-            )}
-          </For>
-        </Show>
-      </Show>
+    <div class="min-h-screen flex flex-col text-white">
+      <div class="flex-grow p-4">
+        <div class="w-full max-w-full sm:max-w-6xl mx-auto">
+          <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
+          <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
+            <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
+              <For each={timetable()}>
+                {(day) => (
+                  <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
+                    <Show when={day.exams.length}>
+                      <p class="text-red-500">Exam Day: {day.exams.join(', ')}</p>
+                    </Show>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <For each={day.sessions}>
+                        {(session) => (
+                          <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="font-semibold">{session.time}</p>
+                            <p>Subject: {session.subject}</p>
+                          </div>
+                        )}
+                      </For>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </Show>
+          </Show>
+        </div>
+      </div>
     </div>
   );
 }

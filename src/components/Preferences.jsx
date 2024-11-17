@@ -132,77 +132,79 @@ function Preferences() {
   };
 
   return (
-    <div class="min-h-screen flex items-center justify-center text-white">
-      <div class="max-w-4xl w-full bg-white/80 rounded-lg p-6 shadow-lg">
-        <h2 class="text-2xl font-bold mb-4 text-black">Set Your Revision Preferences</h2>
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-xl font-semibold mb-2 text-black">Available Revision Times</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <For each={Object.keys(preferences().revisionTimes)}>
-                {(day) => (
-                  <div>
-                    <h4 class="font-semibold mb-1 capitalize text-black">{day}</h4>
-                    <div class="flex flex-wrap gap-2">
-                      <For each={timeSlots()}>
-                        {(time) => (
-                          <button
-                            class={`px-3 py-1 rounded-full cursor-pointer ${
-                              preferences().revisionTimes[day].includes(time)
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-300 text-gray-700'
-                            }`}
-                            onClick={() => handleTimeSelection(day, time)}
-                          >
-                            {time}
-                          </button>
-                        )}
-                      </For>
+    <div class="min-h-screen flex flex-col text-white">
+      <div class="flex-grow p-4 flex items-center justify-center">
+        <div class="w-full max-w-full sm:max-w-4xl bg-white/90 rounded-lg p-6 shadow-lg text-black">
+          <h2 class="text-2xl font-bold mb-4">Set Your Revision Preferences</h2>
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold mb-2">Available Revision Times</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <For each={Object.keys(preferences().revisionTimes)}>
+                  {(day) => (
+                    <div>
+                      <h4 class="font-semibold mb-1 capitalize">{day}</h4>
+                      <div class="flex flex-wrap gap-2">
+                        <For each={timeSlots()}>
+                          {(time) => (
+                            <button
+                              class={`px-3 py-1 rounded-full cursor-pointer ${
+                                preferences().revisionTimes[day].includes(time)
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-300 text-gray-700'
+                              }`}
+                              onClick={() => handleTimeSelection(day, time)}
+                            >
+                              {time}
+                            </button>
+                          )}
+                        </For>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </For>
+                  )}
+                </For>
+              </div>
             </div>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold mb-2 text-black">Session Duration</h3>
-            <select
-              value={preferences().sessionDuration}
-              onInput={handleDurationChange}
-              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
-            >
-              <For each={[30, 45, 60, 75, 90, 105, 120]}>
-                {(duration) => (
-                  <option value={duration}>
-                    {Math.floor(duration / 60)}h {duration % 60 !== 0 ? `${duration % 60}min` : ''}
-                  </option>
-                )}
-              </For>
-            </select>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold mb-2 text-black">Start Date</h3>
-            <input
-              type="date"
-              value={preferences().startDate}
-              onInput={handleStartDateChange}
-              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
-            />
-          </div>
-          <Show when={error()}>
-            <p class="text-red-500">{error()}</p>
-          </Show>
-          <button
-            class={`w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-              loading() ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            onClick={handleSavePreferences}
-            disabled={loading()}
-          >
-            <Show when={loading()} fallback="Save Preferences">
-              Saving...
+            <div>
+              <h3 class="text-xl font-semibold mb-2">Session Duration</h3>
+              <select
+                value={preferences().sessionDuration}
+                onInput={handleDurationChange}
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
+              >
+                <For each={[30, 45, 60, 75, 90, 105, 120]}>
+                  {(duration) => (
+                    <option value={duration}>
+                      {Math.floor(duration / 60)}h {duration % 60 !== 0 ? `${duration % 60}min` : ''}
+                    </option>
+                  )}
+                </For>
+              </select>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2">Start Date</h3>
+              <input
+                type="date"
+                value={preferences().startDate}
+                onInput={handleStartDateChange}
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
+              />
+            </div>
+            <Show when={error()}>
+              <p class="text-red-500">{error()}</p>
             </Show>
-          </button>
+            <button
+              class={`w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
+                loading() ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              onClick={handleSavePreferences}
+              disabled={loading()}
+            >
+              <Show when={loading()} fallback="Save Preferences">
+                Saving...
+              </Show>
+            </button>
+          </div>
         </div>
       </div>
     </div>

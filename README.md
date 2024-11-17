@@ -1,12 +1,12 @@
 # UpGrade
 
-UpGrade is a personalized revision timetable app designed to help students efficiently prepare for their school examinations. The app features a visually appealing design with a soothing vertical gradient background from deep blue (#004AAD) at the top to light blue (#5DE0E6) at the bottom, enhancing user experience.
+UpGrade is a personalized revision timetable app designed to help students efficiently prepare for their school examinations. The app features a clean, mobile-first design with a soothing vertical gradient background from deep blue (#004AAD) at the top to light blue (#5DE0E6) at the bottom, enhancing user experience.
 
 ## User Guide
 
 ### 1. **Landing Page**
 
-- When you first visit UpGrade, you are greeted with a welcoming **Landing Page** set against the gradient background.
+- When you first visit UpGrade, you are greeted with a welcoming **Landing Page** optimized for mobile devices.
 - **Welcome Message**:
   - A brief introduction to the app's purpose and benefits.
 - **Get Started**:
@@ -103,7 +103,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
-- **The app is fully responsive and optimized for all screen sizes, including mobile devices.**
+- **The app is fully responsive and optimized for all screen sizes, with a mobile-first design approach.**
 
 ---
 
