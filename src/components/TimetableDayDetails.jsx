@@ -3,12 +3,14 @@ import { supabase } from '../supabaseClient';
 import { useParams, useNavigate } from '@solidjs/router';
 import * as Sentry from '@sentry/browser';
 import { format, parseISO } from 'date-fns';
+import { useTimetable } from '../contexts/TimetableContext';
 
 function TimetableDayDetails() {
+  const { timetable, exams } = useTimetable();
   const params = useParams();
   const navigate = useNavigate();
   const [sessions, setSessions] = createSignal([]);
-  const [exams, setExams] = createSignal([]);
+  const [dayExams, setDayExams] = createSignal([]);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const dateKey = params.date; // e.g., '2023-10-03'
@@ -17,63 +19,24 @@ function TimetableDayDetails() {
     fetchDayDetails();
   });
 
-  const fetchDayDetails = async () => {
+  const fetchDayDetails = () => {
     setLoading(true);
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      // Fetch timetable data
-      const responseTimetable = await fetch('/api/getTimetable', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
+      // Get day's sessions from timetable
+      const dayData = timetable() ? timetable()[dateKey] : null;
+      const daySessions = dayData ? dayData.sessions : [];
+      // Sort sessions by time
+      daySessions.sort((a, b) => {
+        const [hourA, minuteA] = a.time.split(':').map(Number);
+        const [hourB, minuteB] = b.time.split(':').map(Number);
+        return hourA * 60 + minuteA - (hourB * 60 + minuteB);
       });
+      setSessions(daySessions);
 
-      let daySessions = [];
-      if (responseTimetable.ok) {
-        const { data } = await responseTimetable.json();
-        if (data) {
-          const dayData = data.find((day) => day.date === dateKey);
-          daySessions = dayData ? dayData.sessions : [];
-
-          // Sort daySessions by time (earliest first)
-          daySessions.sort((a, b) => {
-            const [hourA, minuteA] = a.time.split(':').map(Number);
-            const [hourB, minuteB] = b.time.split(':').map(Number);
-            return (hourA * 60 + minuteA) - (hourB * 60 + minuteB);
-          });
-
-          setSessions(daySessions);
-        } else {
-          setError('No timetable data found.');
-        }
-      } else {
-        const errorText = await responseTimetable.text();
-        throw new Error(errorText || 'Error fetching timetable');
-      }
-
-      // Fetch exams data
-      const responseExams = await fetch('/api/getExams', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      let dayExams = [];
-      if (responseExams.ok) {
-        const { data } = await responseExams.json();
-        if (data) {
-          dayExams = data.filter((exam) => exam.examDate === dateKey);
-          setExams(dayExams);
-        }
-      } else {
-        const errorText = await responseExams.text();
-        throw new Error(errorText || 'Error fetching exams');
-      }
+      // Get day's exams from exams data
+      const examsData = exams();
+      const filteredExams = examsData.filter((exam) => exam.examDate === dateKey);
+      setDayExams(filteredExams);
     } catch (error) {
       console.error('Error fetching day details:', error);
       setError(error.message);
@@ -108,10 +71,10 @@ function TimetableDayDetails() {
           </Show>
           <Show when={!loading() && !error()}>
             {/* Exams */}
-            <Show when={exams().length > 0}>
+            <Show when={dayExams().length > 0}>
               <h3 class="text-xl font-semibold mb-2">Exams:</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <For each={exams()}>
+                <For each={dayExams()}>
                   {(exam) => (
                     <div class="bg-red-600 p-4 rounded-lg">
                       <p class="font-semibold">Subject: {exam.subject}</p>
@@ -136,7 +99,7 @@ function TimetableDayDetails() {
                 </For>
               </div>
             </Show>
-            <Show when={exams().length === 0 && sessions().length === 0}>
+            <Show when={dayExams().length === 0 && sessions().length === 0}>
               <p>No exams or sessions scheduled for this day.</p>
             </Show>
           </Show>

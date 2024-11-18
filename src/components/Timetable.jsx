@@ -1,4 +1,4 @@
-import { createSignal, onMount, For, Show } from 'solid-js';
+import { createSignal, onMount, For, Show, createMemo } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 import {
@@ -15,90 +15,30 @@ import {
 import { Icon } from 'solid-heroicons';
 import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
 import { useNavigate, useSearchParams } from '@solidjs/router';
+import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
+  const { timetable, exams } = useTimetable();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [timetable, setTimetable] = createSignal({});
-  const [exams, setExams] = createSignal([]);
-  const [examsByDate, setExamsByDate] = createSignal({});
-  const [loading, setLoading] = createSignal(false);
+  const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
 
-  const fetchSavedTimetable = async () => {
-    setLoading(true);
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const response = await fetch('/api/getTimetable', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const { data } = await response.json();
-        if (data) {
-          const timetableData = {};
-          data.forEach((day) => {
-            timetableData[day.date] = day;
-          });
-          setTimetable(timetableData);
-        } else {
-          setError('No timetable data found.');
-        }
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error fetching timetable');
+  const examsByDate = createMemo(() => {
+    const examsData = exams();
+    const examsByDateMap = {};
+    examsData.forEach((exam) => {
+      const examDate = exam.examDate; // Assuming examDate is in 'YYYY-MM-DD' format
+      if (!examsByDateMap[examDate]) {
+        examsByDateMap[examDate] = [];
       }
-    } catch (error) {
-      console.error('Error fetching timetable:', error);
-      setError(error.message);
-      Sentry.captureException(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      examsByDateMap[examDate].push(exam);
+    });
+    return examsByDateMap;
+  });
 
-  const fetchExams = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch('/api/getExams', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.ok) {
-        const { data } = await response.json();
-        if (data) {
-          setExams(data);
-          // Process exams data into examsByDate
-          const examsByDateMap = {};
-          data.forEach((exam) => {
-            const examDate = exam.examDate; // Assuming examDate is in 'YYYY-MM-DD' format
-            if (!examsByDateMap[examDate]) {
-              examsByDateMap[examDate] = [];
-            }
-            examsByDateMap[examDate].push(exam);
-          });
-          setExamsByDate(examsByDateMap);
-        }
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error fetching exams');
-      }
-    } catch (error) {
-      console.error('Error fetching exams:', error);
-      Sentry.captureException(error);
-    }
-  };
-
-  const getCalendarDays = () => {
+  const getCalendarDays = createMemo(() => {
     const startDate = startOfMonth(currentMonth());
     const endDate = endOfMonth(currentMonth());
     const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -128,7 +68,7 @@ function Timetable() {
     }
 
     return weeks;
-  };
+  });
 
   const handlePrevMonth = () => {
     setCurrentMonth(subMonths(currentMonth(), 1));
@@ -149,8 +89,7 @@ function Timetable() {
       const date = parseISO(dateParam);
       setCurrentMonth(startOfMonth(date));
     }
-    fetchSavedTimetable();
-    fetchExams();
+    setLoading(false);
   });
 
   return (
@@ -183,7 +122,6 @@ function Timetable() {
                           const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
                           const hasExam = dateKey && examsByDate()[dateKey];
                           const isToday = day && isSameDay(day, new Date());
-                          const isSelectedDay = false; // No longer needed
                           let bgClass = '';
                           if (hasExam) {
                             bgClass = 'bg-red-500 text-white';
