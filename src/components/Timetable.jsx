@@ -1,13 +1,26 @@
+```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
-import { useSearchParams } from '@solidjs/router';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  getDay,
+  addMonths,
+  subMonths,
+  isSameDay,
+  parseISO,
+} from 'date-fns';
 
 function Timetable() {
-  const [timetable, setTimetable] = createSignal([]);
+  const [timetable, setTimetable] = createSignal({});
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [currentMonth, setCurrentMonth] = createSignal(new Date());
+  const [selectedDate, setSelectedDate] = createSignal(null);
+  const [sessionsForSelectedDate, setSessionsForSelectedDate] = createSignal([]);
 
   const fetchSavedTimetable = async () => {
     setLoading(true);
@@ -27,10 +40,14 @@ function Timetable() {
       if (response.ok) {
         const { data } = await response.json();
         if (data) {
-          setTimetable(data);
+          // Transform timetable into a date-keyed object for easy access
+          const timetableData = {};
+          data.forEach((day) => {
+            timetableData[day.date] = day;
+          });
+          setTimetable(timetableData);
         } else {
-          // If no saved timetable, generate a new one
-          await generateAndSaveTimetable();
+          setError('No timetable data found.');
         }
       } else {
         const errorText = await response.text();
@@ -45,172 +62,58 @@ function Timetable() {
     }
   };
 
-  const generateAndSaveTimetable = async () => {
-    try {
-      setLoading(true);
-      // Generate the timetable
-      const generatedTimetable = await generateTimetable();
-      setTimetable(generatedTimetable);
+  const getCalendarDays = () => {
+    const startDate = startOfMonth(currentMonth());
+    const endDate = endOfMonth(currentMonth());
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+    const weeks = [];
+    let week = [];
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    let firstDayOfWeek = getDay(startDate); // 0 (Sunday) to 6 (Saturday)
+    // Adjust so that week starts on Monday (1) instead of Sunday (0)
+    firstDayOfWeek = (firstDayOfWeek + 6) % 7;
 
-      // Save the generated timetable
-      const response = await fetch('/api/saveTimetable', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: generatedTimetable }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error saving timetable');
-      }
-    } catch (error) {
-      console.error('Error generating and saving timetable:', error);
-      setError(error.message);
-      Sentry.captureException(error);
-    } finally {
-      setLoading(false);
+    // Add empty days at the start of the first week
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      week.push(null);
     }
+
+    days.forEach((day) => {
+      if (week.length === 7) {
+        weeks.push(week);
+        week = [];
+      }
+      week.push(day);
+    });
+
+    // Add empty days at the end of the last week
+    if (week.length > 0) {
+      while (week.length < 7) {
+        week.push(null);
+      }
+      weeks.push(week);
+    }
+
+    return weeks;
   };
 
-  const generateTimetable = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      // Fetch preferences
-      let preferencesData = null;
-      let response = await fetch('/api/getPreferences', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const { data } = await response.json();
-        preferencesData = data;
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error fetching preferences');
-      }
-
-      // Fetch exams
-      let examsData = null;
-      response = await fetch('/api/getExams', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const { data } = await response.json();
-        examsData = data;
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error fetching exams');
-      }
-
-      // Generate timetable logic
-      const generatedTimetable = await generateTimetableLogic(
-        preferencesData,
-        examsData
-      );
-      return generatedTimetable;
-    } catch (error) {
-      console.error('Error generating timetable:', error);
-      setError(error.message);
-      Sentry.captureException(error);
-      setLoading(false);
-    }
+  const handlePrevMonth = () => {
+    setCurrentMonth(subMonths(currentMonth(), 1));
   };
 
-  const generateTimetableLogic = (preferences, exams) => {
-    const startDate = new Date(preferences.startDate);
-    const endDate = new Date(
-      exams.reduce(
-        (latest, exam) =>
-          new Date(exam.examDate) > new Date(latest) ? exam.examDate : latest,
-        exams[0].examDate
-      )
-    );
-    const days = Math.ceil(
-      (endDate - startDate) / (1000 * 60 * 60 * 24)
-    );
-    const timetable = [];
+  const handleNextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth(), 1));
+  };
 
-    for (let i = 0; i <= days; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(currentDate.getDate() + i);
-      const dayName = currentDate
-        .toLocaleDateString('en-US', { weekday: 'long' })
-        .toLowerCase();
-      const dateString = currentDate.toISOString().split('T')[0];
-
-      // Check for exams on this date
-      const examsToday = exams.filter((exam) => exam.examDate === dateString);
-
-      // Skip revision on exam days
-      if (examsToday.length) {
-        timetable.push({
-          date: dateString,
-          sessions: [],
-          exams: examsToday.map((exam) => exam.subject),
-        });
-        continue;
-      }
-
-      // Get available times for this day
-      const daySlots = preferences.revisionTimes[dayName];
-      // Skip if no available times
-      if (!daySlots.length) continue;
-
-      // Filter out subjects whose exams have already passed
-      const subjects = exams
-        .filter((exam) => new Date(exam.examDate) >= currentDate)
-        .map((exam) => exam.subject);
-
-      if (!subjects.length) continue;
-
-      // Allocate revision sessions
-      const sessions = [];
-
-      // Evenly distribute subjects
-      let subjectIndex = 0;
-      daySlots.forEach((slot) => {
-        const subject = subjects[subjectIndex % subjects.length];
-        sessions.push({
-          time: slot,
-          subject,
-        });
-        subjectIndex++;
-      });
-
-      timetable.push({
-        date: dateString,
-        sessions,
-        exams: [],
-      });
-    }
-
-    return timetable;
+  const handleDateClick = (day) => {
+    setSelectedDate(day);
+    const dateKey = format(day, 'yyyy-MM-dd');
+    const dayData = timetable()[dateKey];
+    setSessionsForSelectedDate(dayData ? dayData.sessions : []);
   };
 
   onMount(() => {
-    if (searchParams.regenerate === 'true') {
-      generateAndSaveTimetable();
-      setSearchParams({ regenerate: undefined }); // Remove the parameter from the URL
-    } else {
-      fetchSavedTimetable();
-    }
+    fetchSavedTimetable();
   });
 
   return (
@@ -218,44 +121,102 @@ function Timetable() {
       <div class="flex-grow p-4">
         <div class="w-full max-w-full sm:max-w-6xl mx-auto">
           <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
-          <button
-            class={`w-full px-6 py-3 mb-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-              loading() ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            onClick={generateAndSaveTimetable}
-            disabled={loading()}
-          >
-            <Show when={loading()} fallback="Generate New Timetable">
-              Generating...
-            </Show>
-          </button>
-          <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
-            <Show
-              when={!error()}
-              fallback={<p class="text-red-500">{error()}</p>}
+          <div class="flex justify-between items-center mb-4">
+            <button
+              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={handlePrevMonth}
             >
-              <For each={timetable()}>
-                {(day) => (
-                  <div class="mb-6">
-                    <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
-                    <Show when={day.exams.length}>
-                      <p class="text-red-500">
-                        Exam Day: {day.exams.join(', ')}
-                      </p>
-                    </Show>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <For each={day.sessions}>
-                        {(session) => (
-                          <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="font-semibold">{session.time}</p>
-                            <p>Subject: {session.subject}</p>
+              Previous
+            </button>
+            <h3 class="text-xl font-semibold">
+              {format(currentMonth(), 'MMMM yyyy')}
+            </h3>
+            <button
+              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={handleNextMonth}
+            >
+              Next
+            </button>
+          </div>
+          <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
+            <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
+              <div class="grid grid-cols-7 gap-2">
+                <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
+                  {(dayName) => (
+                    <div class="text-center font-semibold">{dayName}</div>
+                  )}
+                </For>
+                <For each={getCalendarDays()}>
+                  {(week) =>
+                    week.map((day) => (
+                      <div
+                        class={`h-20 p-1 border border-gray-500 rounded-lg ${
+                          day ? 'cursor-pointer' : ''
+                        } ${
+                          day &&
+                          isSameDay(day, new Date()) &&
+                          'bg-blue-700 text-white'
+                        } ${
+                          day && timetable()[format(day, 'yyyy-MM-dd')]?.exams.length
+                            ? 'bg-red-500 text-white'
+                            : 'bg-gray-800'
+                        } hover:bg-blue-600 transition duration-200 ease-in-out`}
+                        onClick={() => day && handleDateClick(day)}
+                      >
+                        <Show when={day}>
+                          <div class="flex flex-col h-full">
+                            <div class="text-right">{format(day, 'd')}</div>
+                            <div class="flex-grow overflow-hidden">
+                              <For
+                                each={
+                                  timetable()[format(day, 'yyyy-MM-dd')]?.sessions ||
+                                  []
+                                }
+                              >
+                                {(session) => (
+                                  <div class="text-xs bg-green-500 text-black rounded px-1 truncate">
+                                    {session.subject}
+                                  </div>
+                                )}
+                              </For>
+                              <Show
+                                when={
+                                  timetable()[format(day, 'yyyy-MM-dd')]?.exams
+                                    .length
+                                }
+                              >
+                                <div class="text-xs bg-red-700 text-white rounded px-1 mt-1">
+                                  Exam Day
+                                </div>
+                              </Show>
+                            </div>
                           </div>
-                        )}
-                      </For>
-                    </div>
+                        </Show>
+                      </div>
+                    ))
+                  }
+                </For>
+              </div>
+              <Show when={selectedDate()}>
+                <div class="mt-6">
+                  <h3 class="text-xl font-semibold mb-2">
+                    Sessions on {format(selectedDate(), 'MMMM d, yyyy')}
+                  </h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <For each={sessionsForSelectedDate()}>
+                      {(session) => (
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                          <p class="font-semibold">Time: {session.time}</p>
+                          <p>Subject: {session.subject}</p>
+                        </div>
+                      )}
+                    </For>
+                    <Show when={sessionsForSelectedDate().length === 0}>
+                      <p>No sessions scheduled for this day.</p>
+                    </Show>
                   </div>
-                )}
-              </For>
+                </div>
+              </Show>
             </Show>
           </Show>
         </div>
@@ -265,3 +226,4 @@ function Timetable() {
 }
 
 export default Timetable;
+```

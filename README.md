@@ -54,15 +54,20 @@ UpGrade is a personalized revision timetable app designed to help students effic
 ### 5. **View Your Timetable**
 
 - Navigate to the **Timetable** page using the navigation links at the top.
-- **Revision Timetable**:
-  - View your timetable presented as a calendar.
-  - Each day displays scheduled revision sessions based on your preferences and exams.
-  - **Session Details**:
-    - Time slots you've set as available.
-    - Subjects allocated for each session.
-  - **Exam Days**:
-    - Exam dates are highlighted and marked clearly.
-    - No revision sessions are scheduled on exam days.
+- **Grid-like Calendar View**:
+  - The timetable is displayed as a traditional monthly calendar grid.
+  - Each day in the calendar shows the date and any scheduled revision sessions.
+- **Navigating the Calendar**:
+  - Use the **Previous** and **Next** buttons to navigate between months.
+  - The current month and year are displayed at the top of the calendar.
+- **Viewing Scheduled Sessions**:
+  - Click on any date to view detailed information about the revision sessions scheduled for that day.
+  - A list of sessions will appear below the calendar, showing the time and subject for each session.
+  - If no sessions are scheduled for a selected date, a message will indicate that.
+- **Exam Days**:
+  - Exam dates are highlighted and marked clearly in the calendar.
+  - **Exam Day** labels are displayed on dates with exams.
+  - No revision sessions are scheduled on exam days.
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
   - **Subjects are not scheduled after their exam date**.
