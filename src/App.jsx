@@ -45,11 +45,25 @@ function App() {
   };
 
   const ProtectedRoute = (Component) => {
+    const [menuOpen, setMenuOpen] = createSignal(false);
+
     return (
       <div class="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
-        <header class="flex flex-col sm:flex-row items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 p-4">
+        <header class="flex items-center justify-between mb-8 p-4">
           <h1 class="text-4xl font-bold">UpGrade</h1>
-          <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div class="sm:hidden">
+            <button
+              class="text-white cursor-pointer focus:outline-none"
+              onClick={() => setMenuOpen(!menuOpen())}
+            >
+              &#9776;
+            </button>
+          </div>
+          <div
+            class={`${
+              menuOpen() ? 'flex' : 'hidden'
+            } sm:flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4`}
+          >
             <nav class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <Link
                 href="/preferences"

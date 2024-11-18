@@ -199,7 +199,7 @@ function Timetable() {
                 </For>
               </div>
               {/* Navigation Buttons */}
-              <div class="flex items-center justify-center mt-4 space-x-4">
+              <div class="flex items-center justify-between mt-4 w-full">
                 <button
                   class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
                   onClick={handlePrevMonth}
