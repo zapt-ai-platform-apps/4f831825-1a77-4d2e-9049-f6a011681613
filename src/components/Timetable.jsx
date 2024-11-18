@@ -1,11 +1,14 @@
+```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
+import { useSearchParams } from '@solidjs/router';
 
 function Timetable() {
   const [timetable, setTimetable] = createSignal([]);
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchSavedTimetable = async () => {
     setLoading(true);
@@ -186,7 +189,12 @@ function Timetable() {
   };
 
   onMount(() => {
-    fetchSavedTimetable();
+    if (searchParams.regenerate === 'true') {
+      generateAndSaveTimetable();
+      setSearchParams({ regenerate: undefined }); // Remove the parameter from the URL
+    } else {
+      fetchSavedTimetable();
+    }
   });
 
   return (
@@ -194,6 +202,17 @@ function Timetable() {
       <div class="flex-grow p-4">
         <div class="w-full max-w-full sm:max-w-6xl mx-auto">
           <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
+          <button
+            class={`w-full px-6 py-3 mb-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
+              loading() ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            onClick={generateAndSaveTimetable}
+            disabled={loading()}
+          >
+            <Show when={loading()} fallback="Generate New Timetable">
+              Generating...
+            </Show>
+          </button>
           <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
             <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
               <For each={timetable()}>
@@ -225,3 +244,4 @@ function Timetable() {
 }
 
 export default Timetable;
+```

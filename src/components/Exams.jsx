@@ -1,3 +1,4 @@
+```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '../supabaseClient';
@@ -117,7 +118,7 @@ function Exams() {
   };
 
   const handleNext = () => {
-    navigate('/timetable');
+    navigate('/timetable?regenerate=true');
   };
 
   return (
@@ -213,3 +214,4 @@ function Exams() {
 }
 
 export default Exams;
+```
