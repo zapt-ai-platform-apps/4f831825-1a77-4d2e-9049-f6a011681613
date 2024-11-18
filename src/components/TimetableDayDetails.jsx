@@ -40,7 +40,11 @@ function TimetableDayDetails() {
           daySessions = dayData ? dayData.sessions : [];
 
           // Sort daySessions by time (earliest first)
-          daySessions.sort((a, b) => a.time.localeCompare(b.time));
+          daySessions.sort((a, b) => {
+            const [hourA, minuteA] = a.time.split(':').map(Number);
+            const [hourB, minuteB] = b.time.split(':').map(Number);
+            return (hourA * 60 + minuteA) - (hourB * 60 + minuteB);
+          });
 
           setSessions(daySessions);
         } else {
