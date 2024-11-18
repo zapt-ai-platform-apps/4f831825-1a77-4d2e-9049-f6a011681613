@@ -1,5 +1,6 @@
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/browser';
 
 function Timetable() {
   const [timetable, setTimetable] = createSignal([]);
@@ -34,6 +35,7 @@ function Timetable() {
     } catch (error) {
       console.error('Error fetching timetable:', error);
       setError(error.message);
+      Sentry.captureException(error);
     } finally {
       setLoading(false);
     }
@@ -65,6 +67,7 @@ function Timetable() {
     } catch (error) {
       console.error('Error generating and saving timetable:', error);
       setError(error.message);
+      Sentry.captureException(error);
     } finally {
       setLoading(false);
     }
@@ -114,6 +117,7 @@ function Timetable() {
     } catch (error) {
       console.error('Error generating timetable:', error);
       setError(error.message);
+      Sentry.captureException(error);
       setLoading(false);
     }
   };

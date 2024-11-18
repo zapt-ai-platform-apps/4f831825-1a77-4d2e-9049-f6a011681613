@@ -1,0 +1,1 @@
+SELECT setval(pg_get_serial_sequence('exams', 'id'), COALESCE((SELECT MAX(id) FROM exams), 0) + 1);

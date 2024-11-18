@@ -1,6 +1,7 @@
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/browser';
 
 function Exams() {
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ function Exams() {
       }
     } catch (error) {
       console.error('Error fetching exams:', error);
+      Sentry.captureException(error);
     } finally {
       setLoading(false);
     }
@@ -79,6 +81,7 @@ function Exams() {
       }
     } catch (error) {
       console.error('Error adding exam:', error);
+      Sentry.captureException(error);
     } finally {
       setLoading(false);
     }
@@ -107,6 +110,7 @@ function Exams() {
       }
     } catch (error) {
       console.error('Error deleting exam:', error);
+      Sentry.captureException(error);
     } finally {
       setLoading(false);
     }
