@@ -58,20 +58,17 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Responsive Calendar View**:
   - The timetable is displayed as a traditional monthly calendar grid optimized for mobile devices.
   - Each day in the calendar shows the date.
+- **Exam Day Highlighting**:
+  - Days that have scheduled exams are highlighted on the calendar grid for easy identification.
 - **Navigating the Calendar**:
-  - Use the **Previous** and **Next** buttons to navigate between months.
+  - Use the **Previous** and **Next** buttons located below the calendar to navigate between months.
   - The current month and year are displayed at the top of the calendar.
-- **Viewing Scheduled Sessions**:
-  - Click on any date to view detailed information about the revision sessions scheduled for that day.
-  - A list of sessions will appear below the calendar, showing the time and subject for each session.
-  - If no sessions are scheduled for a selected date, a message will indicate that.
+- **Viewing Scheduled Exams and Sessions**:
+  - Click on any date to view detailed information about the exams and revision sessions scheduled for that day.
+  - A list of exams and sessions will appear below the calendar, showing relevant details.
+  - If no exams or sessions are scheduled for a selected date, a message will indicate that.
 - **Exams and Sessions Visibility**:
-  - **Sessions and exams are not displayed on the calendar grid** until you click on a specific date.
-  - This ensures a clean and uncluttered calendar, especially on mobile devices.
-- **Exam Days**:
-  - Exam dates are stored in the system but not highlighted on the calendar grid.
-  - You can view exams scheduled for a day by clicking on that date.
-  - No revision sessions are scheduled on exam days.
+  - **Exams and sessions are displayed when you click on a specific date**, allowing for a clean and uncluttered calendar view.
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
   - **Subjects are not scheduled after their exam date**.
