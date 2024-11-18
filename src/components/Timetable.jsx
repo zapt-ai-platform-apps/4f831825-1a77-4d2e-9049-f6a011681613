@@ -114,7 +114,7 @@ function Timetable() {
       <div class="flex-grow p-4">
         <div class="w-full max-w-full sm:max-w-6xl mx-auto">
           <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center justify-center mb-4 space-x-4">
             <button
               class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handlePrevMonth}
@@ -131,7 +131,7 @@ function Timetable() {
           </div>
           <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
             <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-              <div class="grid grid-cols-7 gap-2">
+              <div class="grid grid-cols-7 gap-1">
                 <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
                   {(dayName) => (
                     <div class="text-center font-semibold">{dayName}</div>
@@ -141,20 +141,19 @@ function Timetable() {
                   {(week) =>
                     week.map((day) => (
                       <div
-                        class={`h-16 sm:h-20 p-1 border border-gray-500 rounded-lg ${
+                        class={`aspect-square ${
                           day ? 'cursor-pointer' : ''
                         } ${
-                          day &&
-                          isSameDay(day, new Date()) &&
-                          'bg-blue-700 text-white'
-                        } bg-gray-800 hover:bg-blue-600 transition duration-200 ease-in-out`}
+                          day && isSameDay(day, new Date())
+                            ? 'bg-blue-700 text-white'
+                            : 'bg-transparent text-white'
+                        } border border-white ${
+                          day ? 'hover:bg-blue-600' : ''
+                        } rounded-lg transition duration-200 ease-in-out flex items-center justify-center`}
                         onClick={() => day && handleDateClick(day)}
                       >
                         <Show when={day}>
-                          <div class="flex flex-col h-full">
-                            <div class="text-right">{format(day, 'd')}</div>
-                            {/* You can add a dot or indicator here if needed */}
-                          </div>
+                          <div>{format(day, 'd')}</div>
                         </Show>
                       </div>
                     ))
