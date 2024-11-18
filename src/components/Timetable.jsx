@@ -1,4 +1,3 @@
-```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -226,4 +225,3 @@ function Timetable() {
 }
 
 export default Timetable;
-```
