@@ -8,6 +8,7 @@ import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
 import TimetableDayDetails from './components/TimetableDayDetails';
+import * as Sentry from "@sentry/browser";
 
 function App() {
   const [user, setUser] = createSignal(null);
@@ -109,7 +110,7 @@ function App() {
     navigate('/login');
   };
 
-  const ProtectedRoute = (Component) => {
+  const ProtectedRoute = (props) => {
     const [menuOpen, setMenuOpen] = createSignal(false);
 
     return (
@@ -204,7 +205,7 @@ function App() {
             </div>
           </Show>
           <main class="flex-grow p-4 flex items-center justify-center">
-            {Component}
+            {props.children}
           </main>
         </div>
       </TimetableProvider>
@@ -218,19 +219,43 @@ function App() {
         <Route path="/login" component={Login} />
         <Route
           path="/preferences"
-          element={user() ? ProtectedRoute(<Preferences />) : <Login />}
+          element={user() ? (
+            <ProtectedRoute>
+              <Preferences />
+            </ProtectedRoute>
+          ) : (
+            <Login />
+          )}
         />
         <Route
           path="/exams"
-          element={user() ? ProtectedRoute(<Exams />) : <Login />}
+          element={user() ? (
+            <ProtectedRoute>
+              <Exams />
+            </ProtectedRoute>
+          ) : (
+            <Login />
+          )}
         />
         <Route
           path="/timetable"
-          element={user() ? ProtectedRoute(<Timetable />) : <Login />}
+          element={user() ? (
+            <ProtectedRoute>
+              <Timetable />
+            </ProtectedRoute>
+          ) : (
+            <Login />
+          )}
         />
         <Route
           path="/timetable/:date"
-          element={user() ? ProtectedRoute(<TimetableDayDetails />) : <Login />}
+          element={user() ? (
+            <ProtectedRoute>
+              <TimetableDayDetails />
+            </ProtectedRoute>
+          ) : (
+            <Login />
+          )}
         />
         <Route path="*" element={<LandingPage />} />
       </Routes>
