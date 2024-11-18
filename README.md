@@ -55,9 +55,13 @@ UpGrade is a personalized revision timetable app designed to help students effic
 ### 5. **View Your Timetable**
 
 - Navigate to the **Timetable** page using the navigation links at the top.
+- **Generate Timetable**:
+  - If you have added exams and set your preferences, click **Generate Timetable** to create your revision schedule.
 - **Responsive Calendar View**:
   - The timetable is displayed as a traditional monthly calendar grid optimized for all devices.
   - Each day in the calendar shows the date.
+  - Days with scheduled **exams** are highlighted in **red**.
+  - Days with scheduled **revision sessions** are highlighted in **green**.
   - A message prompts you to select a day on the timetable to view its details.
 - **Selected Date Navigation**:
   - When you click on a date, you are taken to a new screen that shows the exams and revision sessions scheduled for that day.
@@ -73,7 +77,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - Revision sessions are evenly distributed among all your subjects.
   - **Subjects are not scheduled after their exam date**.
 - **Automatic Timetable Generation**:
-  - The timetable is automatically generated based on your preferences and exams.
+  - The timetable is generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 - **Fixed Calendar Width**:
   - The calendar maintains a consistent width across different devices, ensuring a stable and user-friendly interface.
@@ -120,6 +124,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **The navigation menu on mobile devices opens in a modal for better accessibility and user experience.**
 - **Selecting a date on the timetable now takes you to a new screen displaying the details for that day, with an easy option to return to the main timetable.**
 - **When you navigate back from a day's details, the timetable will retain the month you were viewing, rather than resetting to the current month.**
+- **Revision sessions are now displayed on the timetable, and days with scheduled sessions are highlighted.**
 
 ---
 

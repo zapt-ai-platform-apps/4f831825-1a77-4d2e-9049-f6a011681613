@@ -18,7 +18,7 @@ import { useNavigate, useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
-  const { timetable, exams } = useTimetable();
+  const { timetable, setTimetable, exams } = useTimetable();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
@@ -89,8 +89,78 @@ function Timetable() {
       const date = parseISO(dateParam);
       setCurrentMonth(startOfMonth(date));
     }
-    setLoading(false);
+
+    const regenerate = searchParams.regenerate === 'true';
+    if (regenerate) {
+      generateAndFetchTimetable();
+    } else {
+      fetchTimetable();
+    }
   });
+
+  const fetchTimetable = async () => {
+    setLoading(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/getTimetable', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        const { data } = await response.json();
+        if (data) {
+          const timetableData = {};
+          data.forEach((day) => {
+            timetableData[day.date] = day;
+          });
+          setTimetable(timetableData);
+        }
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching timetable');
+      }
+    } catch (error) {
+      console.error('Error fetching timetable:', error);
+      Sentry.captureException(error);
+      setError(error.message || 'Error fetching timetable');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateAndFetchTimetable = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Call /api/generateTimetable
+      const generateResponse = await fetch('/api/generateTimetable', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      if (generateResponse.ok) {
+        // Successfully generated timetable, now fetch it
+        await fetchTimetable();
+      } else {
+        const errorText = await generateResponse.text();
+        throw new Error(errorText || 'Error generating timetable');
+      }
+    } catch (error) {
+      console.error('Error generating timetable:', error);
+      Sentry.captureException(error);
+      setError(error.message || 'Error generating timetable');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div class="h-full flex flex-col text-white">
@@ -121,10 +191,13 @@ function Timetable() {
                         week.map((day) => {
                           const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
                           const hasExam = dateKey && examsByDate()[dateKey];
+                          const hasSession = dateKey && timetable()[dateKey] && timetable()[dateKey].sessions.length > 0;
                           const isToday = day && isSameDay(day, new Date());
                           let bgClass = '';
                           if (hasExam) {
                             bgClass = 'bg-red-500 text-white';
+                          } else if (hasSession) {
+                            bgClass = 'bg-green-500 text-white';
                           } else if (isToday) {
                             bgClass = 'bg-blue-700 text-white';
                           } else {
