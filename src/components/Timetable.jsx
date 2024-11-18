@@ -11,6 +11,8 @@ import {
   subMonths,
   isSameDay,
 } from 'date-fns';
+import { Icon } from 'solid-heroicons';
+import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
 
 function Timetable() {
   const [timetable, setTimetable] = createSignal({});
@@ -155,9 +157,10 @@ function Timetable() {
         <div class="w-full max-w-4xl mx-auto">
           <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
           {/* Month and Year */}
-          <div class="mb-4">
+          <div class="mb-2">
             <h3 class="text-xl font-semibold text-center">{format(currentMonth(), 'MMMM yyyy')}</h3>
           </div>
+          <p class="text-center mb-4">Please select a day on the timetable to view its details.</p>
           {/* Calendar Container */}
           <div class="w-full flex justify-center">
             <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
@@ -216,16 +219,18 @@ function Timetable() {
           {/* Navigation Buttons */}
           <div class="flex items-center justify-between mt-4 w-full sm:w-96 md:w-[32rem] lg:w-[36rem] mx-auto">
             <button
-              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              class="flex items-center px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handlePrevMonth}
             >
-              Previous
+              <Icon path={chevronLeft} class="w-6 h-6 inline-block" />
+              <span class="ml-1">Previous</span>
             </button>
             <button
-              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              class="flex items-center px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handleNextMonth}
             >
-              Next
+              <span class="mr-1">Next</span>
+              <Icon path={chevronRight} class="w-6 h-6 inline-block" />
             </button>
           </div>
           {/* Details for Selected Date */}
