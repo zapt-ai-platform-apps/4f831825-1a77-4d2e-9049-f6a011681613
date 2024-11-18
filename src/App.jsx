@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
+import TimetableDayDetails from './components/TimetableDayDetails';
 
 function App() {
   const [user, setUser] = createSignal(null);
@@ -54,47 +55,89 @@ function App() {
           <div class="sm:hidden">
             <button
               class="text-white cursor-pointer focus:outline-none"
-              onClick={() => setMenuOpen(!menuOpen())}
+              onClick={() => setMenuOpen(true)}
             >
               &#9776;
             </button>
           </div>
-          <div
-            class={`${
-              menuOpen() ? 'flex' : 'hidden'
-            } sm:flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4`}
-          >
-            <nav class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              <Link
-                href="/preferences"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/preferences' }}
-              >
-                Preferences
-              </Link>
-              <Link
-                href="/exams"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/exams' }}
-              >
-                Exams
-              </Link>
-              <Link
-                href="/timetable"
-                class="hover:underline cursor-pointer"
-                classList={{ 'font-bold': location.pathname === '/timetable' }}
-              >
-                Timetable
-              </Link>
-            </nav>
+          <nav class="hidden sm:flex space-x-4">
+            <Link
+              href="/preferences"
+              class="hover:underline cursor-pointer"
+              classList={{ 'font-bold': location.pathname === '/preferences' }}
+            >
+              Preferences
+            </Link>
+            <Link
+              href="/exams"
+              class="hover:underline cursor-pointer"
+              classList={{ 'font-bold': location.pathname === '/exams' }}
+            >
+              Exams
+            </Link>
+            <Link
+              href="/timetable"
+              class="hover:underline cursor-pointer"
+              classList={{ 'font-bold': location.pathname === '/timetable' }}
+            >
+              Timetable
+            </Link>
             <button
               class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handleSignOut}
             >
               Sign Out
             </button>
-          </div>
+          </nav>
         </header>
+        {/* Mobile Menu Modal */}
+        <Show when={menuOpen()}>
+          <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-3/4 max-w-xs relative">
+              <button
+                class="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+                onClick={() => setMenuOpen(false)}
+              >
+                &times;
+              </button>
+              <nav class="flex flex-col space-y-4">
+                <Link
+                  href="/preferences"
+                  class="text-xl text-blue-600 hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/preferences' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Preferences
+                </Link>
+                <Link
+                  href="/exams"
+                  class="text-xl text-blue-600 hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/exams' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Exams
+                </Link>
+                <Link
+                  href="/timetable"
+                  class="text-xl text-blue-600 hover:underline cursor-pointer"
+                  classList={{ 'font-bold': location.pathname === '/timetable' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Timetable
+                </Link>
+                <button
+                  class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+                  onClick={() => {
+                    handleSignOut();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </button>
+              </nav>
+            </div>
+          </div>
+        </Show>
         <main class="flex-grow p-4 flex items-center justify-center">
           {Component}
         </main>
@@ -118,6 +161,10 @@ function App() {
         <Route
           path="/timetable"
           element={user() ? ProtectedRoute(<Timetable />) : <Login />}
+        />
+        <Route
+          path="/timetable/:date"
+          element={user() ? ProtectedRoute(<TimetableDayDetails />) : <Login />}
         />
         <Route path="*" element={<LandingPage />} />
       </Routes>

@@ -56,22 +56,18 @@ UpGrade is a personalized revision timetable app designed to help students effic
 
 - Navigate to the **Timetable** page using the navigation links at the top.
 - **Responsive Calendar View**:
-  - The timetable is displayed as a traditional monthly calendar grid optimized for mobile devices and desktop devices.
+  - The timetable is displayed as a traditional monthly calendar grid optimized for all devices.
   - Each day in the calendar shows the date.
   - A message prompts you to select a day on the timetable to view its details.
-  - **Selected Date Highlighting**:
-    - When you click on a date, it becomes highlighted to indicate it is the currently selected date.
+  - **Selected Date Navigation**:
+    - When you click on a date, you are taken to a new screen that shows the exams and revision sessions scheduled for that day.
+    - The selected date's details are displayed clearly with all relevant information.
+    - A **Back to Timetable** button allows you to return to the main calendar view.
 - **Exam Day Highlighting**:
   - Days that have scheduled exams are highlighted on the calendar grid for easy identification.
 - **Navigating the Calendar**:
-  - Use the **Previous** and **Next** buttons, now enhanced with icons, located below the calendar to navigate between months.
+  - Use the **Previous** and **Next** buttons, enhanced with icons, located below the calendar to navigate between months.
   - The current month and year are displayed at the top of the calendar.
-- **Viewing Scheduled Exams and Sessions**:
-  - Click on any date to view detailed information about the exams and revision sessions scheduled for that day.
-  - A list of exams and sessions will appear below the calendar, showing relevant details.
-  - If no exams or sessions are scheduled for a selected date, a message will indicate that.
-- **Exams and Sessions Visibility**:
-  - **Exams and sessions are displayed when you click on a specific date**, allowing for a clean and uncluttered calendar view.
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
   - **Subjects are not scheduled after their exam date**.
@@ -79,19 +75,24 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - The timetable is automatically generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 - **Fixed Calendar Width**:
-  - The calendar maintains a consistent width across different devices and does not change when a date is selected, ensuring a stable and user-friendly interface.
+  - The calendar maintains a consistent width across different devices, ensuring a stable and user-friendly interface.
 
-### 6. **Switch Between Pages**
+### 6. **Navigation Menu**
 
-- Use the navigation links at the top of the app to switch between:
+- The navigation menu allows you to switch between pages:
   - **Preferences**: Update your revision times, session durations, or start date.
   - **Exams**: Add or delete exams from your list.
   - **Timetable**: View your personalized revision schedule.
+- **Mobile Navigation**:
+  - On mobile devices, the navigation menu is accessible via a menu icon (☰) in the top-right corner.
+  - Clicking the menu icon opens the navigation links in a modal window, centered on the screen for better visibility.
+  - To close the menu, click the close icon (×) or select a navigation link.
 
 ### 7. **Manage Your Account**
 
-- **Logout**:
+- **Sign Out**:
   - Click **Sign Out** in the header to securely log out of your account.
+  - On mobile devices, the **Sign Out** option is available within the modal navigation menu.
 
 ## External API Services Used
 
@@ -115,7 +116,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
 - **The app is fully responsive and optimized for all screen sizes, with an emphasis on mobile devices.**
-- **The selected date in the timetable is highlighted for easy identification, and the calendar maintains a fixed width on all devices for a consistent user experience.**
+- **The navigation menu on mobile devices opens in a modal for better accessibility and user experience.**
+- **Selecting a date on the timetable now takes you to a new screen displaying the details for that day, with an easy option to return to the main timetable.**
 
 ---
 

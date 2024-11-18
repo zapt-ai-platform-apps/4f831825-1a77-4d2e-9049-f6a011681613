@@ -13,17 +13,16 @@ import {
 } from 'date-fns';
 import { Icon } from 'solid-heroicons';
 import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
+import { useNavigate } from '@solidjs/router';
 
 function Timetable() {
+  const navigate = useNavigate();
   const [timetable, setTimetable] = createSignal({});
   const [exams, setExams] = createSignal([]);
   const [examsByDate, setExamsByDate] = createSignal({});
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
-  const [selectedDate, setSelectedDate] = createSignal(null);
-  const [sessionsForSelectedDate, setSessionsForSelectedDate] = createSignal([]);
-  const [examsForSelectedDate, setExamsForSelectedDate] = createSignal([]);
 
   const fetchSavedTimetable = async () => {
     setLoading(true);
@@ -138,12 +137,8 @@ function Timetable() {
   };
 
   const handleDateClick = (day) => {
-    setSelectedDate(day);
     const dateKey = format(day, 'yyyy-MM-dd');
-    const dayData = timetable()[dateKey];
-    setSessionsForSelectedDate(dayData ? dayData.sessions : []);
-    const examsOnDay = examsByDate()[dateKey] || [];
-    setExamsForSelectedDate(examsOnDay);
+    navigate(`/timetable/${dateKey}`);
   };
 
   onMount(() => {
@@ -181,12 +176,9 @@ function Timetable() {
                           const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
                           const hasExam = dateKey && examsByDate()[dateKey];
                           const isToday = day && isSameDay(day, new Date());
-                          const isSelectedDay = day && selectedDate() && isSameDay(day, selectedDate());
-
+                          const isSelectedDay = false; // No longer needed
                           let bgClass = '';
-                          if (isSelectedDay) {
-                            bgClass = 'bg-green-500 text-white';
-                          } else if (hasExam) {
+                          if (hasExam) {
                             bgClass = 'bg-red-500 text-white';
                           } else if (isToday) {
                             bgClass = 'bg-blue-700 text-white';
@@ -233,46 +225,6 @@ function Timetable() {
               <Icon path={chevronRight} class="w-6 h-6 inline-block" />
             </button>
           </div>
-          {/* Details for Selected Date */}
-          <Show when={selectedDate()}>
-            <div class="mt-6 w-full max-w-4xl mx-auto">
-              <h3 class="text-xl font-semibold mb-2">
-                Details for {format(selectedDate(), 'MMMM d, yyyy')}
-              </h3>
-              {/* Exams */}
-              <Show when={examsForSelectedDate().length > 0}>
-                <h4 class="text-lg font-semibold mb-2">Exams:</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <For each={examsForSelectedDate()}>
-                    {(exam) => (
-                      <div class="bg-red-600 p-4 rounded-lg">
-                        <p class="font-semibold">Subject: {exam.subject}</p>
-                        <p>Board: {exam.board}</p>
-                        <p>Teacher: {exam.teacher}</p>
-                      </div>
-                    )}
-                  </For>
-                </div>
-              </Show>
-              {/* Sessions */}
-              <Show when={sessionsForSelectedDate().length > 0}>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <For each={sessionsForSelectedDate()}>
-                    {(session) => (
-                      <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold">Time: {session.time}</p>
-                        <p>Subject: {session.subject}</p>
-                      </div>
-                    )}
-                  </For>
-                </div>
-              </Show>
-              <Show when={examsForSelectedDate().length === 0 && sessionsForSelectedDate().length === 0}>
-                <p>No exams or sessions scheduled for this day.</p>
-              </Show>
-            </div>
-          </Show>
         </div>
       </div>
     </div>
