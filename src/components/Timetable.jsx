@@ -10,7 +10,6 @@ import {
   addMonths,
   subMonths,
   isSameDay,
-  parseISO,
 } from 'date-fns';
 
 function Timetable() {
@@ -28,7 +27,6 @@ function Timetable() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      // Fetch saved timetable
       const response = await fetch('/api/getTimetable', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -39,7 +37,6 @@ function Timetable() {
       if (response.ok) {
         const { data } = await response.json();
         if (data) {
-          // Transform timetable into a date-keyed object for easy access
           const timetableData = {};
           data.forEach((day) => {
             timetableData[day.date] = day;
@@ -68,11 +65,9 @@ function Timetable() {
     const weeks = [];
     let week = [];
 
-    let firstDayOfWeek = getDay(startDate); // 0 (Sunday) to 6 (Saturday)
-    // Adjust so that week starts on Monday (1) instead of Sunday (0)
+    let firstDayOfWeek = getDay(startDate);
     firstDayOfWeek = (firstDayOfWeek + 6) % 7;
 
-    // Add empty days at the start of the first week
     for (let i = 0; i < firstDayOfWeek; i++) {
       week.push(null);
     }
@@ -85,7 +80,6 @@ function Timetable() {
       week.push(day);
     });
 
-    // Add empty days at the end of the last week
     if (week.length > 0) {
       while (week.length < 7) {
         week.push(null);
@@ -116,10 +110,10 @@ function Timetable() {
   });
 
   return (
-    <div class="min-h-screen flex flex-col text-white">
+    <div class="h-full flex flex-col text-white">
       <div class="flex-grow p-4">
         <div class="w-full max-w-full sm:max-w-6xl mx-auto">
-          <h2 class="text-2xl font-bold mb-4">Your Revision Timetable</h2>
+          <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
           <div class="flex justify-between items-center mb-4">
             <button
               class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
@@ -127,9 +121,7 @@ function Timetable() {
             >
               Previous
             </button>
-            <h3 class="text-xl font-semibold">
-              {format(currentMonth(), 'MMMM yyyy')}
-            </h3>
+            <h3 class="text-xl font-semibold">{format(currentMonth(), 'MMMM yyyy')}</h3>
             <button
               class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handleNextMonth}
@@ -149,46 +141,19 @@ function Timetable() {
                   {(week) =>
                     week.map((day) => (
                       <div
-                        class={`h-20 p-1 border border-gray-500 rounded-lg ${
+                        class={`h-16 sm:h-20 p-1 border border-gray-500 rounded-lg ${
                           day ? 'cursor-pointer' : ''
                         } ${
                           day &&
                           isSameDay(day, new Date()) &&
                           'bg-blue-700 text-white'
-                        } ${
-                          day && timetable()[format(day, 'yyyy-MM-dd')]?.exams.length
-                            ? 'bg-red-500 text-white'
-                            : 'bg-gray-800'
-                        } hover:bg-blue-600 transition duration-200 ease-in-out`}
+                        } bg-gray-800 hover:bg-blue-600 transition duration-200 ease-in-out`}
                         onClick={() => day && handleDateClick(day)}
                       >
                         <Show when={day}>
                           <div class="flex flex-col h-full">
                             <div class="text-right">{format(day, 'd')}</div>
-                            <div class="flex-grow overflow-hidden">
-                              <For
-                                each={
-                                  timetable()[format(day, 'yyyy-MM-dd')]?.sessions ||
-                                  []
-                                }
-                              >
-                                {(session) => (
-                                  <div class="text-xs bg-green-500 text-black rounded px-1 truncate">
-                                    {session.subject}
-                                  </div>
-                                )}
-                              </For>
-                              <Show
-                                when={
-                                  timetable()[format(day, 'yyyy-MM-dd')]?.exams
-                                    .length
-                                }
-                              >
-                                <div class="text-xs bg-red-700 text-white rounded px-1 mt-1">
-                                  Exam Day
-                                </div>
-                              </Show>
-                            </div>
+                            {/* You can add a dot or indicator here if needed */}
                           </div>
                         </Show>
                       </div>

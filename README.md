@@ -50,13 +50,14 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - View all your upcoming exams in a list.
   - **Delete** an exam by clicking the **Delete** button next to it.
 - Past exams are automatically excluded from the list.
+- Click **Generate Timetable** to create your personalized revision schedule.
 
 ### 5. **View Your Timetable**
 
 - Navigate to the **Timetable** page using the navigation links at the top.
-- **Grid-like Calendar View**:
-  - The timetable is displayed as a traditional monthly calendar grid.
-  - Each day in the calendar shows the date and any scheduled revision sessions.
+- **Responsive Calendar View**:
+  - The timetable is displayed as a traditional monthly calendar grid optimized for mobile devices.
+  - Each day in the calendar shows the date.
 - **Navigating the Calendar**:
   - Use the **Previous** and **Next** buttons to navigate between months.
   - The current month and year are displayed at the top of the calendar.
@@ -64,9 +65,12 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - Click on any date to view detailed information about the revision sessions scheduled for that day.
   - A list of sessions will appear below the calendar, showing the time and subject for each session.
   - If no sessions are scheduled for a selected date, a message will indicate that.
+- **Exams and Sessions Visibility**:
+  - **Sessions and exams are not displayed on the calendar grid** until you click on a specific date.
+  - This ensures a clean and uncluttered calendar, especially on mobile devices.
 - **Exam Days**:
-  - Exam dates are highlighted and marked clearly in the calendar.
-  - **Exam Day** labels are displayed on dates with exams.
+  - Exam dates are stored in the system but not highlighted on the calendar grid.
+  - You can view exams scheduled for a day by clicking on that date.
   - No revision sessions are scheduled on exam days.
 - **Scheduling Logic**:
   - Revision sessions are evenly distributed among all your subjects.
@@ -108,7 +112,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
-- **The app is fully responsive and optimized for all screen sizes, with a mobile-first design approach.**
+- **The app is fully responsive and optimized for all screen sizes, with an emphasis on mobile devices.**
 
 ---
 
