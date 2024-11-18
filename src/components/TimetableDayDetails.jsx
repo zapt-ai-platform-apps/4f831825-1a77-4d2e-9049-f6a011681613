@@ -38,6 +38,10 @@ function TimetableDayDetails() {
         if (data) {
           const dayData = data.find((day) => day.date === dateKey);
           daySessions = dayData ? dayData.sessions : [];
+
+          // Sort daySessions by time (earliest first)
+          daySessions.sort((a, b) => a.time.localeCompare(b.time));
+
           setSessions(daySessions);
         } else {
           setError('No timetable data found.');
