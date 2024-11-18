@@ -1,4 +1,3 @@
-```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -13,12 +12,14 @@ function Timetable() {
   const fetchSavedTimetable = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       // Fetch saved timetable
       const response = await fetch('/api/getTimetable', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -51,13 +52,15 @@ function Timetable() {
       const generatedTimetable = await generateTimetable();
       setTimetable(generatedTimetable);
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       // Save the generated timetable
       const response = await fetch('/api/saveTimetable', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ data: generatedTimetable }),
@@ -78,13 +81,15 @@ function Timetable() {
 
   const generateTimetable = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       // Fetch preferences
       let preferencesData = null;
       let response = await fetch('/api/getPreferences', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -101,7 +106,7 @@ function Timetable() {
       let examsData = null;
       response = await fetch('/api/getExams', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -115,7 +120,10 @@ function Timetable() {
       }
 
       // Generate timetable logic
-      const generatedTimetable = await generateTimetableLogic(preferencesData, examsData);
+      const generatedTimetable = await generateTimetableLogic(
+        preferencesData,
+        examsData
+      );
       return generatedTimetable;
     } catch (error) {
       console.error('Error generating timetable:', error);
@@ -128,15 +136,23 @@ function Timetable() {
   const generateTimetableLogic = (preferences, exams) => {
     const startDate = new Date(preferences.startDate);
     const endDate = new Date(
-      exams.reduce((latest, exam) => (new Date(exam.examDate) > new Date(latest) ? exam.examDate : latest), exams[0].examDate)
+      exams.reduce(
+        (latest, exam) =>
+          new Date(exam.examDate) > new Date(latest) ? exam.examDate : latest,
+        exams[0].examDate
+      )
     );
-    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(
+      (endDate - startDate) / (1000 * 60 * 60 * 24)
+    );
     const timetable = [];
 
     for (let i = 0; i <= days; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(currentDate.getDate() + i);
-      const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      const dayName = currentDate
+        .toLocaleDateString('en-US', { weekday: 'long' })
+        .toLowerCase();
       const dateString = currentDate.toISOString().split('T')[0];
 
       // Check for exams on this date
@@ -214,13 +230,18 @@ function Timetable() {
             </Show>
           </button>
           <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
-            <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
+            <Show
+              when={!error()}
+              fallback={<p class="text-red-500">{error()}</p>}
+            >
               <For each={timetable()}>
                 {(day) => (
                   <div class="mb-6">
                     <h3 class="text-xl font-semibold mb-2">{day.date}</h3>
                     <Show when={day.exams.length}>
-                      <p class="text-red-500">Exam Day: {day.exams.join(', ')}</p>
+                      <p class="text-red-500">
+                        Exam Day: {day.exams.join(', ')}
+                      </p>
                     </Show>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <For each={day.sessions}>
@@ -244,4 +265,3 @@ function Timetable() {
 }
 
 export default Timetable;
-```
