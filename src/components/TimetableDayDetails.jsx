@@ -76,7 +76,7 @@ function TimetableDayDetails() {
   };
 
   const handleBack = () => {
-    navigate('/timetable');
+    navigate(`/timetable?date=${dateKey}`);
   };
 
   return (

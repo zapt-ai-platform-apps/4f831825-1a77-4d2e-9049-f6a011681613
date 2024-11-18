@@ -10,13 +10,15 @@ import {
   addMonths,
   subMonths,
   isSameDay,
+  parseISO,
 } from 'date-fns';
 import { Icon } from 'solid-heroicons';
 import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
-import { useNavigate } from '@solidjs/router';
+import { useNavigate, useSearchParams } from '@solidjs/router';
 
 function Timetable() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [timetable, setTimetable] = createSignal({});
   const [exams, setExams] = createSignal([]);
   const [examsByDate, setExamsByDate] = createSignal({});
@@ -142,6 +144,11 @@ function Timetable() {
   };
 
   onMount(() => {
+    const dateParam = searchParams.date;
+    if (dateParam) {
+      const date = parseISO(dateParam);
+      setCurrentMonth(startOfMonth(date));
+    }
     fetchSavedTimetable();
     fetchExams();
   });
