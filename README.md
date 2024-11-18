@@ -56,8 +56,10 @@ UpGrade is a personalized revision timetable app designed to help students effic
 
 - Navigate to the **Timetable** page using the navigation links at the top.
 - **Responsive Calendar View**:
-  - The timetable is displayed as a traditional monthly calendar grid optimized for mobile devices.
+  - The timetable is displayed as a traditional monthly calendar grid optimized for mobile devices and desktop devices.
   - Each day in the calendar shows the date.
+  - **Selected Date Highlighting**:
+    - When you click on a date, it becomes highlighted to indicate it is the currently selected date.
 - **Exam Day Highlighting**:
   - Days that have scheduled exams are highlighted on the calendar grid for easy identification.
 - **Navigating the Calendar**:
@@ -75,6 +77,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Automatic Timetable Generation**:
   - The timetable is automatically generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
+- **Fixed Calendar Width**:
+  - The calendar maintains a consistent width across different devices and does not change when a date is selected, ensuring a stable and user-friendly interface.
 
 ### 6. **Switch Between Pages**
 
@@ -110,6 +114,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
 - **The app is fully responsive and optimized for all screen sizes, with an emphasis on mobile devices.**
+- **The selected date in the timetable is highlighted for easy identification, and the calendar maintains a fixed width on all devices for a consistent user experience.**
 
 ---
 

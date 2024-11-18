@@ -158,102 +158,113 @@ function Timetable() {
           <div class="mb-4">
             <h3 class="text-xl font-semibold text-center">{format(currentMonth(), 'MMMM yyyy')}</h3>
           </div>
-          {/* Calendar Grid */}
-          <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
-            <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-              <div class="grid grid-cols-7 gap-1">
-                {/* Day Names */}
-                <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
-                  {(dayName) => (
-                    <div class="text-center font-semibold">{dayName}</div>
-                  )}
-                </For>
-                {/* Calendar Days */}
-                <For each={getCalendarDays()}>
-                  {(week) =>
-                    week.map((day) => {
-                      const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
-                      const hasExam = dateKey && examsByDate()[dateKey];
-                      return (
-                        <div
-                          class={`aspect-square ${
-                            day ? 'cursor-pointer' : ''
-                          } ${
-                            day && isSameDay(day, new Date())
-                              ? 'bg-blue-700 text-white'
-                              : hasExam
-                              ? 'bg-red-500 text-white'
-                              : 'bg-transparent text-white'
-                          } border border-white ${
-                            day ? 'hover:bg-blue-600' : ''
-                          } rounded-lg transition duration-200 ease-in-out flex items-center justify-center`}
-                          onClick={() => day && handleDateClick(day)}
-                        >
-                          <Show when={day}>
-                            <div>{format(day, 'd')}</div>
-                          </Show>
-                        </div>
-                      );
-                    })
-                  }
-                </For>
-              </div>
-              {/* Navigation Buttons */}
-              <div class="flex items-center justify-between mt-4 w-full">
-                <button
-                  class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                  onClick={handlePrevMonth}
-                >
-                  Previous
-                </button>
-                <button
-                  class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                  onClick={handleNextMonth}
-                >
-                  Next
-                </button>
-              </div>
-              {/* Details for Selected Date */}
-              <Show when={selectedDate()}>
-                <div class="mt-6">
-                  <h3 class="text-xl font-semibold mb-2">
-                    Details for {format(selectedDate(), 'MMMM d, yyyy')}
-                  </h3>
-                  {/* Exams */}
-                  <Show when={examsForSelectedDate().length > 0}>
-                    <h4 class="text-lg font-semibold mb-2">Exams:</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <For each={examsForSelectedDate()}>
-                        {(exam) => (
-                          <div class="bg-red-600 p-4 rounded-lg">
-                            <p class="font-semibold">Subject: {exam.subject}</p>
-                            <p>Board: {exam.board}</p>
-                            <p>Teacher: {exam.teacher}</p>
+          {/* Calendar Container */}
+          <div class="w-full max-w-md mx-auto">
+            {/* Calendar Grid */}
+            <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
+              <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
+                <div class="grid grid-cols-7 gap-1">
+                  {/* Day Names */}
+                  <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
+                    {(dayName) => (
+                      <div class="text-center font-semibold">{dayName}</div>
+                    )}
+                  </For>
+                  {/* Calendar Days */}
+                  <For each={getCalendarDays()}>
+                    {(week) =>
+                      week.map((day) => {
+                        const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
+                        const hasExam = dateKey && examsByDate()[dateKey];
+                        const isToday = day && isSameDay(day, new Date());
+                        const isSelectedDay = day && selectedDate() && isSameDay(day, selectedDate());
+
+                        let bgClass = '';
+                        if (isSelectedDay) {
+                          bgClass = 'bg-green-500 text-white';
+                        } else if (hasExam) {
+                          bgClass = 'bg-red-500 text-white';
+                        } else if (isToday) {
+                          bgClass = 'bg-blue-700 text-white';
+                        } else {
+                          bgClass = 'bg-transparent text-white';
+                        }
+
+                        return (
+                          <div
+                            class={`aspect-square ${
+                              day ? 'cursor-pointer' : ''
+                            } ${bgClass} border border-white ${
+                              day ? 'hover:bg-blue-600' : ''
+                            } rounded-lg transition duration-200 ease-in-out flex items-center justify-center`}
+                            onClick={() => day && handleDateClick(day)}
+                          >
+                            <Show when={day}>
+                              <div>{format(day, 'd')}</div>
+                            </Show>
                           </div>
-                        )}
-                      </For>
-                    </div>
-                  </Show>
-                  {/* Sessions */}
-                  <Show when={sessionsForSelectedDate().length > 0}>
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <For each={sessionsForSelectedDate()}>
-                        {(session) => (
-                          <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="font-semibold">Time: {session.time}</p>
-                            <p>Subject: {session.subject}</p>
-                          </div>
-                        )}
-                      </For>
-                    </div>
-                  </Show>
-                  <Show when={examsForSelectedDate().length === 0 && sessionsForSelectedDate().length === 0}>
-                    <p>No exams or sessions scheduled for this day.</p>
-                  </Show>
+                        );
+                      })
+                    }
+                  </For>
                 </div>
               </Show>
             </Show>
+          </div>
+          {/* Navigation Buttons */}
+          <div class="flex items-center justify-between mt-4 w-full max-w-md mx-auto">
+            <button
+              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={handlePrevMonth}
+            >
+              Previous
+            </button>
+            <button
+              class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={handleNextMonth}
+            >
+              Next
+            </button>
+          </div>
+          {/* Details for Selected Date */}
+          <Show when={selectedDate()}>
+            <div class="mt-6 w-full max-w-4xl mx-auto">
+              <h3 class="text-xl font-semibold mb-2">
+                Details for {format(selectedDate(), 'MMMM d, yyyy')}
+              </h3>
+              {/* Exams */}
+              <Show when={examsForSelectedDate().length > 0}>
+                <h4 class="text-lg font-semibold mb-2">Exams:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={examsForSelectedDate()}>
+                    {(exam) => (
+                      <div class="bg-red-600 p-4 rounded-lg">
+                        <p class="font-semibold">Subject: {exam.subject}</p>
+                        <p>Board: {exam.board}</p>
+                        <p>Teacher: {exam.teacher}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+              {/* Sessions */}
+              <Show when={sessionsForSelectedDate().length > 0}>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={sessionsForSelectedDate()}>
+                    {(session) => (
+                      <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="font-semibold">Time: {session.time}</p>
+                        <p>Subject: {session.subject}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+              <Show when={examsForSelectedDate().length === 0 && sessionsForSelectedDate().length === 0}>
+                <p>No exams or sessions scheduled for this day.</p>
+              </Show>
+            </div>
           </Show>
         </div>
       </div>
