@@ -1,4 +1,3 @@
-```jsx
 import { createSignal, onMount, For, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { supabase } from '../supabaseClient';
@@ -214,4 +213,3 @@ function Exams() {
 }
 
 export default Exams;
-```
