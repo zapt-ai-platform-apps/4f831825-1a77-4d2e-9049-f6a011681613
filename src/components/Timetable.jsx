@@ -160,7 +160,7 @@ function Timetable() {
           </div>
           {/* Calendar Container */}
           <div class="w-full flex justify-center">
-            <div class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+            <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
               {/* Calendar Grid */}
               <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
                 <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
@@ -214,7 +214,7 @@ function Timetable() {
             </div>
           </div>
           {/* Navigation Buttons */}
-          <div class="flex items-center justify-between mt-4 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
+          <div class="flex items-center justify-between mt-4 w-full sm:w-96 md:w-[32rem] lg:w-[36rem] mx-auto">
             <button
               class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handlePrevMonth}
