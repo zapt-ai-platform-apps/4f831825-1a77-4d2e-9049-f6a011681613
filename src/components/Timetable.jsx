@@ -152,14 +152,14 @@ function Timetable() {
   return (
     <div class="h-full flex flex-col text-white">
       <div class="flex-grow p-4">
-        <div class="w-full max-w-full sm:max-w-6xl mx-auto">
+        <div class="w-full max-w-4xl mx-auto">
           <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
           {/* Month and Year */}
           <div class="mb-4">
             <h3 class="text-xl font-semibold text-center">{format(currentMonth(), 'MMMM yyyy')}</h3>
           </div>
           {/* Calendar Container */}
-          <div class="w-full max-w-md mx-auto">
+          <div class="w-full">
             {/* Calendar Grid */}
             <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
               <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
@@ -212,7 +212,7 @@ function Timetable() {
             </Show>
           </div>
           {/* Navigation Buttons */}
-          <div class="flex items-center justify-between mt-4 w-full max-w-md mx-auto">
+          <div class="flex items-center justify-between mt-4 w-full">
             <button
               class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
               onClick={handlePrevMonth}
@@ -228,7 +228,7 @@ function Timetable() {
           </div>
           {/* Details for Selected Date */}
           <Show when={selectedDate()}>
-            <div class="mt-6 w-full max-w-4xl mx-auto">
+            <div class="mt-6 w-full">
               <h3 class="text-xl font-semibold mb-2">
                 Details for {format(selectedDate(), 'MMMM d, yyyy')}
               </h3>
