@@ -1,3 +1,4 @@
+```jsx
 import { createSignal, onMount, For, Show, createMemo, createEffect } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -268,8 +269,6 @@ function Timetable() {
                           let bgClass = '';
                           if (hasExam) {
                             bgClass = 'bg-red-500 text-white';
-                          } else if (hasSession) {
-                            bgClass = 'bg-green-500 text-white';
                           } else if (isToday) {
                             bgClass = 'bg-blue-700 text-white';
                           } else {
@@ -371,3 +370,4 @@ function Timetable() {
 }
 
 export default Timetable;
+```
