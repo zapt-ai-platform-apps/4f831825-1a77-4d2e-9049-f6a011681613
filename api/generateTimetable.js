@@ -88,14 +88,31 @@ function generateTimetable(preferences, exams) {
   const examDates = exams.map((exam) => new Date(exam.examDate));
   const lastExamDate = new Date(Math.max.apply(null, examDates));
 
+  // Collect exam dates for quick lookup
+  const examDatesSet = new Set(
+    exams.map((exam) =>
+      new Date(exam.examDate).toISOString().split("T")[0]
+    )
+  );
+
   const timetableData = [];
 
   // Generate dates from startDate to lastExamDate
   let dateCursor = new Date(startDate);
   const endDate = lastExamDate;
   while (dateCursor <= endDate) {
+    const currentDateStr = dateCursor.toISOString().split("T")[0];
+
+    // Skip scheduling sessions on exam days
+    if (examDatesSet.has(currentDateStr)) {
+      dateCursor.setDate(dateCursor.getDate() + 1);
+      continue;
+    }
+
     // Get the day of week
-    const dayOfWeek = dateCursor.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const dayOfWeek = dateCursor
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLowerCase();
 
     // Get available times for that day
     const availableTimes = revisionTimes[dayOfWeek] || [];
@@ -117,7 +134,8 @@ function generateTimetable(preferences, exams) {
       }
 
       // Use a simple method to distribute subjects evenly
-      const subjectIndex = (dateCursor.getDate() + index) % validSubjects.length;
+      const subjectIndex =
+        (dateCursor.getDate() + index) % validSubjects.length;
       const assignedSubject = validSubjects[subjectIndex];
 
       sessions.push({
@@ -130,7 +148,7 @@ function generateTimetable(preferences, exams) {
     if (sessions.length > 0) {
       // Add to the timetable
       timetableData.push({
-        date: dateCursor.toISOString().split('T')[0],
+        date: currentDateStr,
         sessions,
       });
     }

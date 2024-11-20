@@ -364,11 +364,6 @@ function Timetable() {
               </Show>
             </div>
           </Show>
-          <div class="text-center mt-8">
-            <a href="https://www.zapt.ai" target="_blank" class="text-blue-300 hover:underline cursor-pointer">
-              Made on ZAPT
-            </a>
-          </div>
         </div>
       </div>
     </div>

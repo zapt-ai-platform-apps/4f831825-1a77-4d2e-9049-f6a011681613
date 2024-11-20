@@ -236,7 +236,7 @@ function App() {
           </main>
           {/* Made on ZAPT Badge */}
           <footer class="text-center p-4">
-            <a href="https://www.zapt.ai" target="_blank" class="text-blue-300 hover:underline cursor-pointer">
+            <a href="https://www.zapt.ai" target="_blank" class="text-blue-500 hover:text-blue-700 font-bold hover:underline cursor-pointer">
               Made on ZAPT
             </a>
           </footer>

@@ -66,6 +66,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
     - The color indicators are arranged in the same order as your subjects, allowing you to quickly see which subjects you will be studying on each day without selecting the date.
   - **Exam Day Highlighting**:
     - Days with scheduled **exams** are highlighted in **red**.
+    - **No Revision on Exam Days**:
+      - The timetable ensures that no revision sessions are scheduled on days when you have exams.
   - **Select a Day**:
     - Click on a date in the calendar to view its details.
     - The details of the selected day are displayed **underneath the calendar**, similar to the Apple Calendar app.
@@ -91,7 +93,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Fixed Calendar Width**:
   - The calendar maintains a consistent width across different devices, ensuring a stable and user-friendly interface.
 - **Made on ZAPT Badge**:
-  - A **"Made on ZAPT"** badge is displayed at the bottom of the page.
+  - A **"Made on ZAPT"** badge is displayed at the bottom of the page, made clearer for better visibility.
   - Clicking the badge opens the [ZAPT](https://www.zapt.ai) website in a new tab.
 
 ### 6. **Navigation Menu**
@@ -135,10 +137,10 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **The app is fully responsive and optimized for all screen sizes, with an emphasis on mobile devices.**
 - **The navigation menu on mobile devices opens in a modal for better accessibility and user experience.**
 - **Selecting a date on the timetable now displays the day's details underneath the calendar, similar to the Apple Calendar app, instead of navigating to a new page.**
-- **Revision sessions are displayed on the timetable, and days with scheduled sessions are highlighted.**
+- **Revision sessions are not scheduled on exam days, allowing you to focus entirely on your exams.**
 - **Each exam is assigned a unique color based on the order of your exams, and small colored dots or squares on the calendar days are arranged in the same order as your subjects, allowing you to quickly see your study plan without selecting each day.**
 - **The gaps between the calendar day boxes have been reduced for a more compact view, enhancing the overall user experience.**
-- **A "Made on ZAPT" badge is visible on the app, linking to the ZAPT website.**
+- **A "Made on ZAPT" badge is prominently visible on the app, linking to the ZAPT website.**
 
 ---
 
