@@ -73,12 +73,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
     - The details of the selected day are displayed **underneath the calendar**, similar to the Apple Calendar app.
     - This includes any exams and revision sessions scheduled for that day.
     - Click on another date to view its details or click the same date again to hide the details.
-  - **Exam and Session Details**:
-    - **Exams**:
-      - Displayed with subject, examination board, and teacher information.
-    - **Revision Sessions**:
-      - Displayed with time and subject details.
-      - Sessions are color-coded to match the subject indicators on the calendar.
+  - **Revision Sessions are Color-Coded**:
+    - The detailed revision sessions displayed under the calendar are colored to match the colors for the subject, providing consistent visual cues.
 - **Navigating the Calendar**:
   - Use the **Previous** and **Next** buttons, enhanced with icons, located below the calendar to navigate between months.
   - The current month and year are displayed at the top of the calendar.
@@ -139,6 +135,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Selecting a date on the timetable now displays the day's details underneath the calendar, similar to the Apple Calendar app, instead of navigating to a new page.**
 - **Revision sessions are not scheduled on exam days, allowing you to focus entirely on your exams.**
 - **Each exam is assigned a unique color based on the order of your exams, and small colored dots or squares on the calendar days are arranged in the same order as your subjects, allowing you to quickly see your study plan without selecting each day.**
+- **The detailed revision sessions displayed under the calendar are colored to match the colors for the subject, providing consistent visual cues.**
 - **The gaps between the calendar day boxes have been reduced for a more compact view, enhancing the overall user experience.**
 - **A "Made on ZAPT" badge is prominently visible on the app, linking to the ZAPT website.**
 

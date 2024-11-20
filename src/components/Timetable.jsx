@@ -349,7 +349,10 @@ function Timetable() {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <For each={sessions()}>
                     {(session) => (
-                      <div class="bg-gray-800 p-4 rounded-lg">
+                      <div
+                        class="p-4 rounded-lg"
+                        style={{ background: subjectColours()[session.subject], color: 'white' }}
+                      >
                         <p class="font-semibold">Time: {session.time}</p>
                         <p>Subject: {session.subject}</p>
                       </div>
