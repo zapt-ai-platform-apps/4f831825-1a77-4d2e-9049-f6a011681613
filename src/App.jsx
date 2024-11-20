@@ -7,7 +7,6 @@ import Login from './components/Login';
 import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
-import TimetableDayDetails from './components/TimetableDayDetails';
 import * as Sentry from "@sentry/browser";
 
 function App() {
@@ -142,7 +141,7 @@ function App() {
     const [menuOpen, setMenuOpen] = createSignal(false);
 
     return (
-      <TimetableProvider value={{ timetable, setTimetable, exams, setExams, preferences }}>
+      <TimetableProvider value={{ timetable, setTimetable, exams, preferences }}>
         <div class="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
           <header class="flex items-center justify-between mb-8 p-4">
             <h1 class="text-4xl font-bold">UpGrade</h1>
@@ -235,6 +234,12 @@ function App() {
           <main class="flex-grow p-4 flex items-center justify-center">
             {props.children}
           </main>
+          {/* Made on ZAPT Badge */}
+          <footer class="text-center p-4">
+            <a href="https://www.zapt.ai" target="_blank" class="text-blue-300 hover:underline cursor-pointer">
+              Made on ZAPT
+            </a>
+          </footer>
         </div>
       </TimetableProvider>
     );
@@ -270,16 +275,6 @@ function App() {
           element={user() ? (
             <ProtectedRoute>
               <Timetable />
-            </ProtectedRoute>
-          ) : (
-            <Login />
-          )}
-        />
-        <Route
-          path="/timetable/:date"
-          element={user() ? (
-            <ProtectedRoute>
-              <TimetableDayDetails />
             </ProtectedRoute>
           ) : (
             <Login />

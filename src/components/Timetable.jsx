@@ -14,17 +14,17 @@ import {
 } from 'date-fns';
 import { Icon } from 'solid-heroicons';
 import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
-import { useNavigate, useSearchParams } from '@solidjs/router';
+import { useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
-  const { timetable, setTimetable, exams, preferences } = useTimetable();
-  const navigate = useNavigate();
+  const { timetable, exams, preferences } = useTimetable();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
   const [initialMonthSet, setInitialMonthSet] = createSignal(false);
+  const [selectedDate, setSelectedDate] = createSignal(null);
 
   const examsByDate = createMemo(() => {
     const examsData = exams();
@@ -73,16 +73,45 @@ function Timetable() {
 
   const handlePrevMonth = () => {
     setCurrentMonth(subMonths(currentMonth(), 1));
+    setSelectedDate(null);
   };
 
   const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth(), 1));
+    setSelectedDate(null);
   };
 
   const handleDateClick = (day) => {
+    if (!day) return;
     const dateKey = format(day, 'yyyy-MM-dd');
-    navigate(`/timetable/${dateKey}`);
+    if (selectedDate() === dateKey) {
+      setSelectedDate(null);
+    } else {
+      setSelectedDate(dateKey);
+    }
   };
+
+  const sessions = createMemo(() => {
+    const dateKey = selectedDate();
+    if (dateKey && timetable() && timetable()[dateKey]) {
+      const daySessions = [...timetable()[dateKey].sessions];
+      daySessions.sort((a, b) => {
+        const [hourA, minuteA] = a.time.split(':').map(Number);
+        const [hourB, minuteB] = b.time.split(':').map(Number);
+        return hourA * 60 + minuteA - (hourB * 60 + minuteB);
+      });
+      return daySessions;
+    }
+    return [];
+  });
+
+  const dayExams = createMemo(() => {
+    const dateKey = selectedDate();
+    if (dateKey && exams()) {
+      return exams().filter((exam) => exam.examDate === dateKey);
+    }
+    return [];
+  });
 
   onMount(() => {
     const dateParam = searchParams.date;
@@ -205,6 +234,7 @@ function Timetable() {
                           const hasExam = dateKey && examsByDate()[dateKey];
                           const hasSession = dateKey && timetable()[dateKey] && timetable()[dateKey].sessions.length > 0;
                           const isToday = day && isSameDay(day, new Date());
+                          const isSelected = dateKey && selectedDate() === dateKey;
                           let bgClass = '';
                           if (hasExam) {
                             bgClass = 'bg-red-500 text-white';
@@ -216,6 +246,10 @@ function Timetable() {
                             bgClass = 'bg-transparent text-white';
                           }
 
+                          if (isSelected) {
+                            bgClass = 'bg-yellow-500 text-black';
+                          }
+
                           return (
                             <div
                               class={`aspect-square ${
@@ -223,7 +257,7 @@ function Timetable() {
                               } ${bgClass} border border-white ${
                                 day ? 'hover:bg-blue-600' : ''
                               } rounded-lg transition duration-200 ease-in-out flex items-center justify-center`}
-                              onClick={() => day && handleDateClick(day)}
+                              onClick={() => handleDateClick(day)}
                             >
                               <Show when={day}>
                                 <div>{format(day, 'd')}</div>
@@ -254,6 +288,50 @@ function Timetable() {
               <span class="mr-1">Next</span>
               <Icon path={chevronRight} class="w-6 h-6 inline-block" />
             </button>
+          </div>
+          {/* Selected Day Details */}
+          <Show when={selectedDate()}>
+            <div class="mt-8">
+              <h3 class="text-xl font-bold mb-4 text-center">
+                Details for {format(parseISO(selectedDate()), 'MMMM d, yyyy')}
+              </h3>
+              <Show when={dayExams().length > 0}>
+                <h4 class="text-lg font-semibold mb-2">Exams:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={dayExams()}>
+                    {(exam) => (
+                      <div class="bg-red-600 p-4 rounded-lg">
+                        <p class="font-semibold">Subject: {exam.subject}</p>
+                        <p>Board: {exam.board}</p>
+                        <p>Teacher: {exam.teacher}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+              <Show when={sessions().length > 0}>
+                <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={sessions()}>
+                    {(session) => (
+                      <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="font-semibold">Time: {session.time}</p>
+                        <p>Subject: {session.subject}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+              <Show when={dayExams().length === 0 && sessions().length === 0}>
+                <p class="text-center">No exams or sessions scheduled for this day.</p>
+              </Show>
+            </div>
+          </Show>
+          {/* Made on ZAPT Badge */}
+          <div class="text-center mt-8">
+            <a href="https://www.zapt.ai" target="_blank" class="text-blue-300 hover:underline cursor-pointer">
+              Made on ZAPT
+            </a>
           </div>
         </div>
       </div>

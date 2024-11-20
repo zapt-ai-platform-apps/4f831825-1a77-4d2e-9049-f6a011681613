@@ -62,12 +62,16 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - Each day in the calendar shows the date.
   - Days with scheduled **exams** are highlighted in **red**.
   - Days with scheduled **revision sessions** are highlighted in **green**.
-  - A message prompts you to select a day on the timetable to view its details.
-- **Selected Date Navigation**:
-  - When you click on a date, you are taken to a new screen that shows the exams and revision sessions scheduled for that day.
-  - The selected date's details are displayed clearly with all relevant information.
-  - A **Back to Timetable** button allows you to return to the main calendar view.
-  - When returning, the timetable displays the same month you were viewing, keeping your context intact.
+  - **Select a Day**:
+    - Click on a date in the calendar to view its details.
+    - The details of the selected day are displayed **underneath the calendar**, similar to the Apple Calendar app.
+    - This includes any exams and revision sessions scheduled for that day.
+    - Click on another date to view its details or click the same date again to hide the details.
+  - **Exam and Session Details**:
+    - **Exams**:
+      - Displayed with subject, examination board, and teacher information.
+    - **Revision Sessions**:
+      - Displayed with time and subject details.
 - **Exam Day Highlighting**:
   - Days that have scheduled exams are highlighted on the calendar grid for easy identification.
 - **Navigating the Calendar**:
@@ -81,6 +85,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
 - **Fixed Calendar Width**:
   - The calendar maintains a consistent width across different devices, ensuring a stable and user-friendly interface.
+- **Made on ZAPT Badge**:
+  - A **"Made on ZAPT"** badge is displayed at the bottom of the page.
+  - Clicking the badge opens the [ZAPT](https://www.zapt.ai) website in a new tab.
 
 ### 6. **Navigation Menu**
 
@@ -122,9 +129,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
 - **The app is fully responsive and optimized for all screen sizes, with an emphasis on mobile devices.**
 - **The navigation menu on mobile devices opens in a modal for better accessibility and user experience.**
-- **Selecting a date on the timetable now takes you to a new screen displaying the details for that day, with an easy option to return to the main timetable.**
-- **When you navigate back from a day's details, the timetable will retain the month you were viewing, rather than resetting to the current month.**
-- **Revision sessions are now displayed on the timetable, and days with scheduled sessions are highlighted.**
+- **Selecting a date on the timetable now displays the day's details underneath the calendar, similar to the Apple Calendar app, instead of navigating to a new page.**
+- **Revision sessions are displayed on the timetable, and days with scheduled sessions are highlighted.**
+- **A "Made on ZAPT" badge is visible on the app, linking to the ZAPT website.**
 
 ---
 
