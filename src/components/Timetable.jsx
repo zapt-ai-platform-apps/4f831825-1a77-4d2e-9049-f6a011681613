@@ -40,6 +40,13 @@ function Timetable() {
     return examsByDateMap;
   });
 
+  const orderedSubjects = createMemo(() => {
+    if (exams()) {
+      return exams().map((exam) => exam.subject);
+    }
+    return [];
+  });
+
   const getCalendarDays = createMemo(() => {
     const startDate = startOfMonth(currentMonth());
     const endDate = endOfMonth(currentMonth());
@@ -119,8 +126,7 @@ function Timetable() {
       const colours = {};
       const colourPalette = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FF8C33', '#33FFF9', '#8D33FF', '#FF3333', '#33FF8C', '#FF33FF'];
       let colourIndex = 0;
-      exams().forEach((exam) => {
-        const subject = exam.subject;
+      orderedSubjects().forEach((subject) => {
         if (!colours[subject]) {
           colours[subject] = colourPalette[colourIndex % colourPalette.length];
           colourIndex++;
@@ -139,7 +145,9 @@ function Timetable() {
         subjectsSet.add(session.subject);
       });
     }
-    return Array.from(subjectsSet);
+    const subjectsArray = Array.from(subjectsSet);
+    const orderedSubjectsArray = orderedSubjects().filter((subject) => subjectsArray.includes(subject));
+    return orderedSubjectsArray;
   };
 
   onMount(() => {
@@ -243,7 +251,7 @@ function Timetable() {
             <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
               <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
                 <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-                  <div class="grid grid-cols-7 gap-1">
+                  <div class="grid grid-cols-7 gap-px">
                     <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
                       {(dayName) => (
                         <div class="text-center font-semibold">{dayName}</div>

@@ -61,9 +61,9 @@ UpGrade is a personalized revision timetable app designed to help students effic
   - The timetable is displayed as a traditional monthly calendar grid optimized for all devices.
   - Each day in the calendar shows the date.
   - **Subject Indicators**:
-    - Each exam is assigned a **unique random color**.
+    - Each exam is assigned a **unique color** based on the order of your exams.
     - Days with scheduled **revision sessions** display small colored dots or squares representing the subjects you're set to revise.
-    - This allows you to quickly see which subjects you will be studying on each day without selecting the date.
+    - The color indicators are arranged in the same order as your subjects, allowing you to quickly see which subjects you will be studying on each day without selecting the date.
   - **Exam Day Highlighting**:
     - Days with scheduled **exams** are highlighted in **red**.
   - **Select a Day**:
@@ -86,6 +86,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **Automatic Timetable Generation**:
   - The timetable is generated based on your preferences and exams.
   - The timetable is saved and can be accessed anytime by navigating to the Timetable page.
+- **Reduced Calendar Gaps**:
+  - The gaps between calendar day boxes have been minimized to provide a more compact and clear view.
 - **Fixed Calendar Width**:
   - The calendar maintains a consistent width across different devices, ensuring a stable and user-friendly interface.
 - **Made on ZAPT Badge**:
@@ -134,7 +136,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - **The navigation menu on mobile devices opens in a modal for better accessibility and user experience.**
 - **Selecting a date on the timetable now displays the day's details underneath the calendar, similar to the Apple Calendar app, instead of navigating to a new page.**
 - **Revision sessions are displayed on the timetable, and days with scheduled sessions are highlighted.**
-- **Each exam is assigned a unique random color, and small colored dots or squares on the calendar days represent the subjects scheduled for revision, allowing you to quickly see your study plan without selecting each day.**
+- **Each exam is assigned a unique color based on the order of your exams, and small colored dots or squares on the calendar days are arranged in the same order as your subjects, allowing you to quickly see your study plan without selecting each day.**
+- **The gaps between the calendar day boxes have been reduced for a more compact view, enhancing the overall user experience.**
 - **A "Made on ZAPT" badge is visible on the app, linking to the ZAPT website.**
 
 ---
