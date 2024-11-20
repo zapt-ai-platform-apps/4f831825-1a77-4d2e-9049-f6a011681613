@@ -18,7 +18,7 @@ import { useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
-  const { timetable, exams, preferences } = useTimetable();
+  const { timetable, setTimetable, exams, preferences } = useTimetable();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
@@ -30,7 +30,7 @@ function Timetable() {
     const examsData = exams();
     const examsByDateMap = {};
     examsData.forEach((exam) => {
-      const examDate = exam.examDate; // Assuming examDate is in 'YYYY-MM-DD' format
+      const examDate = exam.examDate;
       if (!examsByDateMap[examDate]) {
         examsByDateMap[examDate] = [];
       }
@@ -179,7 +179,6 @@ function Timetable() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
-      // Call /api/generateTimetable
       const generateResponse = await fetch('/api/generateTimetable', {
         method: 'POST',
         headers: {
@@ -188,7 +187,6 @@ function Timetable() {
         }
       });
       if (generateResponse.ok) {
-        // Successfully generated timetable, now fetch it
         await fetchTimetable();
       } else {
         const errorText = await generateResponse.text();
@@ -208,25 +206,20 @@ function Timetable() {
       <div class="flex-grow p-4">
         <div class="w-full max-w-4xl mx-auto">
           <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
-          {/* Month and Year */}
           <div class="mb-2">
             <h3 class="text-xl font-semibold text-center">{format(currentMonth(), 'MMMM yyyy')}</h3>
           </div>
           <p class="text-center mb-4">Please select a day on the timetable to view its details.</p>
-          {/* Calendar Container */}
           <div class="w-full flex justify-center">
             <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
-              {/* Calendar Grid */}
               <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
                 <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
                   <div class="grid grid-cols-7 gap-1">
-                    {/* Day Names */}
                     <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
                       {(dayName) => (
                         <div class="text-center font-semibold">{dayName}</div>
                       )}
                     </For>
-                    {/* Calendar Days */}
                     <For each={getCalendarDays()}>
                       {(week) =>
                         week.map((day) => {
@@ -272,7 +265,6 @@ function Timetable() {
               </Show>
             </div>
           </div>
-          {/* Navigation Buttons */}
           <div class="flex items-center justify-between mt-4 w-full sm:w-96 md:w-[32rem] lg:w-[36rem] mx-auto">
             <button
               class="flex items-center px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
@@ -289,7 +281,6 @@ function Timetable() {
               <Icon path={chevronRight} class="w-6 h-6 inline-block" />
             </button>
           </div>
-          {/* Selected Day Details */}
           <Show when={selectedDate()}>
             <div class="mt-8">
               <h3 class="text-xl font-bold mb-4 text-center">
@@ -327,7 +318,6 @@ function Timetable() {
               </Show>
             </div>
           </Show>
-          {/* Made on ZAPT Badge */}
           <div class="text-center mt-8">
             <a href="https://www.zapt.ai" target="_blank" class="text-blue-300 hover:underline cursor-pointer">
               Made on ZAPT
