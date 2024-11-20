@@ -14,6 +14,7 @@ function App() {
   const [user, setUser] = createSignal(null);
   const [timetable, setTimetable] = createSignal(null);
   const [exams, setExams] = createSignal([]);
+  const [preferences, setPreferences] = createSignal(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -97,10 +98,37 @@ function App() {
     }
   };
 
+  const fetchPreferences = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await fetch('/api/getPreferences', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const { data } = await response.json();
+        if (data) {
+          setPreferences(data);
+        }
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching preferences');
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+      Sentry.captureException(error);
+    }
+  };
+
   createEffect(() => {
     if (user()) {
       fetchTimetable();
       fetchExams();
+      fetchPreferences();
     }
   });
 
@@ -114,7 +142,7 @@ function App() {
     const [menuOpen, setMenuOpen] = createSignal(false);
 
     return (
-      <TimetableProvider value={{ timetable, setTimetable, exams, setExams }}>
+      <TimetableProvider value={{ timetable, setTimetable, exams, setExams, preferences }}>
         <div class="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
           <header class="flex items-center justify-between mb-8 p-4">
             <h1 class="text-4xl font-bold">UpGrade</h1>

@@ -1,4 +1,4 @@
-import { createSignal, onMount, For, Show, createMemo } from 'solid-js';
+import { createSignal, onMount, For, Show, createMemo, createEffect } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 import {
@@ -18,12 +18,13 @@ import { useNavigate, useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
-  const { timetable, setTimetable, exams } = useTimetable();
+  const { timetable, setTimetable, exams, preferences } = useTimetable();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
+  const [initialMonthSet, setInitialMonthSet] = createSignal(false);
 
   const examsByDate = createMemo(() => {
     const examsData = exams();
@@ -88,6 +89,7 @@ function Timetable() {
     if (dateParam) {
       const date = parseISO(dateParam);
       setCurrentMonth(startOfMonth(date));
+      setInitialMonthSet(true);
     }
 
     const regenerate = searchParams.regenerate === 'true';
@@ -95,6 +97,16 @@ function Timetable() {
       generateAndFetchTimetable();
     } else {
       fetchTimetable();
+    }
+  });
+
+  createEffect(() => {
+    if (!initialMonthSet() && preferences() && preferences().startDate) {
+      const startDate = parseISO(preferences().startDate);
+      if (!isNaN(startDate)) {
+        setCurrentMonth(startOfMonth(startDate));
+        setInitialMonthSet(true);
+      }
     }
   });
 
