@@ -25,6 +25,7 @@ function Timetable() {
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
   const [initialMonthSet, setInitialMonthSet] = createSignal(false);
   const [selectedDate, setSelectedDate] = createSignal(null);
+  const [subjectColours, setSubjectColours] = createSignal({});
 
   const examsByDate = createMemo(() => {
     const examsData = exams();
@@ -112,6 +113,34 @@ function Timetable() {
     }
     return [];
   });
+
+  createEffect(() => {
+    if (exams()) {
+      const colours = {};
+      const colourPalette = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FF8C33', '#33FFF9', '#8D33FF', '#FF3333', '#33FF8C', '#FF33FF'];
+      let colourIndex = 0;
+      exams().forEach((exam) => {
+        const subject = exam.subject;
+        if (!colours[subject]) {
+          colours[subject] = colourPalette[colourIndex % colourPalette.length];
+          colourIndex++;
+        }
+      });
+      setSubjectColours(colours);
+    }
+  });
+
+  const getSessionsSubjectsForDay = (day) => {
+    const dateKey = format(day, 'yyyy-MM-dd');
+    const subjectsSet = new Set();
+    if (timetable() && timetable()[dateKey]) {
+      const sessions = timetable()[dateKey].sessions;
+      sessions.forEach((session) => {
+        subjectsSet.add(session.subject);
+      });
+    }
+    return Array.from(subjectsSet);
+  };
 
   onMount(() => {
     const dateParam = searchParams.date;
@@ -243,17 +272,26 @@ function Timetable() {
                             bgClass = 'bg-yellow-500 text-black';
                           }
 
+                          const subjectsForDay = day ? getSessionsSubjectsForDay(day) : [];
+
                           return (
                             <div
                               class={`aspect-square ${
                                 day ? 'cursor-pointer' : ''
                               } ${bgClass} border border-white ${
                                 day ? 'hover:bg-blue-600' : ''
-                              } rounded-lg transition duration-200 ease-in-out flex items-center justify-center`}
+                              } rounded-lg transition duration-200 ease-in-out flex flex-col items-center justify-center`}
                               onClick={() => handleDateClick(day)}
                             >
                               <Show when={day}>
                                 <div>{format(day, 'd')}</div>
+                                <div class="flex space-x-0.5 mt-1">
+                                  <For each={subjectsForDay}>
+                                    {(subject) => (
+                                      <div class="w-2 h-2 rounded-full" style={{ background: subjectColours()[subject] }}></div>
+                                    )}
+                                  </For>
+                                </div>
                               </Show>
                             </div>
                           );
