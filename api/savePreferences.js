@@ -1,16 +1,16 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { preferences } from '../drizzle/schema.js';
-import getRawBody from 'raw-body';
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { preferences } from "../drizzle/schema.js";
+import getRawBody from "raw-body";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
   environment: process.env.VITE_PUBLIC_APP_ENV,
   initialScope: {
     tags: {
-      type: 'backend',
+      type: "backend",
       projectId: process.env.VITE_PUBLIC_APP_ID
     }
   }
@@ -40,8 +40,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Preferences data is required' });
     }
 
-    const sql = neon(process.env.NEON_DB_URL);
-    const db = drizzle(sql);
+    const client = postgres(process.env.COCKROACH_DB_URL);
+    const db = drizzle(client);
 
     await db.insert(preferences)
       .values({

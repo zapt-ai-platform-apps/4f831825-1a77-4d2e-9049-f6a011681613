@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { timetables } from "../drizzle/schema.js";
 import getRawBody from "raw-body";
 
@@ -40,8 +40,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Timetable data is required" });
     }
 
-    const sql = neon(process.env.NEON_DB_URL);
-    const db = drizzle(sql);
+    const client = postgres(process.env.COCKROACH_DB_URL);
+    const db = drizzle(client);
 
     await db
       .insert(timetables)
