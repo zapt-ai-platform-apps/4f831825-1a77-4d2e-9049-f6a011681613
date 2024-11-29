@@ -347,7 +347,7 @@ function Timetable() {
                         class="p-4 rounded-lg"
                         style={{ background: subjectColours()[session.subject], color: 'white' }}
                       >
-                        <p class="font-semibold">Time: {session.block}</p>
+                        <p class="font-semibold">Block: {session.block}</p>
                         <p>Subject: {session.subject}</p>
                       </div>
                     )}

@@ -21,11 +21,7 @@ function Preferences() {
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
 
-  const timeBlocks = [
-    { label: 'Morning', times: ['9:00', '10:00', '11:00', '12:00'] },
-    { label: 'Afternoon', times: ['14:00', '15:00', '16:00', '17:00'] },
-    { label: 'Evening', times: ['18:00', '19:00', '20:00', '21:00'] },
-  ];
+  const timeBlocks = ['Morning', 'Afternoon', 'Evening'];
 
   onMount(() => {
     // Fetch existing preferences
@@ -63,27 +59,26 @@ function Preferences() {
     }
   };
 
-  const handleBlockSelection = (day, blockLabel) => {
-    const dayTimes = preferences().revisionTimes[day];
-    const block = timeBlocks.find(b => b.label === blockLabel);
-    const hasBlock = block.times.every(time => dayTimes.includes(time));
+  const handleBlockSelection = (day, block) => {
+    const dayBlocks = preferences().revisionTimes[day] || [];
+    const hasBlock = dayBlocks.includes(block);
 
     if (hasBlock) {
-      // Remove the block times
+      // Remove the block
       setPreferences({
         ...preferences(),
         revisionTimes: {
           ...preferences().revisionTimes,
-          [day]: dayTimes.filter((t) => !block.times.includes(t)),
+          [day]: dayBlocks.filter((b) => b !== block),
         },
       });
     } else {
-      // Add the block times
+      // Add the block
       setPreferences({
         ...preferences(),
         revisionTimes: {
           ...preferences().revisionTimes,
-          [day]: [...dayTimes, ...block.times.filter((t) => !dayTimes.includes(t))],
+          [day]: [...dayBlocks, block],
         },
       });
     }
@@ -153,13 +148,13 @@ function Preferences() {
                           {(block) => (
                             <button
                               class={`px-3 py-1 rounded-full cursor-pointer ${
-                                block.times.every((time) => preferences().revisionTimes[day].includes(time))
+                                preferences().revisionTimes[day].includes(block)
                                   ? 'bg-blue-500 text-white'
                                   : 'bg-gray-300 text-gray-700'
                               }`}
-                              onClick={() => handleBlockSelection(day, block.label)}
+                              onClick={() => handleBlockSelection(day, block)}
                             >
-                              {block.label}
+                              {block}
                             </button>
                           )}
                         </For>
@@ -174,7 +169,7 @@ function Preferences() {
               <select
                 value={preferences().sessionDuration}
                 onInput={handleDurationChange}
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
               >
                 <For each={[30, 45, 60, 75, 90, 105, 120]}>
                   {(duration) => (
@@ -191,7 +186,7 @@ function Preferences() {
                 type="date"
                 value={preferences().startDate}
                 onInput={handleStartDateChange}
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
               />
             </div>
             <Show when={error()}>

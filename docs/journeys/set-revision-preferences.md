@@ -7,9 +7,9 @@
 
 2. **Select Available Revision Times**
    - For each day of the week, select your availability by choosing from three time blocks:
-     - **Morning**: 9 AM to 1 PM
-     - **Afternoon**: 2 PM to 5 PM
-     - **Evening**: 6 PM to 9 PM
+     - **Morning**
+     - **Afternoon**
+     - **Evening**
    - Click on the **Morning**, **Afternoon**, or **Evening** buttons to toggle your availability.
    - Selected time blocks are highlighted for clarity.
 

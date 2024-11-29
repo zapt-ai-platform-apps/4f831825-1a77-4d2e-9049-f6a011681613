@@ -114,32 +114,19 @@ function generateTimetable(preferences, exams) {
       .toLocaleDateString("en-US", { weekday: "long" })
       .toLowerCase();
 
-    // Get available times for that day
-    const availableTimes = revisionTimes[dayOfWeek] || [];
+    // Get available blocks for that day
+    const availableBlocks = revisionTimes[dayOfWeek] || [];
 
-    // For each available time block, create a session
+    // For each available block, create a session
     const sessions = [];
 
-    // If there are no available time blocks, move to next day
-    if (availableTimes.length === 0) {
+    if (availableBlocks.length === 0) {
       dateCursor.setDate(dateCursor.getDate() + 1);
       continue;
     }
 
-    // Group times by blocks
-    const timeBlocksMap = {
-      'Morning': ['9:00', '10:00', '11:00', '12:00'],
-      'Afternoon': ['14:00', '15:00', '16:00', '17:00'],
-      'Evening': ['18:00', '19:00', '20:00', '21:00'],
-    };
-
-    const selectedBlocks = Object.keys(timeBlocksMap).filter(block => {
-      return timeBlocksMap[block].every(time => availableTimes.includes(time));
-    });
-
-    // For each selected time block, create a session
     let sessionIndex = 0;
-    for (const block of selectedBlocks) {
+    for (const block of availableBlocks) {
       // Only schedule subjects whose exams are after or on this date
       const validSubjects = subjects.filter((subject) => {
         const examDate = new Date(examsBySubject[subject].examDate);
@@ -157,7 +144,6 @@ function generateTimetable(preferences, exams) {
       sessions.push({
         block: block,
         subject: assignedSubject,
-        duration: sessionDuration,
       });
 
       sessionIndex++;
