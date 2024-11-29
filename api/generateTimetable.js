@@ -73,7 +73,7 @@ export default async function handler(req, res) {
 }
 
 function generateTimetable(preferences, exams) {
-  const { revisionTimes, sessionDuration, startDate } = preferences;
+  const { revisionTimes, startDate } = preferences;
 
   // Convert exams to a map for quick access
   const examsBySubject = {};

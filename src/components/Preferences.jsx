@@ -15,7 +15,6 @@ function Preferences() {
       saturday: [],
       sunday: [],
     },
-    sessionDuration: 60,
     startDate: '',
   });
   const [loading, setLoading] = createSignal(false);
@@ -82,10 +81,6 @@ function Preferences() {
         },
       });
     }
-  };
-
-  const handleDurationChange = (e) => {
-    setPreferences({ ...preferences(), sessionDuration: parseInt(e.target.value) });
   };
 
   const handleStartDateChange = (e) => {
@@ -163,22 +158,6 @@ function Preferences() {
                   )}
                 </For>
               </div>
-            </div>
-            <div>
-              <h3 class="text-xl font-semibold mb-2">Session Duration</h3>
-              <select
-                value={preferences().sessionDuration}
-                onInput={handleDurationChange}
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
-              >
-                <For each={[30, 45, 60, 75, 90, 105, 120]}>
-                  {(duration) => (
-                    <option value={duration}>
-                      {Math.floor(duration / 60)}h {duration % 60 !== 0 ? `${duration % 60}min` : ''}
-                    </option>
-                  )}
-                </For>
-              </select>
             </div>
             <div>
               <h3 class="text-xl font-semibold mb-2">Start Date</h3>

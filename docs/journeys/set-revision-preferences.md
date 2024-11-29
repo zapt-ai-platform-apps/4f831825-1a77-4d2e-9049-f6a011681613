@@ -13,20 +13,16 @@
    - Click on the **Morning**, **Afternoon**, or **Evening** buttons to toggle your availability.
    - Selected time blocks are highlighted for clarity.
 
-3. **Choose Session Duration**
-   - Select how long each revision session should be.
-   - Options range from **30 minutes to 2 hours** in **15-minute increments**.
-
-4. **Set Start Date**
+3. **Set Start Date**
    - Choose the date you want your revision timetable to start.
 
-5. **Save Preferences**
+4. **Save Preferences**
    - Click the **Save Preferences** button to proceed.
    - **Error Handling**:
      - If there is an issue saving your preferences, an error message will be displayed.
      - All errors are logged and monitored to ensure a smooth user experience.
 
-6. **Proceed to Manage Exams**
+5. **Proceed to Manage Exams**
    - After successfully saving your preferences, you can proceed to add your exams.
 
 ---
