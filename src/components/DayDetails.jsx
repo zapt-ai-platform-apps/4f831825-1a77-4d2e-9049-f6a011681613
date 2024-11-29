@@ -2,13 +2,11 @@ import { For, Show } from 'solid-js';
 import { format, parseISO } from 'date-fns';
 
 function DayDetails(props) {
-  const date = props.selectedDate();
-  
   return (
-    <Show when={date}>
+    <Show when={props.selectedDate()}>
       <div class="mt-8">
         <h3 class="text-xl font-bold mb-4 text-center">
-          Details for {format(parseISO(date), 'MMMM d, yyyy')}
+          Details for {format(parseISO(props.selectedDate()), 'MMMM d, yyyy')}
         </h3>
         <Show when={props.dayExams().length > 0}>
           <h4 class="text-lg font-semibold mb-2">Exams:</h4>
@@ -31,7 +29,10 @@ function DayDetails(props) {
               {(session) => (
                 <div
                   class="p-4 rounded-lg"
-                  style={{ background: props.subjectColours()[session.subject], color: 'white' }}
+                  style={{ 
+                    background: props.subjectColours()[session.subject], 
+                    color: 'white' 
+                  }}
                 >
                   <p class="font-semibold">Block: {session.block}</p>
                   <p>Subject: {session.subject}</p>
