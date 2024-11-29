@@ -120,30 +120,73 @@ function generateTimetable(preferences, exams) {
     // For each available time, create a session
     const sessions = [];
 
-    availableTimes.forEach((time, index) => {
-      // Assign a subject in a round-robin fashion
+    // If there are no available times, move to next day
+    if (availableTimes.length === 0) {
+      dateCursor.setDate(dateCursor.getDate() + 1);
+      continue;
+    }
 
-      // Only schedule subjects whose exams are after or on this date
-      const validSubjects = subjects.filter((subject) => {
-        const examDate = new Date(examsBySubject[subject].examDate);
-        return examDate >= dateCursor;
-      });
+    // Convert times to minutes since midnight and sort
+    const availableMinutes = availableTimes.map((timeStr) => {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      return hours * 60 + minutes;
+    }).sort((a, b) => a - b);
 
-      if (validSubjects.length === 0) {
-        return;
+    // Group consecutive times into continuous blocks
+    const timeBlocks = [];
+    let blockStart = availableMinutes[0];
+    let blockEnd = availableMinutes[0];
+    for (let i = 1; i < availableMinutes.length; i++) {
+      if (availableMinutes[i] === availableMinutes[i - 1] + 60) {
+        blockEnd = availableMinutes[i];
+      } else {
+        timeBlocks.push({ start: blockStart, end: blockEnd + 60 });
+        blockStart = availableMinutes[i];
+        blockEnd = availableMinutes[i];
       }
+    }
+    // Add the last block
+    timeBlocks.push({ start: blockStart, end: blockEnd + 60 });
 
-      // Use a simple method to distribute subjects evenly
-      const subjectIndex =
-        (dateCursor.getDate() + index) % validSubjects.length;
-      const assignedSubject = validSubjects[subjectIndex];
+    // For each block, schedule sessions
+    let sessionIndex = 0;
+    for (const block of timeBlocks) {
+      let sessionStart = block.start;
 
-      sessions.push({
-        time,
-        subject: assignedSubject,
-        duration: sessionDuration,
-      });
-    });
+      while (sessionStart + sessionDuration <= block.end) {
+        // Assign a subject in a round-robin fashion
+
+        // Only schedule subjects whose exams are after or on this date
+        const validSubjects = subjects.filter((subject) => {
+          const examDate = new Date(examsBySubject[subject].examDate);
+          return examDate >= dateCursor;
+        });
+
+        if (validSubjects.length === 0) {
+          break;
+        }
+
+        const subjectIndex =
+          (dateCursor.getDate() + sessionIndex) % validSubjects.length;
+        const assignedSubject = validSubjects[subjectIndex];
+
+        // Convert sessionStart back to time string
+        const hours = Math.floor(sessionStart / 60);
+        const minutes = sessionStart % 60;
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes
+          .toString()
+          .padStart(2, '0')}`;
+
+        sessions.push({
+          time: timeString,
+          subject: assignedSubject,
+          duration: sessionDuration,
+        });
+
+        sessionStart += sessionDuration;
+        sessionIndex++;
+      }
+    }
 
     if (sessions.length > 0) {
       // Add to the timetable
