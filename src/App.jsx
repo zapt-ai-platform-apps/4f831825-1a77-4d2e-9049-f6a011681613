@@ -171,10 +171,10 @@ function App() {
               <ProtectedRoute
                 user={user}
                 setUser={setUser}
-                timetable={timetable()}
+                timetable={timetable}
                 setTimetable={setTimetable}
-                exams={exams()}
-                preferences={preferences()}
+                exams={exams}
+                preferences={preferences}
               >
                 <Preferences />
               </ProtectedRoute>
@@ -190,10 +190,10 @@ function App() {
               <ProtectedRoute
                 user={user}
                 setUser={setUser}
-                timetable={timetable()}
+                timetable={timetable}
                 setTimetable={setTimetable}
-                exams={exams()}
-                preferences={preferences()}
+                exams={exams}
+                preferences={preferences}
               >
                 <Exams />
               </ProtectedRoute>
@@ -209,10 +209,10 @@ function App() {
               <ProtectedRoute
                 user={user}
                 setUser={setUser}
-                timetable={timetable()}
+                timetable={timetable}
                 setTimetable={setTimetable}
-                exams={exams()}
-                preferences={preferences()}
+                exams={exams}
+                preferences={preferences}
               >
                 <Timetable />
               </ProtectedRoute>
