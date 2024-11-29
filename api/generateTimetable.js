@@ -117,75 +117,50 @@ function generateTimetable(preferences, exams) {
     // Get available times for that day
     const availableTimes = revisionTimes[dayOfWeek] || [];
 
-    // For each available time, create a session
+    // For each available time block, create a session
     const sessions = [];
 
-    // If there are no available times, move to next day
+    // If there are no available time blocks, move to next day
     if (availableTimes.length === 0) {
       dateCursor.setDate(dateCursor.getDate() + 1);
       continue;
     }
 
-    // Convert times to minutes since midnight and sort
-    const availableMinutes = availableTimes.map((timeStr) => {
-      const [hours, minutes] = timeStr.split(":").map(Number);
-      return hours * 60 + minutes;
-    }).sort((a, b) => a - b);
+    // Group times by blocks
+    const timeBlocksMap = {
+      'Morning': ['9:00', '10:00', '11:00', '12:00'],
+      'Afternoon': ['14:00', '15:00', '16:00', '17:00'],
+      'Evening': ['18:00', '19:00', '20:00', '21:00'],
+    };
 
-    // Group consecutive times into continuous blocks
-    const timeBlocks = [];
-    let blockStart = availableMinutes[0];
-    let blockEnd = availableMinutes[0];
-    for (let i = 1; i < availableMinutes.length; i++) {
-      if (availableMinutes[i] === availableMinutes[i - 1] + 60) {
-        blockEnd = availableMinutes[i];
-      } else {
-        timeBlocks.push({ start: blockStart, end: blockEnd + 60 });
-        blockStart = availableMinutes[i];
-        blockEnd = availableMinutes[i];
-      }
-    }
-    // Add the last block
-    timeBlocks.push({ start: blockStart, end: blockEnd + 60 });
+    const selectedBlocks = Object.keys(timeBlocksMap).filter(block => {
+      return timeBlocksMap[block].every(time => availableTimes.includes(time));
+    });
 
-    // For each block, schedule sessions
+    // For each selected time block, create a session
     let sessionIndex = 0;
-    for (const block of timeBlocks) {
-      let sessionStart = block.start;
+    for (const block of selectedBlocks) {
+      // Only schedule subjects whose exams are after or on this date
+      const validSubjects = subjects.filter((subject) => {
+        const examDate = new Date(examsBySubject[subject].examDate);
+        return examDate >= dateCursor;
+      });
 
-      while (sessionStart + sessionDuration <= block.end) {
-        // Assign a subject in a round-robin fashion
-
-        // Only schedule subjects whose exams are after or on this date
-        const validSubjects = subjects.filter((subject) => {
-          const examDate = new Date(examsBySubject[subject].examDate);
-          return examDate >= dateCursor;
-        });
-
-        if (validSubjects.length === 0) {
-          break;
-        }
-
-        const subjectIndex =
-          (dateCursor.getDate() + sessionIndex) % validSubjects.length;
-        const assignedSubject = validSubjects[subjectIndex];
-
-        // Convert sessionStart back to time string
-        const hours = Math.floor(sessionStart / 60);
-        const minutes = sessionStart % 60;
-        const timeString = `${hours.toString().padStart(2, '0')}:${minutes
-          .toString()
-          .padStart(2, '0')}`;
-
-        sessions.push({
-          time: timeString,
-          subject: assignedSubject,
-          duration: sessionDuration,
-        });
-
-        sessionStart += sessionDuration;
-        sessionIndex++;
+      if (validSubjects.length === 0) {
+        break;
       }
+
+      const subjectIndex =
+        (dateCursor.getDate() + sessionIndex) % validSubjects.length;
+      const assignedSubject = validSubjects[subjectIndex];
+
+      sessions.push({
+        block: block,
+        subject: assignedSubject,
+        duration: sessionDuration,
+      });
+
+      sessionIndex++;
     }
 
     if (sessions.length > 0) {

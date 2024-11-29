@@ -102,13 +102,7 @@ function Timetable() {
   const sessions = createMemo(() => {
     const dateKey = selectedDate();
     if (dateKey && timetable() && timetable()[dateKey]) {
-      const daySessions = [...timetable()[dateKey].sessions];
-      daySessions.sort((a, b) => {
-        const [hourA, minuteA] = a.time.split(':').map(Number);
-        const [hourB, minuteB] = b.time.split(':').map(Number);
-        return hourA * 60 + minuteA - (hourB * 60 + minuteB);
-      });
-      return daySessions;
+      return timetable()[dateKey].sessions;
     }
     return [];
   });
@@ -353,7 +347,7 @@ function Timetable() {
                         class="p-4 rounded-lg"
                         style={{ background: subjectColours()[session.subject], color: 'white' }}
                       >
-                        <p class="font-semibold">Time: {session.time}</p>
+                        <p class="font-semibold">Time: {session.block}</p>
                         <p>Subject: {session.subject}</p>
                       </div>
                     )}
