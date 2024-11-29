@@ -1,4 +1,4 @@
-import { createSignal, onMount, For, Show, createMemo, createEffect } from 'solid-js';
+import { createSignal, onMount, createMemo, createEffect } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 import {
@@ -12,10 +12,12 @@ import {
   isSameDay,
   parseISO,
 } from 'date-fns';
-import { Icon } from 'solid-heroicons';
-import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
 import { useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
+
+import CalendarGrid from './CalendarGrid';
+import DayDetails from './DayDetails';
+import MonthNavigation from './MonthNavigation';
 
 function Timetable() {
   const { timetable, setTimetable, exams, preferences } = useTimetable();
@@ -245,120 +247,29 @@ function Timetable() {
             <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
               <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
                 <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-                  <div class="grid grid-cols-7 gap-px">
-                    <For each={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}>
-                      {(dayName) => (
-                        <div class="text-center font-semibold">{dayName}</div>
-                      )}
-                    </For>
-                    <For each={getCalendarDays()}>
-                      {(week) =>
-                        week.map((day) => {
-                          const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
-                          const hasExam = dateKey && examsByDate()[dateKey];
-                          const hasSession = dateKey && timetable()[dateKey] && timetable()[dateKey].sessions.length > 0;
-                          const isToday = day && isSameDay(day, new Date());
-                          const isSelected = dateKey && selectedDate() === dateKey;
-                          let bgClass = '';
-                          if (hasExam) {
-                            bgClass = 'bg-red-500 text-white';
-                          } else if (isToday) {
-                            bgClass = 'bg-blue-700 text-white';
-                          } else {
-                            bgClass = 'bg-transparent text-white';
-                          }
-
-                          if (isSelected) {
-                            bgClass = 'bg-yellow-500 text-black';
-                          }
-
-                          const subjectsForDay = day ? getSessionsSubjectsForDay(day) : [];
-
-                          return (
-                            <div
-                              class={`aspect-square ${
-                                day ? 'cursor-pointer' : ''
-                              } ${bgClass} border border-white ${
-                                day ? 'hover:bg-blue-600' : ''
-                              } rounded-lg transition duration-200 ease-in-out flex flex-col items-center justify-center`}
-                              onClick={() => handleDateClick(day)}
-                            >
-                              <Show when={day}>
-                                <div>{format(day, 'd')}</div>
-                                <div class="flex space-x-0.5 mt-1">
-                                  <For each={subjectsForDay}>
-                                    {(subject) => (
-                                      <div class="w-2 h-2 rounded-full" style={{ background: subjectColours()[subject] }}></div>
-                                    )}
-                                  </For>
-                                </div>
-                              </Show>
-                            </div>
-                          );
-                        })
-                      }
-                    </For>
-                  </div>
+                  <CalendarGrid 
+                    getCalendarDays={getCalendarDays}
+                    handleDateClick={handleDateClick}
+                    selectedDate={selectedDate}
+                    timetable={timetable}
+                    examsByDate={examsByDate}
+                    getSessionsSubjectsForDay={getSessionsSubjectsForDay}
+                    subjectColours={subjectColours}
+                  />
                 </Show>
               </Show>
             </div>
           </div>
-          <div class="flex items-center justify-between mt-4 w-full sm:w-96 md:w-[32rem] lg:w-[36rem] mx-auto">
-            <button
-              class="flex items-center px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-              onClick={handlePrevMonth}
-            >
-              <Icon path={chevronLeft} class="w-6 h-6 inline-block" />
-              <span class="ml-1">Previous</span>
-            </button>
-            <button
-              class="flex items-center px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-              onClick={handleNextMonth}
-            >
-              <span class="mr-1">Next</span>
-              <Icon path={chevronRight} class="w-6 h-6 inline-block" />
-            </button>
-          </div>
-          <Show when={selectedDate()}>
-            <div class="mt-8">
-              <h3 class="text-xl font-bold mb-4 text-center">
-                Details for {format(parseISO(selectedDate()), 'MMMM d, yyyy')}
-              </h3>
-              <Show when={dayExams().length > 0}>
-                <h4 class="text-lg font-semibold mb-2">Exams:</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <For each={dayExams()}>
-                    {(exam) => (
-                      <div class="bg-red-600 p-4 rounded-lg">
-                        <p class="font-semibold">Subject: {exam.subject}</p>
-                        <p>Board: {exam.board}</p>
-                        <p>Teacher: {exam.teacher}</p>
-                      </div>
-                    )}
-                  </For>
-                </div>
-              </Show>
-              <Show when={sessions().length > 0}>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <For each={sessions()}>
-                    {(session) => (
-                      <div
-                        class="p-4 rounded-lg"
-                        style={{ background: subjectColours()[session.subject], color: 'white' }}
-                      >
-                        <p class="font-semibold">Block: {session.block}</p>
-                        <p>Subject: {session.subject}</p>
-                      </div>
-                    )}
-                  </For>
-                </div>
-              </Show>
-              <Show when={dayExams().length === 0 && sessions().length === 0}>
-                <p class="text-center">No exams or sessions scheduled for this day.</p>
-              </Show>
-            </div>
-          </Show>
+          <MonthNavigation
+            handlePrevMonth={handlePrevMonth}
+            handleNextMonth={handleNextMonth}
+          />
+          <DayDetails
+            selectedDate={selectedDate}
+            dayExams={dayExams}
+            sessions={sessions}
+            subjectColours={subjectColours}
+          />
         </div>
       </div>
     </div>
