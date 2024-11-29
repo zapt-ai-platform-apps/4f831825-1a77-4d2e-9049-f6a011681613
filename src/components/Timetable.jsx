@@ -49,7 +49,7 @@ function Timetable() {
     return [];
   });
 
-  const getCalendarDays = createMemo(() => {
+  const getCalendarDays = () => {
     const startDate = startOfMonth(currentMonth());
     const endDate = endOfMonth(currentMonth());
     const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -79,7 +79,7 @@ function Timetable() {
     }
 
     return weeks;
-  });
+  };
 
   const handlePrevMonth = () => {
     setCurrentMonth(subMonths(currentMonth(), 1));
