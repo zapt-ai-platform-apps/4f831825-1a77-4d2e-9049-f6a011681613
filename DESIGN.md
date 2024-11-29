@@ -260,3 +260,7 @@ Selected characteristics:
 ## Summary
 
 By following this structured design framework, UpGrade offers a user-friendly, engaging, and efficient platform for students to manage their revision schedules. The app's design focuses on clarity and ease of use, ensuring that users can confidently navigate and utilize all features to optimize their exam preparation.
+
+---
+
+**Note**: The design has been updated to reflect the new availability selection in the preferences, providing both time block options and individual hour selections for enhanced flexibility.

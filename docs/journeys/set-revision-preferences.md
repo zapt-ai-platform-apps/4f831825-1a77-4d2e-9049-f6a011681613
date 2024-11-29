@@ -6,9 +6,20 @@
    - After signing in, you will be directed to set your revision preferences.
 
 2. **Select Available Revision Times**
-   - For each day of the week, select the hours you are available to study between **8 AM and 8 PM**.
-   - Click on the time slots to toggle your availability.
-   - Selected time slots are highlighted for clarity.
+   - **Default Option**:
+     - For each day of the week, select your availability by choosing from three time blocks:
+       - **Morning**: 9 AM to 1 PM
+       - **Afternoon**: 2 PM to 5 PM
+       - **Evening**: 6 PM to 9 PM
+     - Click on the **Morning**, **Afternoon**, or **Evening** buttons to toggle your availability.
+     - Selected time blocks are highlighted for clarity.
+
+   - **Specify Individual Hours (Optional)**:
+     - If you prefer to select individual hours:
+       - Check the **Specify Individual Hours** option.
+       - For each day of the week, select the specific hours you are available to study between **8 AM and 9 PM**.
+       - Click on the time slots to toggle your availability.
+       - Selected time slots are highlighted for clarity.
 
 3. **Choose Session Duration**
    - Select how long each revision session should be.
@@ -25,3 +36,7 @@
 
 6. **Proceed to Manage Exams**
    - After successfully saving your preferences, you can proceed to add your exams.
+
+---
+
+**Note**: The default time blocks provide a quick and easy way to set your availability. The option to specify individual hours offers flexibility if you have a more detailed schedule.

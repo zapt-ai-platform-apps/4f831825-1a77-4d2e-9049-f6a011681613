@@ -20,15 +20,20 @@ function Preferences() {
   });
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal(null);
-  const [timeSlots, setTimeSlots] = createSignal([]);
+  const [useIndividualHours, setUseIndividualHours] = createSignal(false);
+
+  const timeBlocks = [
+    { label: 'Morning', times: ['9:00', '10:00', '11:00', '12:00', '13:00'] },
+    { label: 'Afternoon', times: ['14:00', '15:00', '16:00', '17:00'] },
+    { label: 'Evening', times: ['18:00', '19:00', '20:00', '21:00'] },
+  ];
+
+  const individualTimeSlots = [];
+  for (let i = 8; i <= 21; i++) {
+    individualTimeSlots.push(`${i}:00`);
+  }
 
   onMount(() => {
-    const slots = [];
-    for (let i = 8; i <= 20; i++) {
-      slots.push(`${i}:00`);
-    }
-    setTimeSlots(slots);
-
     // Fetch existing preferences
     fetchPreferences();
   });
@@ -49,6 +54,11 @@ function Preferences() {
         const { data } = await response.json();
         if (data) {
           setPreferences(data);
+          // Determine if individual hours are used based on existing data
+          const usesIndividual = Object.values(data.revisionTimes).some(times =>
+            times.some(time => !timeBlocks.some(block => block.times.includes(time)))
+          );
+          setUseIndividualHours(usesIndividual);
         }
       } else {
         // Preferences not found or error occurred
@@ -61,6 +71,32 @@ function Preferences() {
       console.error('Error fetching preferences:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBlockSelection = (day, blockLabel) => {
+    const dayTimes = preferences().revisionTimes[day];
+    const block = timeBlocks.find(b => b.label === blockLabel);
+    const hasBlock = block.times.every(time => dayTimes.includes(time));
+
+    if (hasBlock) {
+      // Remove the block times
+      setPreferences({
+        ...preferences(),
+        revisionTimes: {
+          ...preferences().revisionTimes,
+          [day]: dayTimes.filter((t) => !block.times.includes(t)),
+        },
+      });
+    } else {
+      // Add the block times
+      setPreferences({
+        ...preferences(),
+        revisionTimes: {
+          ...preferences().revisionTimes,
+          [day]: [...dayTimes, ...block.times.filter((t) => !dayTimes.includes(t))],
+        },
+      });
     }
   };
 
@@ -139,27 +175,60 @@ function Preferences() {
           <div class="space-y-6">
             <div>
               <h3 class="text-xl font-semibold mb-2">Available Revision Times</h3>
+              <div class="mb-4">
+                <label class="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useIndividualHours()}
+                    onChange={() => setUseIndividualHours(!useIndividualHours())}
+                    class="form-checkbox h-5 w-5 text-blue-600"
+                  />
+                  <span class="ml-2">Specify Individual Hours</span>
+                </label>
+              </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <For each={Object.keys(preferences().revisionTimes)}>
                   {(day) => (
                     <div>
                       <h4 class="font-semibold mb-1 capitalize">{day}</h4>
-                      <div class="flex flex-wrap gap-2">
-                        <For each={timeSlots()}>
-                          {(time) => (
-                            <button
-                              class={`px-3 py-1 rounded-full cursor-pointer ${
-                                preferences().revisionTimes[day].includes(time)
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-300 text-gray-700'
-                              }`}
-                              onClick={() => handleTimeSelection(day, time)}
-                            >
-                              {time}
-                            </button>
-                          )}
-                        </For>
-                      </div>
+                      <Show
+                        when={!useIndividualHours()}
+                        fallback={
+                          <div class="flex flex-wrap gap-2">
+                            <For each={individualTimeSlots}>
+                              {(time) => (
+                                <button
+                                  class={`px-3 py-1 rounded-full cursor-pointer ${
+                                    preferences().revisionTimes[day].includes(time)
+                                      ? 'bg-blue-500 text-white'
+                                      : 'bg-gray-300 text-gray-700'
+                                  }`}
+                                  onClick={() => handleTimeSelection(day, time)}
+                                >
+                                  {time}
+                                </button>
+                              )}
+                            </For>
+                          </div>
+                        }
+                      >
+                        <div class="flex flex-wrap gap-2">
+                          <For each={timeBlocks}>
+                            {(block) => (
+                              <button
+                                class={`px-3 py-1 rounded-full cursor-pointer ${
+                                  block.times.every((time) => preferences().revisionTimes[day].includes(time))
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-300 text-gray-700'
+                                }`}
+                                onClick={() => handleBlockSelection(day, block.label)}
+                              >
+                                {block.label}
+                              </button>
+                            )}
+                          </For>
+                        </div>
+                      </Show>
                     </div>
                   )}
                 </For>
