@@ -1,4 +1,3 @@
-```jsx
 import { createSignal, onMount, createMemo, createEffect } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -254,9 +253,9 @@ function Timetable() {
           <p class="text-center mb-4">Please select a day on the timetable to view its details.</p>
           <div class="w-full flex justify-center">
             <div class="w-full sm:w-96 md:w-[32rem] lg:w-[36rem]">
-              <Show when={!loading()} fallback={<p>Loading timetable...</p>}>
-                <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
-                  <CalendarGrid 
+              {!loading() ? (
+                !error() ? (
+                  <CalendarGrid
                     getCalendarDays={getCalendarDays}
                     handleDateClick={handleDateClick}
                     selectedDate={selectedDate}
@@ -265,8 +264,12 @@ function Timetable() {
                     getSessionsSubjectsForDay={getSessionsSubjectsForDay}
                     subjectColours={subjectColours}
                   />
-                </Show>
-              </Show>
+                ) : (
+                  <p class="text-red-500">{error()}</p>
+                )
+              ) : (
+                <p>Loading timetable...</p>
+              )}
             </div>
           </div>
           <MonthNavigation
@@ -286,4 +289,3 @@ function Timetable() {
 }
 
 export default Timetable;
-```
