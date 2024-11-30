@@ -42,7 +42,18 @@ function Preferences() {
       if (response.ok) {
         const { data } = await response.json();
         if (data) {
-          setPreferences(data);
+          const validBlocks = ['Morning', 'Afternoon', 'Evening'];
+          const newRevisionTimes = {};
+          Object.keys(preferences().revisionTimes).forEach((day) => {
+            const dayBlocks = data.revisionTimes[day] || [];
+            newRevisionTimes[day] = dayBlocks.filter((block) =>
+              validBlocks.includes(block)
+            );
+          });
+          setPreferences({
+            revisionTimes: newRevisionTimes,
+            startDate: data.startDate,
+          });
         }
       } else {
         // Preferences not found or error occurred
