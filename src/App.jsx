@@ -82,11 +82,9 @@ function App() {
       if (response.ok) {
         const { data } = await response.json();
         if (data) {
-          const timetableData = {};
-          data.forEach((day) => {
-            timetableData[day.date] = day;
-          });
-          setTimetable(timetableData);
+          setTimetable(data);
+        } else {
+          setTimetable({});
         }
       } else {
         console.error('Error fetching timetable:', response.statusText);
