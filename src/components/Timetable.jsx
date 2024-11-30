@@ -143,12 +143,10 @@ function Timetable() {
   const getSessionsSubjectsForDay = (day) => {
     const dateKey = format(day, 'yyyy-MM-dd');
     const subjectsSet = new Set();
-    if (timetable() && timetable()[dateKey]) {
-      const sessions = timetable()[dateKey];
-      sessions.forEach((session) => {
-        subjectsSet.add(session.subject);
-      });
-    }
+    const sessions = timetable() && timetable()[dateKey] ? timetable()[dateKey] : [];
+    sessions.forEach((session) => {
+      subjectsSet.add(session.subject);
+    });
     const subjectsArray = Array.from(subjectsSet);
     const orderedSubjectsArray = orderedSubjects().filter((subject) => subjectsArray.includes(subject));
     return orderedSubjectsArray;
