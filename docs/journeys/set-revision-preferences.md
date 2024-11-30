@@ -22,8 +22,13 @@
      - If there is an issue saving your preferences, an error message will be displayed.
      - All errors are logged and monitored to ensure a smooth user experience.
 
-5. **Proceed to Manage Exams**
-   - After successfully saving your preferences, you can proceed to add your exams.
+5. **Note on Timetable Regeneration**
+   - Saving new preferences will clear your existing timetable.
+   - A new timetable will be automatically generated based on your updated preferences.
+
+6. **View Updated Timetable**
+   - After saving your preferences, you will be redirected to the **Timetable** page.
+   - Your new timetable will reflect the updated preferences.
 
 ---
 

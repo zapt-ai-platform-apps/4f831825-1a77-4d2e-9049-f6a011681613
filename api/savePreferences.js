@@ -2,8 +2,9 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { preferences } from "../drizzle/schema.js";
+import { preferences, timetables } from "../drizzle/schema.js";
 import getRawBody from "raw-body";
+import { eq } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -53,7 +54,10 @@ export default async function handler(req, res) {
         set: { data: data },
       });
 
-    res.status(200).json({ message: 'Preferences saved' });
+    // Delete existing timetable after updating preferences
+    await db.delete(timetables).where(eq(timetables.userId, user.id));
+
+    res.status(200).json({ message: 'Preferences saved and old timetable removed' });
   } catch (error) {
     Sentry.captureException(error);
     console.error('Error saving preferences:', error);
