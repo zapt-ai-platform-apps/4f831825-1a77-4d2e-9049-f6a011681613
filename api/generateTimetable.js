@@ -28,6 +28,9 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
+    // Delete existing timetable
+    await db.delete(timetables).where(eq(timetables.userId, user.id));
+
     // Fetch user's exams and preferences
     const [prefsResult, examsResult] = await Promise.all([
       db.select().from(preferences).where(eq(preferences.userId, user.id)),
@@ -49,20 +52,11 @@ export default async function handler(req, res) {
     const timetableData = generateTimetable(userPreferences, userExams);
 
     // Save timetable
-    await db
-      .insert(timetables)
-      .values({
-        userId: user.id,
-        data: timetableData,
-        createdAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: timetables.userId,
-        set: {
-          data: timetableData,
-          createdAt: new Date(),
-        },
-      });
+    await db.insert(timetables).values({
+      userId: user.id,
+      data: timetableData,
+      createdAt: new Date(),
+    });
 
     res.status(200).json({ message: "Timetable generated successfully" });
   } catch (error) {
@@ -90,9 +84,7 @@ function generateTimetable(preferences, exams) {
 
   // Collect exam dates for quick lookup
   const examDatesSet = new Set(
-    exams.map((exam) =>
-      new Date(exam.examDate).toISOString().split("T")[0]
-    )
+    exams.map((exam) => new Date(exam.examDate).toISOString().split("T")[0])
   );
 
   const timetableData = [];
