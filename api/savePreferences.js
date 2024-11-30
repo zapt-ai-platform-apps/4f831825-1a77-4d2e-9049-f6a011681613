@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { preferences, timetables, exams } from "../drizzle/schema.js";
+import { preferences, timetables } from "../drizzle/schema.js";
 import getRawBody from "raw-body";
 import { eq } from "drizzle-orm";
 
@@ -44,9 +44,8 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
-    // Delete existing preferences, exams, and timetable
+    // Delete existing preferences and timetable
     await db.delete(preferences).where(eq(preferences.userId, user.id));
-    await db.delete(exams).where(eq(exams.userId, user.id));
     await db.delete(timetables).where(eq(timetables.userId, user.id));
 
     // Insert new preferences
@@ -55,7 +54,7 @@ export default async function handler(req, res) {
       data: data,
     });
 
-    res.status(200).json({ message: 'Preferences saved and old data removed' });
+    res.status(200).json({ message: 'Preferences saved and old timetable removed' });
   } catch (error) {
     Sentry.captureException(error);
     console.error('Error saving preferences:', error);

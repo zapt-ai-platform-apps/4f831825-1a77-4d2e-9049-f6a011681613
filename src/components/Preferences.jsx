@@ -172,7 +172,7 @@ function Preferences() {
               <p class="text-red-500">{error()}</p>
             </Show>
             <p class="text-red-500">
-              Note: Saving new preferences will clear your existing preferences, exams, and timetable. You will need to add your exams again.
+              Note: Saving new preferences will clear your existing preferences and timetable. Your exams will remain unchanged.
             </p>
             <button
               class={`w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
