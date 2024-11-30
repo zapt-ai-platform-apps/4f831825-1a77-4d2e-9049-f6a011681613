@@ -1,3 +1,4 @@
+```jsx
 import { createSignal, onMount, createMemo, createEffect } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
@@ -11,6 +12,7 @@ import {
   subMonths,
   isSameDay,
   parseISO,
+  isValid,
 } from 'date-fns';
 import { useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
@@ -32,18 +34,20 @@ function Timetable() {
   const examsByDate = createMemo(() => {
     const examsData = exams();
     const examsByDateMap = {};
-    examsData.forEach((exam) => {
-      const examDate = exam.examDate;
-      if (!examsByDateMap[examDate]) {
-        examsByDateMap[examDate] = [];
-      }
-      examsByDateMap[examDate].push(exam);
-    });
+    if (Array.isArray(examsData)) {
+      examsData.forEach((exam) => {
+        const examDate = exam.examDate;
+        if (!examsByDateMap[examDate]) {
+          examsByDateMap[examDate] = [];
+        }
+        examsByDateMap[examDate].push(exam);
+      });
+    }
     return examsByDateMap;
   });
 
   const orderedSubjects = createMemo(() => {
-    if (exams()) {
+    if (Array.isArray(exams())) {
       return exams().map((exam) => exam.subject);
     }
     return [];
@@ -52,6 +56,11 @@ function Timetable() {
   const getCalendarDays = createMemo(() => {
     const startDate = startOfMonth(currentMonth());
     const endDate = endOfMonth(currentMonth());
+
+    if (!isValid(startDate) || !isValid(endDate)) {
+      return [];
+    }
+
     const days = eachDayOfInterval({ start: startDate, end: endDate });
     const weeks = [];
     let week = [];
@@ -111,14 +120,14 @@ function Timetable() {
 
   const dayExams = createMemo(() => {
     const dateKey = selectedDate();
-    if (dateKey && exams()) {
+    if (dateKey && Array.isArray(exams())) {
       return exams().filter((exam) => exam.examDate === dateKey);
     }
     return [];
   });
 
   createEffect(() => {
-    if (exams()) {
+    if (Array.isArray(exams())) {
       const colours = {};
       const colourPalette = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FF8C33', '#33FFF9', '#8D33FF', '#FF3333', '#33FF8C', '#FF33FF'];
       let colourIndex = 0;
@@ -150,8 +159,10 @@ function Timetable() {
     const dateParam = searchParams.date;
     if (dateParam) {
       const date = parseISO(dateParam);
-      setCurrentMonth(startOfMonth(date));
-      setInitialMonthSet(true);
+      if (isValid(date)) {
+        setCurrentMonth(startOfMonth(date));
+        setInitialMonthSet(true);
+      }
     }
 
     const regenerate = searchParams.regenerate === 'true';
@@ -165,7 +176,7 @@ function Timetable() {
   createEffect(() => {
     if (!initialMonthSet() && preferences() && preferences().startDate) {
       const startDate = parseISO(preferences().startDate);
-      if (!isNaN(startDate)) {
+      if (isValid(startDate)) {
         setCurrentMonth(startOfMonth(startDate));
         setInitialMonthSet(true);
       }
@@ -189,6 +200,8 @@ function Timetable() {
         const { data } = await response.json();
         if (data) {
           setTimetable(data);
+        } else {
+          setTimetable({});
         }
       } else {
         const errorText = await response.text();
@@ -273,3 +286,4 @@ function Timetable() {
 }
 
 export default Timetable;
+```
