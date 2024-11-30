@@ -45,8 +45,8 @@ export default async function handler(req, res) {
     const db = drizzle(client);
 
     // Delete existing preferences and timetable
-    await db.delete(preferences).where(eq(preferences.userId, user.id));
-    await db.delete(timetables).where(eq(timetables.userId, user.id));
+    await db.deleteFrom(preferences).where(eq(preferences.userId, user.id));
+    await db.deleteFrom(timetables).where(eq(timetables.userId, user.id));
 
     // Insert new preferences
     await db.insert(preferences).values({
