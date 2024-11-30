@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     }
 
     const data = {
-      startDate: userPreferences.startDate.toISOString().split('T')[0],
+      startDate: userPreferences.startDate,
       revisionTimes: revisionTimesData,
     };
 
