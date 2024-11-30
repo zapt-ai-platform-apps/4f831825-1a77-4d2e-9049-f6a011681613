@@ -89,6 +89,9 @@ function generateTimetable(preferences, exams) {
 
   const timetableData = [];
 
+  // Valid time blocks
+  const validBlocks = ["Morning", "Afternoon", "Evening"];
+
   // Generate dates from startDate to lastExamDate
   let dateCursor = new Date(startDate);
   const endDate = lastExamDate;
@@ -107,7 +110,8 @@ function generateTimetable(preferences, exams) {
       .toLowerCase();
 
     // Get available blocks for that day
-    const availableBlocks = revisionTimes[dayOfWeek] || [];
+    const dayBlocks = revisionTimes[dayOfWeek] || [];
+    const availableBlocks = dayBlocks.filter((block) => validBlocks.includes(block));
 
     // For each available block, create a session
     const sessions = [];

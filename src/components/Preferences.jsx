@@ -104,13 +104,28 @@ function Preferences() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
+      // Filter preferences to include only valid blocks
+      const validBlocks = ['Morning', 'Afternoon', 'Evening'];
+      const filteredRevisionTimes = {};
+      Object.keys(preferences().revisionTimes).forEach((day) => {
+        const dayBlocks = preferences().revisionTimes[day];
+        filteredRevisionTimes[day] = dayBlocks.filter((block) =>
+          validBlocks.includes(block)
+        );
+      });
+
+      const filteredPreferences = {
+        revisionTimes: filteredRevisionTimes,
+        startDate: preferences().startDate,
+      };
+
       const response = await fetch('/api/savePreferences', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data: preferences() }),
+        body: JSON.stringify({ data: filteredPreferences }),
       });
 
       const responseBody = await response.text();
