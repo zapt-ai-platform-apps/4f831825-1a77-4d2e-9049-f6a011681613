@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { timetables } from "../drizzle/schema.js";
+import { timetableEntries } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -30,14 +30,26 @@ export default async function handler(req, res) {
 
     const result = await db
       .select()
-      .from(timetables)
-      .where(eq(timetables.userId, user.id));
+      .from(timetableEntries)
+      .where(eq(timetableEntries.userId, user.id));
 
     if (!result.length) {
       return res.status(200).json({ data: null });
     }
 
-    res.status(200).json({ data: result[0].data });
+    // Group timetable entries by date
+    const timetableData = {};
+    result.forEach((entry) => {
+      if (!timetableData[entry.date]) {
+        timetableData[entry.date] = [];
+      }
+      timetableData[entry.date].push({
+        block: entry.block,
+        subject: entry.subject,
+      });
+    });
+
+    res.status(200).json({ data: timetableData });
   } catch (error) {
     Sentry.captureException(error);
     console.error("Error fetching timetable:", error);

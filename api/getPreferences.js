@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { preferences } from "../drizzle/schema.js";
+import { preferences, revisionTimes } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -28,16 +28,45 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
-    const result = await db
+    const preferencesResult = await db
       .select()
       .from(preferences)
       .where(eq(preferences.userId, user.id));
 
-    if (!result.length) {
+    if (!preferencesResult.length) {
       return res.status(200).json({ data: null });
     }
 
-    res.status(200).json({ data: result[0].data });
+    const userPreferences = preferencesResult[0];
+
+    const revisionTimesResult = await db
+      .select()
+      .from(revisionTimes)
+      .where(eq(revisionTimes.userId, user.id));
+
+    const revisionTimesData = {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    };
+
+    for (const row of revisionTimesResult) {
+      if (!revisionTimesData[row.dayOfWeek]) {
+        revisionTimesData[row.dayOfWeek] = [];
+      }
+      revisionTimesData[row.dayOfWeek].push(row.block);
+    }
+
+    const data = {
+      startDate: userPreferences.startDate.toISOString().split('T')[0],
+      revisionTimes: revisionTimesData,
+    };
+
+    res.status(200).json({ data: data });
   } catch (error) {
     Sentry.captureException(error);
     console.error("Error fetching preferences:", error);

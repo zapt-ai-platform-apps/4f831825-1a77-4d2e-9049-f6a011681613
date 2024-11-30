@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { preferences, exams, timetables } from "../drizzle/schema.js";
+import { preferences, exams, revisionTimes, timetableEntries } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -28,35 +28,38 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
-    // Delete existing timetable
-    await db.delete(timetables).where(eq(timetables.userId, user.id));
+    // Delete existing timetable entries
+    await db.delete(timetableEntries).where(eq(timetableEntries.userId, user.id));
 
-    // Fetch user's exams and preferences
-    const [prefsResult, examsResult] = await Promise.all([
+    // Fetch user's exams, preferences, and revision times
+    const [prefsResult, examsResult, revisionTimesResult] = await Promise.all([
       db.select().from(preferences).where(eq(preferences.userId, user.id)),
       db.select().from(exams).where(eq(exams.userId, user.id)),
+      db.select().from(revisionTimes).where(eq(revisionTimes.userId, user.id)),
     ]);
 
     if (!prefsResult.length) {
       return res.status(400).json({ error: "User preferences not found" });
     }
 
-    const userPreferences = prefsResult[0].data;
+    const userPreferences = prefsResult[0];
     const userExams = examsResult;
 
     if (!userExams.length) {
       return res.status(400).json({ error: "No exams found for user" });
     }
 
-    // Generate timetable
-    const timetableData = generateTimetable(userPreferences, userExams);
+    if (!revisionTimesResult.length) {
+      return res.status(400).json({ error: "No revision times found for user" });
+    }
 
-    // Save timetable
-    await db.insert(timetables).values({
-      userId: user.id,
-      data: timetableData,
-      createdAt: new Date(),
-    });
+    // Generate timetable entries
+    const timetableData = generateTimetable(userPreferences, userExams, revisionTimesResult);
+
+    // Save timetable entries
+    if (timetableData.length > 0) {
+      await db.insert(timetableEntries).values(timetableData);
+    }
 
     res.status(200).json({ message: "Timetable generated successfully" });
   } catch (error) {
@@ -66,8 +69,8 @@ export default async function handler(req, res) {
   }
 }
 
-function generateTimetable(preferences, exams) {
-  const { revisionTimes, startDate } = preferences;
+function generateTimetable(preferences, exams, revisionTimes) {
+  const { startDate } = preferences;
 
   // Convert exams to a map for quick access
   const examsBySubject = {};
@@ -87,7 +90,17 @@ function generateTimetable(preferences, exams) {
     exams.map((exam) => new Date(exam.examDate).toISOString().split("T")[0])
   );
 
-  const timetableData = [];
+  const timetableEntries = [];
+
+  // Create a map of revision times
+  const revisionTimesMap = {};
+  revisionTimes.forEach((item) => {
+    const day = item.dayOfWeek.toLowerCase();
+    if (!revisionTimesMap[day]) {
+      revisionTimesMap[day] = [];
+    }
+    revisionTimesMap[day].push(item.block);
+  });
 
   // Valid time blocks
   const validBlocks = ["Morning", "Afternoon", "Evening"];
@@ -110,11 +123,8 @@ function generateTimetable(preferences, exams) {
       .toLowerCase();
 
     // Get available blocks for that day
-    const dayBlocks = revisionTimes[dayOfWeek] || [];
+    const dayBlocks = revisionTimesMap[dayOfWeek] || [];
     const availableBlocks = dayBlocks.filter((block) => validBlocks.includes(block));
-
-    // For each available block, create a session
-    const sessions = [];
 
     if (availableBlocks.length === 0) {
       dateCursor.setDate(dateCursor.getDate() + 1);
@@ -137,7 +147,9 @@ function generateTimetable(preferences, exams) {
         (dateCursor.getDate() + sessionIndex) % validSubjects.length;
       const assignedSubject = validSubjects[subjectIndex];
 
-      sessions.push({
+      timetableEntries.push({
+        userId: preferences.userId,
+        date: currentDateStr,
         block: block,
         subject: assignedSubject,
       });
@@ -145,17 +157,9 @@ function generateTimetable(preferences, exams) {
       sessionIndex++;
     }
 
-    if (sessions.length > 0) {
-      // Add to the timetable
-      timetableData.push({
-        date: currentDateStr,
-        sessions,
-      });
-    }
-
     // Move to next day
     dateCursor.setDate(dateCursor.getDate() + 1);
   }
 
-  return timetableData;
+  return timetableEntries;
 }

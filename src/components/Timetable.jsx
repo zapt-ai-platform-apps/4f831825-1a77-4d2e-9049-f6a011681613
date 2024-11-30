@@ -104,7 +104,7 @@ function Timetable() {
   const sessions = createMemo(() => {
     const dateKey = selectedDate();
     if (dateKey && timetable() && timetable()[dateKey]) {
-      return timetable()[dateKey].sessions;
+      return timetable()[dateKey];
     }
     return [];
   });
@@ -136,7 +136,7 @@ function Timetable() {
     const dateKey = format(day, 'yyyy-MM-dd');
     const subjectsSet = new Set();
     if (timetable() && timetable()[dateKey]) {
-      const sessions = timetable()[dateKey].sessions;
+      const sessions = timetable()[dateKey];
       sessions.forEach((session) => {
         subjectsSet.add(session.subject);
       });
@@ -188,11 +188,7 @@ function Timetable() {
       if (response.ok) {
         const { data } = await response.json();
         if (data) {
-          const timetableData = {};
-          data.forEach((day) => {
-            timetableData[day.date] = day;
-          });
-          setTimetable(() => timetableData);
+          setTimetable(data);
         }
       } else {
         const errorText = await response.text();
