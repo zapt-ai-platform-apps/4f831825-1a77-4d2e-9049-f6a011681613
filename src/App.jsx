@@ -160,7 +160,7 @@ function App() {
   });
 
   return (
-    <div class="min-h-screen">
+    <div class="h-full">
       <Routes>
         <Route path="/" component={LandingPage} />
         <Route path="/login" component={Login} />

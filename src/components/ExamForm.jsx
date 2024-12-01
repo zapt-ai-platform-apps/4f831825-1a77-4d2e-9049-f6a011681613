@@ -61,7 +61,7 @@ function ExamForm(props) {
 
   return (
     <div>
-      <h3 class="text-xl font-semibold mb-2">Add New Exam</h3>
+      <h3 class="text-xl font-semibold mb-2 text-center">Add New Exam</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
           type="text"
@@ -82,7 +82,7 @@ function ExamForm(props) {
         <select
           name="timeOfDay"
           value={newExam().timeOfDay}
-          onChange={handleInputChange}
+          onInput={handleInputChange}
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border cursor-pointer"
         >
           <For each={timeOptions}>{(option) => (

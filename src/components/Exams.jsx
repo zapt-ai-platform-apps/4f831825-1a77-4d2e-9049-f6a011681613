@@ -73,10 +73,10 @@ function Exams() {
   };
 
   return (
-    <div class="min-h-screen flex flex-col text-white">
-      <div class="flex-grow p-4">
-        <div class="w-full max-w-full sm:max-w-4xl mx-auto">
-          <h2 class="text-2xl font-bold mb-4">Manage Your Exams</h2>
+    <div class="h-full flex flex-col text-white">
+      <div class="flex-grow p-4 flex items-center justify-center">
+        <div class="w-full max-w-full sm:max-w-4xl bg-white/90 rounded-lg p-6 shadow-lg text-black">
+          <h2 class="text-2xl font-bold mb-4 text-center">Manage Your Exams</h2>
           <div class="space-y-6">
             <ExamForm onExamAdded={handleAddExam} />
             <ExamList exams={exams()} onExamDeleted={handleDeleteExam} loading={loading()} />

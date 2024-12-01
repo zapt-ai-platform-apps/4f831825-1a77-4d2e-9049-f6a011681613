@@ -31,17 +31,17 @@ function ExamList(props) {
 
   return (
     <div>
-      <h3 class="text-xl font-semibold mb-2">Upcoming Exams</h3>
+      <h3 class="text-xl font-semibold mb-2 text-center">Upcoming Exams</h3>
       <Show when={!props.loading} fallback={<p>Loading exams...</p>}>
         <For each={props.exams}>
           {(exam) => (
-            <div class="bg-gray-800 p-4 rounded-lg flex justify-between items-center mb-2">
+            <div class="bg-gray-200 p-4 rounded-lg flex justify-between items-center mb-2">
               <div>
-                <p class="font-semibold text-lg">{exam.subject}</p>
-                <p>Exam Date: {exam.examDate}</p>
-                <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
-                <p>Board: {exam.board}</p>
-                <p>Teacher: {exam.teacher}</p>
+                <p class="font-semibold text-lg text-black">{exam.subject}</p>
+                <p class="text-black">Exam Date: {exam.examDate}</p>
+                <p class="text-black">Time of Day: {exam.timeOfDay || 'Morning'}</p>
+                <p class="text-black">Board: {exam.board}</p>
+                <p class="text-black">Teacher: {exam.teacher}</p>
               </div>
               <div class="flex space-x-2">
                 <button

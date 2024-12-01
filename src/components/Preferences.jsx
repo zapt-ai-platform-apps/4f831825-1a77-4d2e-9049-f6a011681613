@@ -23,7 +23,6 @@ function Preferences() {
   const timeBlocks = ['Morning', 'Afternoon', 'Evening'];
 
   onMount(() => {
-    // Fetch existing preferences
     fetchPreferences();
   });
 
@@ -55,14 +54,12 @@ function Preferences() {
             startDate: data.startDate || '',
           });
         } else {
-          // No preferences saved yet, keep default preferences
           setPreferences({
             ...preferences(),
             startDate: data ? data.startDate || '' : preferences().startDate,
           });
         }
       } else {
-        // Preferences not found or error occurred
         if (response.status !== 404) {
           const errorText = await response.text();
           throw new Error(errorText || 'Error fetching preferences');
@@ -81,7 +78,6 @@ function Preferences() {
     const hasBlock = dayBlocks.includes(block);
 
     if (hasBlock) {
-      // Remove the block
       setPreferences({
         ...preferences(),
         revisionTimes: {
@@ -90,7 +86,6 @@ function Preferences() {
         },
       });
     } else {
-      // Add the block
       setPreferences({
         ...preferences(),
         revisionTimes: {
@@ -111,7 +106,6 @@ function Preferences() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
-      // Filter preferences to include only valid blocks
       const validBlocks = ['Morning', 'Afternoon', 'Evening'];
       const filteredRevisionTimes = {};
       Object.keys(preferences().revisionTimes).forEach((day) => {
@@ -148,7 +142,6 @@ function Preferences() {
         throw new Error(errorText);
       }
 
-      // After saving preferences, generate the timetable
       const generateResponse = await fetch('/api/generateTimetable', {
         method: 'POST',
         headers: {
@@ -172,13 +165,13 @@ function Preferences() {
   };
 
   return (
-    <div class="min-h-screen flex flex-col text-white">
+    <div class="h-full flex flex-col text-white">
       <div class="flex-grow p-4 flex items-center justify-center">
         <div class="w-full max-w-full sm:max-w-4xl bg-white/90 rounded-lg p-6 shadow-lg text-black">
-          <h2 class="text-2xl font-bold mb-4">Set Your Revision Preferences</h2>
+          <h2 class="text-2xl font-bold mb-4 text-center">Set Your Revision Preferences</h2>
           <div class="space-y-6">
             <div>
-              <h3 class="text-xl font-semibold mb-2">Available Revision Times</h3>
+              <h3 class="text-xl font-semibold mb-2 text-center">Available Revision Times</h3>
               <Show when={preferences().revisionTimes}>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <For each={Object.keys(preferences().revisionTimes)}>
@@ -208,7 +201,7 @@ function Preferences() {
               </Show>
             </div>
             <div>
-              <h3 class="text-xl font-semibold mb-2">Start Date</h3>
+              <h3 class="text-xl font-semibold mb-2 text-center">Start Date</h3>
               <input
                 type="date"
                 value={preferences().startDate}
@@ -217,9 +210,9 @@ function Preferences() {
               />
             </div>
             <Show when={error()}>
-              <p class="text-red-500">{error()}</p>
+              <p class="text-red-500 text-center">{error()}</p>
             </Show>
-            <p class="text-red-500">
+            <p class="text-red-500 text-center">
               Note: Saving new preferences will clear your existing preferences and timetable. Your exams will remain unchanged.
             </p>
             <button
