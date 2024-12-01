@@ -23,13 +23,17 @@
    - The timetable is displayed as a traditional monthly calendar grid optimized for all devices.
    - Each day in the calendar shows the date.
 
-5. **Subject Indicators**
-   - Each exam is assigned a unique color based on the order of your exams.
-   - Days with scheduled revision sessions display small colored dots or squares representing the subjects you're set to revise.
-   - The color indicators are arranged in the same order as your subjects, allowing you to quickly see which subjects you will be studying on each day without selecting the date.
+5. **Subject Indicators with Colored Dots**
+   - Each revision session is represented by a **colored dot** corresponding to its subject.
+   - The colors are **unique per subject**, allowing you to quickly identify which subjects you will be studying on each day.
+   - **Multiple Dots**:
+     - If you have multiple revision sessions for different subjects on the same day, multiple colored dots are displayed.
+   - **Legend**:
+     - A legend is displayed below the calendar, mapping each subject to its corresponding color.
+     - This helps you easily understand the color coding of your timetable.
 
 6. **Exam Day Highlighting**
-   - Days with scheduled exams are highlighted in **red**.
+   - Days with scheduled exams are labeled with an **"Exam"** indicator in red text.
    - **Revision Before Exams**:
      - The revision session immediately before an exam will always be a revision session for that exam, scheduled on the latest available block before the exam. This ensures you are well-prepared for each exam.
      - If two exams are scheduled consecutively, the immediate revision session before these exams will be for the first (earlier) exam subject, scheduled on the latest available block. The revision session before that will be for the second (later) exam subject.
@@ -43,18 +47,16 @@
    - The details of the selected day are displayed underneath the calendar, similar to the Apple Calendar app.
    - This includes any exams and revision sessions scheduled for that day.
      - For exams, the **Time of Day** is displayed.
+     - Revision sessions are displayed with their corresponding **subject colors** for consistency.
    - Click on another date to view its details or click the same date again to hide the details.
 
 9. **Navigate Between Months**
    - Use the **Previous** and **Next** buttons, enhanced with icons, located below the calendar to navigate between months.
    - The current month and year are displayed at the top of the calendar.
 
-10. **Revision Sessions are Color-Coded**
-    - The detailed revision sessions displayed under the calendar are colored to match the colors for the subject, providing consistent visual cues.
-
-11. **Saved Timetable**
+10. **Saved Timetable**
     - The timetable is saved and can be accessed anytime by navigating to the **Timetable** page.
 
 ---
 
-**Note**: The timetable generation logic ensures that you always have a revision session for an exam subject immediately before the exam, scheduled on the latest available block before the exam. No revision sessions are scheduled after your final exam, providing a clear end to your study schedule.
+**Note**: The timetable now uses colored dots to represent different subjects, providing a quick visual reference of your revision schedule. The legend helps you understand what each color represents, making it easier to plan and organize your study time.

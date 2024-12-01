@@ -35,7 +35,8 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
-- **Update**: The timetable generation logic has been improved to ensure that the last revision session before an exam is scheduled in the **latest available block** before the exam (e.g., Afternoon instead of Morning if both are available). This provides optimal preparation for your exams.
+- **Update**: The timetable now displays colored dots for each subject on days with revision sessions, and includes a legend for easy reference. This enhancement provides a quick visual overview of your study schedule.
+- **Additional Update**: The timetable generation logic ensures that the last revision session before an exam is scheduled in the **latest available block** before the exam, providing optimal preparation for your exams.
 
 ---
 

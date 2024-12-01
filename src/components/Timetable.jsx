@@ -5,6 +5,7 @@ import { useTimetable } from '../contexts/TimetableContext';
 import MonthNavigation from './MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
+import Legend from './Timetable/Legend';
 import { isSameDay } from 'date-fns';
 
 function Timetable() {
@@ -15,6 +16,7 @@ function Timetable() {
   const [selectedDate, setSelectedDate] = createSignal(null);
   const [datesWithData, setDatesWithData] = createSignal({});
   const [maxDate, setMaxDate] = createSignal(null);
+  const [subjectColours, setSubjectColours] = createSignal({});
 
   onMount(() => {
     fetchExams().then(() => {
@@ -91,7 +93,6 @@ function Timetable() {
       const lastExamDate = new Date(Math.max.apply(null, examDates));
       setMaxDate(lastExamDate);
 
-      // If currentMonth is after maxDate, set currentMonth to maxDate
       if (currentMonth() > new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1)) {
         setCurrentMonth(new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1));
       }
@@ -102,18 +103,44 @@ function Timetable() {
 
   const prepareDatesWithData = (timetableData) => {
     const dates = {};
+    const subjectsSet = new Set();
+
     // Add revision sessions
     for (const date in timetableData) {
       if (!dates[date]) dates[date] = { sessions: [], exams: [] };
       dates[date].sessions = timetableData[date];
+
+      timetableData[date].forEach((session) => {
+        subjectsSet.add(session.subject);
+      });
     }
+
     // Add exams
     exams().forEach((exam) => {
       const date = exam.examDate;
       if (!dates[date]) dates[date] = { sessions: [], exams: [] };
       dates[date].exams.push(exam);
+
+      subjectsSet.add(exam.subject);
     });
+
     setDatesWithData(dates);
+
+    // Generate subjectColours mapping
+    const uniqueSubjects = Array.from(subjectsSet);
+    const colours = [
+      '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+      '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+      '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+      '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+    ];
+
+    const subjectColourMap = {};
+    uniqueSubjects.forEach((subject, index) => {
+      subjectColourMap[subject] = colours[index % colours.length];
+    });
+
+    setSubjectColours(subjectColourMap);
   };
 
   const handlePrevMonth = () => {
@@ -159,11 +186,14 @@ function Timetable() {
               datesWithData={datesWithData()}
               selectedDate={selectedDate()}
               onDateClick={handleDateClick}
+              subjectColours={subjectColours()}
             />
+            <Legend subjectColours={subjectColours()} />
             <Show when={selectedDate()}>
               <DayDetails
                 date={selectedDate()}
                 datesWithData={datesWithData()}
+                subjectColours={subjectColours()}
               />
             </Show>
           </Show>

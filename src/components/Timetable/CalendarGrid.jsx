@@ -16,19 +16,16 @@ function CalendarGrid(props) {
   return (
     <div>
       <div class="grid grid-cols-7 gap-2 mb-4">
-        {/* Weekday headers */}
         <For each={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}>
           {(day) => (
             <div class="text-center font-semibold">{day}</div>
           )}
         </For>
-        {/* Empty cells for days before the first of the month */}
         <For each={Array((startDayOfWeek() + 6) % 7)}>
           {() => (
             <div></div>
           )}
         </For>
-        {/* Days of the month */}
         <For each={daysInMonth()}>
           {(day) => (
             <DayCell
@@ -36,6 +33,7 @@ function CalendarGrid(props) {
               datesWithData={props.datesWithData}
               isSelected={props.selectedDate && isSameDay(day, props.selectedDate)}
               onDateClick={props.onDateClick}
+              subjectColours={props.subjectColours}
             />
           )}
         </For>
