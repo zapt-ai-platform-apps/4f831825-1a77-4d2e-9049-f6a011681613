@@ -115,8 +115,8 @@ function generateTimetable(preferences, exams, revisionTimes) {
     revisionTimesMap[day].push(item.block);
   });
 
-  // Valid time blocks
-  const validBlocks = ["Morning", "Afternoon", "Evening"];
+  // Valid time blocks and their order
+  const blockOrder = ["Morning", "Afternoon", "Evening"];
 
   // Generate dates from startDate to lastExamDate
   let currentDate = new Date(dateCursor);
@@ -131,7 +131,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
 
     // Get available blocks for that day
     const dayBlocks = revisionTimesMap[dayOfWeek] || [];
-    const availableBlocks = dayBlocks.filter((block) => validBlocks.includes(block));
+    const availableBlocks = dayBlocks.filter((block) => blockOrder.includes(block));
 
     if (availableBlocks.length === 0) {
       currentDate.setDate(currentDate.getDate() + 1);
@@ -140,7 +140,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
 
     let sessionIndex = 0;
     for (const block of availableBlocks) {
-      // Only schedule subjects whose exams are after or on this date
+      // Only schedule subjects whose exams are after the current block
       const validSubjects = subjects.filter((subject) => {
         const examEntry = examsBySubject[subject];
         if (!examEntry || !examEntry.examDate) {
@@ -150,11 +150,21 @@ function generateTimetable(preferences, exams, revisionTimes) {
         if (isNaN(examDate)) {
           return false;
         }
-        return examDate >= currentDate;
+        const examDateStr = examDate.toISOString().split("T")[0];
+        if (examDateStr > currentDateStr) {
+          return true;
+        } else if (examDateStr === currentDateStr) {
+          const examTimeIndex = blockOrder.indexOf(examEntry.timeOfDay || "Morning");
+          const currentBlockIndex = blockOrder.indexOf(block);
+          // Only include if current block is before exam's time block
+          return currentBlockIndex < examTimeIndex;
+        } else {
+          return false;
+        }
       });
 
       if (!validSubjects.length) {
-        break;
+        continue;
       }
 
       const subjectIndex =
