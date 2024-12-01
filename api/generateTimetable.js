@@ -136,7 +136,11 @@ function generateTimetable(preferences, exams, revisionTimes) {
     }
 
     // Only include the filtered blocks
-    for (const block of filteredBlocks) {
+    // Order blocks in the desired sequence: Evening, Afternoon, Morning
+    const orderedBlocks = ["Evening", "Afternoon", "Morning"];
+    const sortedBlocks = orderedBlocks.filter((block) => filteredBlocks.includes(block));
+
+    for (const block of sortedBlocks) {
       allSlots.push({
         date: currentDateStr,
         block,
@@ -158,7 +162,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     const examBlockIndex = blockOrder.indexOf(exam.timeOfDay || "Morning");
 
     // Find the latest available slot before the exam
-    for (let i = allSlots.length - 1; i >= 0; i--) {
+    for (let i = 0; i < allSlots.length; i++) {
       const slot = allSlots[i];
       if (assignedSlots.has(i)) continue;
 
@@ -169,13 +173,15 @@ function generateTimetable(preferences, exams, revisionTimes) {
         slotDate < examDate ||
         (slotDate.toISOString().split("T")[0] === examDateStr && slotBlockIndex < examBlockIndex)
       ) {
-        revisionSlot = slot;
-        assignedSlots.add(i);
-        break;
+        if (!revisionSlot || slotDate > new Date(revisionSlot.date) || (slotDate.getTime() === new Date(revisionSlot.date).getTime() && slotBlockIndex > blockOrder.indexOf(revisionSlot.block))) {
+          revisionSlot = slot;
+        }
       }
     }
 
     if (revisionSlot) {
+      const slotIndex = allSlots.indexOf(revisionSlot);
+      assignedSlots.add(slotIndex);
       revisionSlot.assigned = true;
       revisionSlot.subject = exam.subject;
     } else {
@@ -191,7 +197,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
         // Exams are on consecutive days
         // Assign the slot before the previous exam to the next exam's subject
         let prevRevisionSlot = null;
-        for (let i = allSlots.length - 1; i >= 0; i--) {
+        for (let i = 0; i < allSlots.length; i++) {
           const slot = allSlots[i];
           if (assignedSlots.has(i)) continue;
 
@@ -203,13 +209,15 @@ function generateTimetable(preferences, exams, revisionTimes) {
             (slotDate.toISOString().split("T")[0] === prevExamDate.toISOString().split("T")[0] &&
               slotBlockIndex < blockOrder.indexOf(prevExam.timeOfDay || "Morning"))
           ) {
-            prevRevisionSlot = slot;
-            assignedSlots.add(i);
-            break;
+            if (!prevRevisionSlot || slotDate > new Date(prevRevisionSlot.date) || (slotDate.getTime() === new Date(prevRevisionSlot.date).getTime() && slotBlockIndex > blockOrder.indexOf(prevRevisionSlot.block))) {
+              prevRevisionSlot = slot;
+            }
           }
         }
 
         if (prevRevisionSlot) {
+          const slotIndex = allSlots.indexOf(prevRevisionSlot);
+          assignedSlots.add(slotIndex);
           prevRevisionSlot.assigned = true;
           prevRevisionSlot.subject = exam.subject;
         }

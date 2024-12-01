@@ -33,6 +33,7 @@
    - **Revision Before Exams**:
      - The revision session immediately before an exam will always be a revision session for that exam, scheduled on the latest available block before the exam. This ensures you are well-prepared for each exam.
      - If two exams are scheduled consecutively, the immediate revision session before these exams will be for the first (earlier) exam subject, scheduled on the latest available block. The revision session before that will be for the second (later) exam subject.
+     - **Update**: The timetable generation logic has been improved to ensure that the last revision session before an exam is scheduled in the **latest available block** before the exam (e.g., Afternoon instead of Morning if both are available). This provides optimal preparation for your exams.
 
 7. **No Revision After Final Exam**
    - After your final exam, no further revision sessions are scheduled, including later on the same day. This ensures that your timetable accurately reflects the completion of your exams.
