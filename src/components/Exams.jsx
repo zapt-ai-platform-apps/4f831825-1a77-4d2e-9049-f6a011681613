@@ -47,8 +47,29 @@ function Exams() {
     fetchExams();
   };
 
-  const handleNext = () => {
-    navigate('/timetable?regenerate=true');
+  const handleNext = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/generateTimetable', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        navigate('/timetable');
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error generating timetable');
+      }
+    } catch (error) {
+      console.error('Error generating timetable:', error);
+      Sentry.captureException(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,10 +81,13 @@ function Exams() {
             <ExamForm onExamAdded={handleAddExam} />
             <ExamList exams={exams()} onExamDeleted={handleDeleteExam} loading={loading()} />
             <button
-              class="w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              class={`w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
+                loading() ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
               onClick={handleNext}
+              disabled={loading()}
             >
-              Generate Timetable
+              {loading() ? 'Generating Timetable...' : 'Generate Timetable'}
             </button>
           </div>
         </div>

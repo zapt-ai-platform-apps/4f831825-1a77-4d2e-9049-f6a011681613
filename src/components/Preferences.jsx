@@ -148,7 +148,20 @@ function Preferences() {
         throw new Error(errorText);
       }
 
-      navigate('/timetable?regenerate=true');
+      // After saving preferences, generate the timetable
+      const generateResponse = await fetch('/api/generateTimetable', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!generateResponse.ok) {
+        const errorText = await generateResponse.text();
+        throw new Error(errorText || 'Error generating timetable');
+      }
+
+      navigate('/timetable');
     } catch (error) {
       console.error('Error saving preferences:', error);
       Sentry.captureException(error);

@@ -1,7 +1,6 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
-import { useSearchParams } from '@solidjs/router';
 import { useTimetable } from '../contexts/TimetableContext';
 import MonthNavigation from './MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
@@ -10,7 +9,6 @@ import { isSameDay } from 'date-fns';
 
 function Timetable() {
   const { timetable, setTimetable, exams, setExams } = useTimetable();
-  const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
@@ -18,12 +16,8 @@ function Timetable() {
   const [datesWithData, setDatesWithData] = createSignal({});
 
   onMount(() => {
-    const regenerate = searchParams.regenerate === 'true';
-    if (regenerate) {
-      generateAndFetchTimetable();
-    } else {
-      fetchTimetable();
-    }
+    fetchTimetable();
+    fetchExams();
   });
 
   const fetchTimetable = async () => {
@@ -85,35 +79,6 @@ function Timetable() {
     } catch (error) {
       console.error('Error fetching exams:', error);
       Sentry.captureException(error);
-    }
-  };
-
-  const generateAndFetchTimetable = async () => {
-    setLoading(true);
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const generateResponse = await fetch('/api/generateTimetable', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (generateResponse.ok) {
-        await Promise.all([fetchTimetable(), fetchExams()]);
-      } else {
-        const errorText = await generateResponse.text();
-        throw new Error(errorText || 'Error generating timetable');
-      }
-    } catch (error) {
-      console.error('Error generating timetable:', error);
-      Sentry.captureException(error);
-      setError(error.message || 'Error generating timetable');
-    } finally {
-      setLoading(false);
     }
   };
 
