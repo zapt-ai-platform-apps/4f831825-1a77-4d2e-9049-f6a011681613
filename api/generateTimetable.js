@@ -43,6 +43,8 @@ export default async function handler(req, res) {
     }
 
     const userPreferences = prefsResult[0];
+    userPreferences.userId = user.id; // Ensure userId is set in preferences
+
     const userExams = examsResult;
 
     if (!userExams.length) {
@@ -57,7 +59,7 @@ export default async function handler(req, res) {
     const timetableData = generateTimetable(userPreferences, userExams, revisionTimesResult);
 
     // Save timetable entries
-    if (timetableData.length > 0) {
+    if (timetableData && timetableData.length > 0) {
       await db.insert(timetableEntries).values(timetableData);
     }
 
@@ -70,24 +72,46 @@ export default async function handler(req, res) {
 }
 
 function generateTimetable(preferences, exams, revisionTimes) {
-  const { startDate } = preferences;
+  const { startDate, userId } = preferences;
+
+  const dateCursor = new Date(startDate);
+  if (isNaN(dateCursor)) {
+    throw new Error('Invalid start date');
+  }
 
   // Convert exams to a map for quick access
   const examsBySubject = {};
   exams.forEach((exam) => {
-    examsBySubject[exam.subject] = exam;
+    const subjectKey = exam.subject.trim().toLowerCase();
+    examsBySubject[subjectKey] = exam;
   });
 
   // Get list of subjects
-  const subjects = exams.map((exam) => exam.subject);
+  const subjects = exams.map((exam) => exam.subject.trim().toLowerCase());
 
   // Get the end date as the date of the last exam
-  const examDates = exams.map((exam) => new Date(exam.examDate));
+  const examDates = exams.map((exam) => {
+    const examDate = new Date(exam.examDate);
+    if (isNaN(examDate)) {
+      throw new Error(`Invalid exam date for subject ${exam.subject}`);
+    }
+    return examDate;
+  });
+
   const lastExamDate = new Date(Math.max.apply(null, examDates));
+  if (isNaN(lastExamDate)) {
+    throw new Error('Invalid last exam date');
+  }
 
   // Collect exam dates for quick lookup
   const examDatesSet = new Set(
-    exams.map((exam) => new Date(exam.examDate).toISOString().split("T")[0])
+    exams.map((exam) => {
+      const examDate = new Date(exam.examDate);
+      if (isNaN(examDate)) {
+        throw new Error(`Invalid exam date for subject ${exam.subject}`);
+      }
+      return examDate.toISOString().split("T")[0];
+    })
   );
 
   const timetableEntries = [];
@@ -106,19 +130,19 @@ function generateTimetable(preferences, exams, revisionTimes) {
   const validBlocks = ["Morning", "Afternoon", "Evening"];
 
   // Generate dates from startDate to lastExamDate
-  let dateCursor = new Date(startDate);
+  let currentDate = new Date(dateCursor);
   const endDate = lastExamDate;
-  while (dateCursor <= endDate) {
-    const currentDateStr = dateCursor.toISOString().split("T")[0];
+  while (currentDate <= endDate) {
+    const currentDateStr = currentDate.toISOString().split("T")[0];
 
     // Skip scheduling sessions on exam days
     if (examDatesSet.has(currentDateStr)) {
-      dateCursor.setDate(dateCursor.getDate() + 1);
+      currentDate.setDate(currentDate.getDate() + 1);
       continue;
     }
 
     // Get the day of week
-    const dayOfWeek = dateCursor
+    const dayOfWeek = currentDate
       .toLocaleDateString("en-US", { weekday: "long" })
       .toLowerCase();
 
@@ -127,7 +151,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     const availableBlocks = dayBlocks.filter((block) => validBlocks.includes(block));
 
     if (availableBlocks.length === 0) {
-      dateCursor.setDate(dateCursor.getDate() + 1);
+      currentDate.setDate(currentDate.getDate() + 1);
       continue;
     }
 
@@ -135,20 +159,27 @@ function generateTimetable(preferences, exams, revisionTimes) {
     for (const block of availableBlocks) {
       // Only schedule subjects whose exams are after or on this date
       const validSubjects = subjects.filter((subject) => {
-        const examDate = new Date(examsBySubject[subject].examDate);
-        return examDate >= dateCursor;
+        const examEntry = examsBySubject[subject];
+        if (!examEntry || !examEntry.examDate) {
+          return false;
+        }
+        const examDate = new Date(examEntry.examDate);
+        if (isNaN(examDate)) {
+          return false;
+        }
+        return examDate >= currentDate;
       });
 
-      if (validSubjects.length === 0) {
+      if (!validSubjects.length) {
         break;
       }
 
       const subjectIndex =
-        (dateCursor.getDate() + sessionIndex) % validSubjects.length;
+        (currentDate.getDate() + sessionIndex) % validSubjects.length;
       const assignedSubject = validSubjects[subjectIndex];
 
       timetableEntries.push({
-        userId: preferences.userId,
+        userId: userId,
         date: currentDateStr,
         block: block,
         subject: assignedSubject,
@@ -158,7 +189,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     }
 
     // Move to next day
-    dateCursor.setDate(dateCursor.getDate() + 1);
+    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   return timetableEntries;
