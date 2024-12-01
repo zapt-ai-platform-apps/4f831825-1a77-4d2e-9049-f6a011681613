@@ -117,14 +117,26 @@ function generateTimetable(preferences, exams, revisionTimes) {
 
     // Get the day of week
     const dayOfWeek = currentDate
-      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" })
       .toLowerCase();
 
     // Get available blocks for that day
     const dayBlocks = revisionTimesMap[dayOfWeek] || [];
     const availableBlocks = dayBlocks.filter((block) => blockOrder.includes(block));
 
-    for (const block of availableBlocks) {
+    // Exclude blocks after the last exam time on the last exam date
+    let filteredBlocks = availableBlocks;
+    if (currentDateStr === lastExamDate.toISOString().split("T")[0]) {
+      const lastExam = exams[exams.length - 1];
+      const lastExamBlockIndex = blockOrder.indexOf(lastExam.timeOfDay || "Morning");
+      filteredBlocks = availableBlocks.filter((block) => {
+        const blockIndex = blockOrder.indexOf(block);
+        return blockIndex < lastExamBlockIndex;
+      });
+    }
+
+    // Only include the filtered blocks
+    for (const block of filteredBlocks) {
       allSlots.push({
         date: currentDateStr,
         block,
@@ -134,7 +146,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     }
 
     // Move to next day
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }
 
   // Assign immediate revision sessions before exams
@@ -145,8 +157,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     const examDateStr = examDate.toISOString().split("T")[0];
     const examBlockIndex = blockOrder.indexOf(exam.timeOfDay || "Morning");
 
-    // Find the slot immediately before the exam
-    let slotFound = false;
+    // Find the latest available slot before the exam
     for (let i = allSlots.length - 1; i >= 0; i--) {
       const slot = allSlots[i];
       if (assignedSlots.has(i)) continue;
@@ -154,10 +165,12 @@ function generateTimetable(preferences, exams, revisionTimes) {
       const slotDate = new Date(slot.date);
       const slotBlockIndex = blockOrder.indexOf(slot.block);
 
-      if (slotDate < examDate || (slotDate.toISOString().split("T")[0] === examDateStr && slotBlockIndex < examBlockIndex)) {
+      if (
+        slotDate < examDate ||
+        (slotDate.toISOString().split("T")[0] === examDateStr && slotBlockIndex < examBlockIndex)
+      ) {
         revisionSlot = slot;
         assignedSlots.add(i);
-        slotFound = true;
         break;
       }
     }
@@ -173,12 +186,10 @@ function generateTimetable(preferences, exams, revisionTimes) {
     if (index > 0) {
       const prevExam = exams[index - 1];
       const prevExamDate = new Date(prevExam.examDate);
-      if ((examDate - prevExamDate) / (1000 * 60 * 60 * 24) === 1) {
+      const daysBetweenExams = (examDate - prevExamDate) / (1000 * 60 * 60 * 24);
+      if (daysBetweenExams === 1) {
         // Exams are on consecutive days
         // Assign the slot before the previous exam to the next exam's subject
-        const prevExamDateStr = prevExamDate.toISOString().split("T")[0];
-        const prevExamBlockIndex = blockOrder.indexOf(prevExam.timeOfDay || "Morning");
-
         let prevRevisionSlot = null;
         for (let i = allSlots.length - 1; i >= 0; i--) {
           const slot = allSlots[i];
@@ -187,7 +198,11 @@ function generateTimetable(preferences, exams, revisionTimes) {
           const slotDate = new Date(slot.date);
           const slotBlockIndex = blockOrder.indexOf(slot.block);
 
-          if (slotDate < prevExamDate || (slotDate.toISOString().split("T")[0] === prevExamDateStr && slotBlockIndex < prevExamBlockIndex)) {
+          if (
+            slotDate < prevExamDate ||
+            (slotDate.toISOString().split("T")[0] === prevExamDate.toISOString().split("T")[0] &&
+              slotBlockIndex < blockOrder.indexOf(prevExam.timeOfDay || "Morning"))
+          ) {
             prevRevisionSlot = slot;
             assignedSlots.add(i);
             break;
