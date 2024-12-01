@@ -82,12 +82,12 @@ function generateTimetable(preferences, exams, revisionTimes) {
   // Convert exams to a map for quick access
   const examsBySubject = {};
   exams.forEach((exam) => {
-    const subjectKey = exam.subject.trim().toLowerCase();
+    const subjectKey = exam.subject.trim();
     examsBySubject[subjectKey] = exam;
   });
 
   // Get list of subjects
-  const subjects = exams.map((exam) => exam.subject.trim().toLowerCase());
+  const subjects = exams.map((exam) => exam.subject.trim());
 
   // Get the end date as the date of the last exam
   const examDates = exams.map((exam) => {

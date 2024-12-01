@@ -13,6 +13,11 @@ function DayDetails(props) {
     });
   });
 
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <div class="bg-white text-black p-4 rounded-lg shadow-lg mt-4">
       <h3 class="text-xl font-bold mb-4 text-center">Details for {format(props.date, 'MMMM d, yyyy')}</h3>
@@ -41,7 +46,7 @@ function DayDetails(props) {
               <For each={sortedSessions()}>
                 {(session) => (
                   <div class="bg-green-100 p-4 rounded-lg">
-                    <p class="font-semibold text-green-600">Subject: {session.subject}</p>
+                    <p class="font-semibold text-green-600">Subject: {capitalizeFirstLetter(session.subject)}</p>
                     <p>Block: {session.block}</p>
                   </div>
                 )}
