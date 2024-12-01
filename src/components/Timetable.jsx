@@ -33,21 +33,6 @@ function Timetable() {
   const [minDate, setMinDate] = createSignal(null);
   const [maxDate, setMaxDate] = createSignal(null);
 
-  const examsByDate = createMemo(() => {
-    const examsData = exams();
-    const examsByDateMap = {};
-    if (Array.isArray(examsData)) {
-      examsData.forEach((exam) => {
-        const examDate = exam.examDate;
-        if (!examsByDateMap[examDate]) {
-          examsByDateMap[examDate] = [];
-        }
-        examsByDateMap[examDate].push(exam);
-      });
-    }
-    return examsByDateMap;
-  });
-
   const orderedSubjects = createMemo(() => {
     if (Array.isArray(exams())) {
       return exams().map((exam) => exam.subject);
@@ -284,7 +269,7 @@ function Timetable() {
                     handleDateClick={handleDateClick}
                     selectedDate={selectedDate}
                     timetable={timetable}
-                    examsByDate={examsByDate}
+                    exams={exams()}
                     subjectColours={subjectColours}
                   />
                 ) : (

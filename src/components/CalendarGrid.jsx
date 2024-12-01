@@ -15,7 +15,10 @@ function CalendarGrid(props) {
         {(week) =>
           week.map((day) => {
             const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
-            const hasExam = dateKey && props.examsByDate()[dateKey];
+            const examsForDate = dateKey
+              ? props.exams.filter((exam) => exam.examDate === dateKey)
+              : [];
+            const hasExam = examsForDate.length > 0;
             const sessionsForDay =
               dateKey && props.timetable()[dateKey] ? props.timetable()[dateKey] : [];
             const isToday = day && isSameDay(day, new Date());
@@ -44,7 +47,7 @@ function CalendarGrid(props) {
                   <Show when={hasExam}>
                     <div class="text-xs text-red-600 font-semibold mt-1">
                       Exam:
-                      <For each={props.examsByDate()[dateKey]}>
+                      <For each={examsForDate}>
                         {(exam, index) => (
                           <>
                             {index() > 0 && ', '}
