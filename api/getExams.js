@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
-    const today = new Date();
+    const today = new Date().toISOString().split('T')[0];
 
     const result = await db
       .select()
