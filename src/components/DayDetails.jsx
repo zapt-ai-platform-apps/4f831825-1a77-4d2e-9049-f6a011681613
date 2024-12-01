@@ -15,7 +15,7 @@ function DayDetails(props) {
         <h3 class="text-xl font-bold mb-4 text-center">
           Details for {formattedDate()}
         </h3>
-        <Show when={props.dayExams().length > 0}>
+        <Show when={props.dayExams() && props.dayExams().length > 0}>
           <h4 class="text-lg font-semibold mb-2">Exams:</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <For each={props.dayExams()}>
@@ -29,7 +29,7 @@ function DayDetails(props) {
             </For>
           </div>
         </Show>
-        <Show when={props.sessions().length > 0}>
+        <Show when={props.sessions() && props.sessions().length > 0}>
           <h4 class="text-lg font-semibold mt-4 mb-2">Revision Sessions:</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <For each={props.sessions()}>
@@ -50,7 +50,8 @@ function DayDetails(props) {
         </Show>
         <Show
           when={
-            props.dayExams().length === 0 && props.sessions().length === 0
+            (!props.dayExams() || props.dayExams().length === 0) &&
+            (!props.sessions() || props.sessions().length === 0)
           }
         >
           <p class="text-center">No exams or sessions scheduled for this day.</p>

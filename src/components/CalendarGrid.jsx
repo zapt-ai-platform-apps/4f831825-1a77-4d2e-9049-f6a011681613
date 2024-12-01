@@ -16,7 +16,11 @@ function CalendarGrid(props) {
           week.map((day) => {
             const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
             const hasExam = dateKey && props.examsByDate()[dateKey];
-            const hasSession = dateKey && props.timetable() && props.timetable()[dateKey] && props.timetable()[dateKey].sessions.length > 0;
+            const hasSession =
+              dateKey &&
+              props.timetable() &&
+              props.timetable()[dateKey] &&
+              props.timetable()[dateKey].length > 0;
             const isToday = day && isSameDay(day, new Date());
             const isSelected = dateKey && props.selectedDate() === dateKey;
             let bgClass = '';
@@ -48,7 +52,10 @@ function CalendarGrid(props) {
                   <div class="flex space-x-0.5 mt-1">
                     <For each={subjectsForDay}>
                       {(subject) => (
-                        <div class="w-2 h-2 rounded-full" style={{ background: props.subjectColours()[subject] }}></div>
+                        <div
+                          class="w-2 h-2 rounded-full"
+                          style={{ background: props.subjectColours()[subject] }}
+                        ></div>
                       )}
                     </For>
                   </div>
