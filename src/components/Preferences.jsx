@@ -101,8 +101,23 @@ function Preferences() {
   };
 
   const handleSavePreferences = async () => {
-    setLoading(true);
     setError(null);
+
+    if (!preferences().startDate) {
+      setError('Please select a start date.');
+      return;
+    }
+
+    const hasAtLeastOneBlockSelected = Object.values(preferences().revisionTimes).some(
+      (dayBlocks) => dayBlocks.length > 0
+    );
+
+    if (!hasAtLeastOneBlockSelected) {
+      setError('Please select at least one revision time.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -216,9 +231,9 @@ function Preferences() {
               Note: Saving new preferences will clear your existing preferences and timetable. Your exams will remain unchanged.
             </p>
             <button
-              class={`w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-                loading() ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              class={`w-full px-6 py-3 ${
+                loading() ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+              } text-white rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer`}
               onClick={handleSavePreferences}
               disabled={loading()}
             >

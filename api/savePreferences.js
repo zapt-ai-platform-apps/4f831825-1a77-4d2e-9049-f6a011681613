@@ -41,6 +41,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Preferences data is required' });
     }
 
+    if (!data.startDate) {
+      return res.status(400).json({ error: 'Start date is required' });
+    }
+
+    const hasAtLeastOneBlockSelected = Object.values(data.revisionTimes || {}).some(
+      (blocks) => blocks && blocks.length > 0
+    );
+
+    if (!hasAtLeastOneBlockSelected) {
+      return res.status(400).json({ error: 'At least one revision time must be selected.' });
+    }
+
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
