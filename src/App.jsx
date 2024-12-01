@@ -110,6 +110,8 @@ function App() {
         const { data } = await response.json();
         if (data) {
           setExams(data);
+        } else {
+          setExams([]);
         }
       } else {
         const errorText = await response.text();
@@ -172,6 +174,7 @@ function App() {
                 timetable={timetable}
                 setTimetable={setTimetable}
                 exams={exams}
+                setExams={setExams}
                 preferences={preferences}
               >
                 <Preferences />
@@ -191,6 +194,7 @@ function App() {
                 timetable={timetable}
                 setTimetable={setTimetable}
                 exams={exams}
+                setExams={setExams}
                 preferences={preferences}
               >
                 <Exams />
@@ -210,6 +214,7 @@ function App() {
                 timetable={timetable}
                 setTimetable={setTimetable}
                 exams={exams}
+                setExams={setExams}
                 preferences={preferences}
               >
                 <Timetable />

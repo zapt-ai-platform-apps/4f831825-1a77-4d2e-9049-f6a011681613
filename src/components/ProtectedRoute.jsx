@@ -23,6 +23,7 @@ function ProtectedRoute(props) {
         timetable: props.timetable,
         setTimetable: props.setTimetable,
         exams: props.exams,
+        setExams: props.setExams,
         preferences: props.preferences,
       }}
     >

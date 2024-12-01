@@ -9,7 +9,7 @@ import DayDetails from './Timetable/DayDetails';
 import { isSameDay } from 'date-fns';
 
 function Timetable() {
-  const { timetable, setTimetable, exams } = useTimetable();
+  const { timetable, setTimetable, exams, setExams } = useTimetable();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
@@ -60,6 +60,34 @@ function Timetable() {
     }
   };
 
+  const fetchExams = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const response = await fetch('/api/getExams', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        const { data } = await response.json();
+        if (data) {
+          setExams(data);
+        } else {
+          setExams([]);
+        }
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching exams');
+      }
+    } catch (error) {
+      console.error('Error fetching exams:', error);
+      Sentry.captureException(error);
+    }
+  };
+
   const generateAndFetchTimetable = async () => {
     setLoading(true);
     try {
@@ -75,7 +103,7 @@ function Timetable() {
         },
       });
       if (generateResponse.ok) {
-        await fetchTimetable();
+        await Promise.all([fetchTimetable(), fetchExams()]);
       } else {
         const errorText = await generateResponse.text();
         throw new Error(errorText || 'Error generating timetable');
