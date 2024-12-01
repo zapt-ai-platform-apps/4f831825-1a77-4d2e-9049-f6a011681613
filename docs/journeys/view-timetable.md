@@ -30,8 +30,9 @@
 
 6. **Exam Day Highlighting**
    - Days with scheduled exams are highlighted in **red**.
-   - **No Revision on Exam Days**:
-     - The timetable ensures that no revision sessions are scheduled on days when you have exams.
+   - **Revision on Exam Days**:
+     - The timetable now allows revision sessions to be scheduled on days when you have exams.
+     - This enables you to have study sessions before your exams, for example, a morning revision session before an afternoon exam.
 
 7. **Select a Day to View Details**
    - Click on a date in the calendar to view its details.
@@ -49,3 +50,5 @@
 
 10. **Saved Timetable**
     - The timetable is saved and can be accessed anytime by navigating to the **Timetable** page.
+
+---

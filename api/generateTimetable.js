@@ -103,17 +103,6 @@ function generateTimetable(preferences, exams, revisionTimes) {
     throw new Error('Invalid last exam date');
   }
 
-  // Collect exam dates for quick lookup
-  const examDatesSet = new Set(
-    exams.map((exam) => {
-      const examDate = new Date(exam.examDate);
-      if (isNaN(examDate)) {
-        throw new Error(`Invalid exam date for subject ${exam.subject}`);
-      }
-      return examDate.toISOString().split("T")[0];
-    })
-  );
-
   const timetableEntries = [];
 
   // Create a map of revision times
@@ -134,12 +123,6 @@ function generateTimetable(preferences, exams, revisionTimes) {
   const endDate = lastExamDate;
   while (currentDate <= endDate) {
     const currentDateStr = currentDate.toISOString().split("T")[0];
-
-    // Skip scheduling sessions on exam days
-    if (examDatesSet.has(currentDateStr)) {
-      currentDate.setDate(currentDate.getDate() + 1);
-      continue;
-    }
 
     // Get the day of week
     const dayOfWeek = currentDate
