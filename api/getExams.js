@@ -3,7 +3,7 @@ import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { exams } from "../drizzle/schema.js";
-import { eq, gte } from "drizzle-orm";
+import { eq, gte, and } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -28,12 +28,14 @@ export default async function handler(req, res) {
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date();
 
     const result = await db
       .select()
       .from(exams)
-      .where(eq(exams.userId, user.id), gte(exams.examDate, today))
+      .where(
+        and(eq(exams.userId, user.id), gte(exams.examDate, today))
+      )
       .orderBy(exams.examDate);
 
     res.status(200).json({ data: result });
