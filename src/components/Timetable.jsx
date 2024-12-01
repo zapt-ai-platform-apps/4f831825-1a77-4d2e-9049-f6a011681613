@@ -1,4 +1,4 @@
-import { createSignal, onMount, createMemo, createEffect } from 'solid-js';
+import { createSignal, onMount, createMemo, createEffect, For, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 import {
@@ -252,6 +252,25 @@ function Timetable() {
       <div class="flex-grow p-4">
         <div class="w-full max-w-4xl mx-auto">
           <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
+          <Show when={!loading()}>
+            <Show when={!error()}>
+              <div class="mb-4">
+                <h3 class="text-xl font-semibold mb-2 text-center">Your Exams</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <For each={exams()}>
+                    {(exam) => (
+                      <div class="bg-white text-black p-4 rounded-lg shadow-md">
+                        <p class="font-semibold">{exam.subject}</p>
+                        <p>Exam Date: {exam.examDate}</p>
+                        <p>Board: {exam.board}</p>
+                        <p>Teacher: {exam.teacher}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </div>
+            </Show>
+          </Show>
           <div class="mb-2">
             <h3 class="text-xl font-semibold text-center">{format(currentMonth(), 'MMMM yyyy')}</h3>
           </div>
