@@ -16,49 +16,61 @@ function CalendarGrid(props) {
           week.map((day) => {
             const dateKey = day ? format(day, 'yyyy-MM-dd') : null;
             const hasExam = dateKey && props.examsByDate()[dateKey];
-            const hasSession =
-              dateKey &&
-              props.timetable() &&
-              props.timetable()[dateKey] &&
-              props.timetable()[dateKey].length > 0;
+            const sessionsForDay =
+              dateKey && props.timetable()[dateKey] ? props.timetable()[dateKey] : [];
             const isToday = day && isSameDay(day, new Date());
             const isSelected = dateKey && props.selectedDate() === dateKey;
             let bgClass = '';
-            if (hasExam) {
-              bgClass = 'bg-red-500 text-white';
-            } else if (isToday) {
-              bgClass = 'bg-blue-700 text-white';
-            } else {
-              bgClass = 'bg-transparent text-white';
-            }
 
             if (isSelected) {
               bgClass = 'bg-yellow-500 text-black';
+            } else if (isToday) {
+              bgClass = 'bg-blue-700 text-white';
+            } else {
+              bgClass = 'bg-white text-black';
             }
-
-            const subjectsForDay = day ? props.getSessionsSubjectsForDay(day) : [];
 
             return (
               <div
-                class={`aspect-square ${
+                class={`aspect-square p-1 ${
                   day ? 'cursor-pointer' : ''
-                } ${bgClass} border border-white ${
-                  day ? 'hover:bg-blue-600' : ''
-                } rounded-lg transition duration-200 ease-in-out flex flex-col items-center justify-center`}
+                } ${bgClass} border border-gray-300 ${
+                  day ? 'hover:bg-blue-100' : ''
+                } rounded-lg transition duration-200 ease-in-out flex flex-col items-start justify-start`}
                 onClick={() => props.handleDateClick(day)}
               >
                 <Show when={day}>
-                  <div>{format(day, 'd')}</div>
-                  <div class="flex space-x-0.5 mt-1">
-                    <For each={subjectsForDay}>
-                      {(subject) => (
-                        <div
-                          class="w-2 h-2 rounded-full"
-                          style={{ background: props.subjectColours()[subject] }}
-                        ></div>
-                      )}
-                    </For>
-                  </div>
+                  <div class="font-bold self-center">{format(day, 'd')}</div>
+                  <Show when={hasExam}>
+                    <div class="text-xs text-red-600 font-semibold mt-1">
+                      Exam:
+                      <For each={props.examsByDate()[dateKey]}>
+                        {(exam, index) => (
+                          <>
+                            {index() > 0 && ', '}
+                            {exam.subject}
+                          </>
+                        )}
+                      </For>
+                    </div>
+                  </Show>
+                  <Show when={sessionsForDay.length > 0}>
+                    <div class="mt-1">
+                      <For each={sessionsForDay}>
+                        {(session) => (
+                          <div
+                            class="text-xs mt-0.5 px-1 rounded bg-gray-200"
+                            style={{
+                              'background-color': props.subjectColours()[session.subject],
+                              color: 'white',
+                            }}
+                          >
+                            {session.subject}
+                          </div>
+                        )}
+                      </For>
+                    </div>
+                  </Show>
                 </Show>
               </div>
             );
