@@ -41,15 +41,25 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Exam data is required" });
     }
 
+    const { subject, examDate, timeOfDay, board, teacher } = data;
+
+    if (!subject || !examDate) {
+      return res.status(400).json({ error: "Subject and Exam Date are required" });
+    }
+
+    const validTimeOfDay = ["Morning", "Afternoon", "Evening"];
+    const examTimeOfDay = validTimeOfDay.includes(timeOfDay) ? timeOfDay : 'Morning';
+
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
 
     await db.insert(exams).values({
       userId: user.id,
-      subject: data.subject,
-      examDate: data.examDate,
-      board: data.board,
-      teacher: data.teacher,
+      subject: subject,
+      examDate: examDate,
+      timeOfDay: examTimeOfDay,
+      board: board,
+      teacher: teacher,
     });
 
     res.status(200).json({ message: "Exam saved" });

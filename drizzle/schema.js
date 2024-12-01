@@ -31,6 +31,7 @@ export const exams = pgTable("exams", {
   userId: uuid("user_id").notNull(),
   subject: text("subject").notNull(),
   examDate: date("exam_date").notNull(),
+  timeOfDay: text("time_of_day").default('Morning'),
   board: text("board"),
   teacher: text("teacher"),
   createdAt: timestamp("created_at").defaultNow(),

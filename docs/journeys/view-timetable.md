@@ -14,6 +14,7 @@
    - Exams are presented in a card format showing:
      - **Subject**
      - **Exam Date**
+     - **Time of Day** (Morning, Afternoon, or Evening)
      - **Board**
      - **Teacher**
    - This allows you to easily keep track of your exams while viewing your revision schedule.
@@ -36,6 +37,7 @@
    - Click on a date in the calendar to view its details.
    - The details of the selected day are displayed underneath the calendar, similar to the Apple Calendar app.
    - This includes any exams and revision sessions scheduled for that day.
+     - For exams, the **Time of Day** is displayed.
    - Click on another date to view its details or click the same date again to hide the details.
 
 8. **Navigate Between Months**

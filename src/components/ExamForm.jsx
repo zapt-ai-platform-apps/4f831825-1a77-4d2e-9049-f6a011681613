@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, For } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 
@@ -6,6 +6,7 @@ function ExamForm(props) {
   const [newExam, setNewExam] = createSignal({
     subject: '',
     examDate: '',
+    timeOfDay: 'Morning',
     board: '',
     teacher: '',
   });
@@ -39,6 +40,7 @@ function ExamForm(props) {
         setNewExam({
           subject: '',
           examDate: '',
+          timeOfDay: 'Morning',
           board: '',
           teacher: '',
         });
@@ -54,6 +56,8 @@ function ExamForm(props) {
       setLoading(false);
     }
   };
+
+  const timeOptions = ['Morning', 'Afternoon', 'Evening'];
 
   return (
     <div>
@@ -75,6 +79,16 @@ function ExamForm(props) {
           onInput={handleInputChange}
           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
         />
+        <select
+          name="timeOfDay"
+          value={newExam().timeOfDay}
+          onChange={handleInputChange}
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border cursor-pointer"
+        >
+          <For each={timeOptions}>{(option) => (
+            <option value={option}>{option}</option>
+          )}</For>
+        </select>
         <input
           type="text"
           name="board"

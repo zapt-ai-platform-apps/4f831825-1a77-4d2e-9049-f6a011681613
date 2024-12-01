@@ -39,6 +39,7 @@ function ExamList(props) {
               <div>
                 <p class="font-semibold text-lg">{exam.subject}</p>
                 <p>Exam Date: {exam.examDate}</p>
+                <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
                 <p>Board: {exam.board}</p>
                 <p>Teacher: {exam.teacher}</p>
               </div>

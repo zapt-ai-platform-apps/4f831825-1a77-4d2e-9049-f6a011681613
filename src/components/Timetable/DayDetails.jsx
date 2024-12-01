@@ -25,6 +25,7 @@ function DayDetails(props) {
                 {(exam) => (
                   <div class="bg-red-100 p-4 rounded-lg">
                     <p class="font-semibold text-red-600">{exam.subject}</p>
+                    <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
                     <p>Board: {exam.board}</p>
                     <p>Teacher: {exam.teacher}</p>
                   </div>
