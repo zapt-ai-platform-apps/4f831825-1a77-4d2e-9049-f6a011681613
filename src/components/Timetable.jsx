@@ -14,10 +14,12 @@ function Timetable() {
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
   const [selectedDate, setSelectedDate] = createSignal(null);
   const [datesWithData, setDatesWithData] = createSignal({});
+  const [maxDate, setMaxDate] = createSignal(null);
 
   onMount(() => {
-    fetchTimetable();
-    fetchExams();
+    fetchExams().then(() => {
+      fetchTimetable();
+    });
   });
 
   const fetchTimetable = async () => {
@@ -72,6 +74,7 @@ function Timetable() {
         } else {
           setExams([]);
         }
+        computeMaxDate();
       } else {
         const errorText = await response.text();
         throw new Error(errorText || 'Error fetching exams');
@@ -79,6 +82,21 @@ function Timetable() {
     } catch (error) {
       console.error('Error fetching exams:', error);
       Sentry.captureException(error);
+    }
+  };
+
+  const computeMaxDate = () => {
+    if (exams().length > 0) {
+      const examDates = exams().map((exam) => new Date(exam.examDate));
+      const lastExamDate = new Date(Math.max.apply(null, examDates));
+      setMaxDate(lastExamDate);
+
+      // If currentMonth is after maxDate, set currentMonth to maxDate
+      if (currentMonth() > new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1)) {
+        setCurrentMonth(new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1));
+      }
+    } else {
+      setMaxDate(null);
     }
   };
 
@@ -134,6 +152,7 @@ function Timetable() {
               currentMonth={currentMonth()}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
+              maxDate={maxDate()}
             />
             <CalendarGrid
               currentMonth={currentMonth()}
