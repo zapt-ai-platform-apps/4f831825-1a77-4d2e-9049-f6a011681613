@@ -2,8 +2,8 @@ import { Show } from 'solid-js';
 import { format, isSameDay } from 'date-fns';
 
 function DayCell(props) {
-  const dateKey = props.day.toISOString().split('T')[0];
-  const dataForDay = props.datesWithData[dateKey] || { sessions: [], exams: [] };
+  const dateKey = () => props.day.toISOString().split('T')[0];
+  const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
   const isToday = isSameDay(props.day, new Date());
 
   return (
@@ -14,10 +14,10 @@ function DayCell(props) {
       onClick={() => props.onDateClick(props.day)}
     >
       <div class="font-bold text-center">{format(props.day, 'd')}</div>
-      <Show when={dataForDay.exams.length > 0}>
+      <Show when={dataForDay().exams.length > 0}>
         <div class="text-xs text-red-600 font-semibold">Exam</div>
       </Show>
-      <Show when={dataForDay.sessions.length > 0}>
+      <Show when={dataForDay().sessions.length > 0}>
         <div class="text-xs text-green-600 font-semibold">Revision</div>
       </Show>
     </div>
