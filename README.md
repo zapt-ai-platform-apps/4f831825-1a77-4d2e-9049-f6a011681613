@@ -35,7 +35,7 @@ UpGrade is a personalized revision timetable app designed to help students effic
 - Ensure you have a stable internet connection for the best experience.
 - All data is securely stored, and privacy is maintained.
 - If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
-- **Update**: Each exam now includes the time of day (Morning, Afternoon, or Evening). You can specify this when adding an exam.
+- **Update**: The revision session immediately before an exam will always be a revision session for that exam. If two exams are consecutive, the immediate revision session before these exams will be for the first exam subject. The previous revision session before that will be for the second (later) exam.
 
 ---
 

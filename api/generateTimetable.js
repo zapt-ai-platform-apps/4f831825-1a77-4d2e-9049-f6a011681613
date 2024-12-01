@@ -79,33 +79,20 @@ function generateTimetable(preferences, exams, revisionTimes) {
     throw new Error('Invalid start date');
   }
 
-  // Convert exams to a map for quick access
-  const examsBySubject = {};
+  // Sort exams by date
+  exams.sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
+
+  // Map exams by date and timeOfDay
+  const examsByDate = {};
   exams.forEach((exam) => {
-    const subjectKey = exam.subject.trim();
-    examsBySubject[subjectKey] = exam;
-  });
-
-  // Get list of subjects
-  const subjects = exams.map((exam) => exam.subject.trim());
-
-  // Get the end date as the date of the last exam
-  const examDates = exams.map((exam) => {
-    const examDate = new Date(exam.examDate);
-    if (isNaN(examDate)) {
-      throw new Error(`Invalid exam date for subject ${exam.subject}`);
+    const examDateStr = exam.examDate;
+    if (!examsByDate[examDateStr]) {
+      examsByDate[examDateStr] = [];
     }
-    return examDate;
+    examsByDate[examDateStr].push(exam);
   });
 
-  const lastExamDate = new Date(Math.max.apply(null, examDates));
-  if (isNaN(lastExamDate)) {
-    throw new Error('Invalid last exam date');
-  }
-
-  const timetableEntries = [];
-
-  // Create a map of revision times
+  // Map revision times by day of week
   const revisionTimesMap = {};
   revisionTimes.forEach((item) => {
     const day = item.dayOfWeek.toLowerCase();
@@ -119,9 +106,13 @@ function generateTimetable(preferences, exams, revisionTimes) {
   const blockOrder = ["Morning", "Afternoon", "Evening"];
 
   // Generate dates from startDate to lastExamDate
+  const examDates = exams.map((exam) => new Date(exam.examDate));
+  const lastExamDate = new Date(Math.max.apply(null, examDates));
+
+  const allSlots = [];
+
   let currentDate = new Date(dateCursor);
-  const endDate = lastExamDate;
-  while (currentDate <= endDate) {
+  while (currentDate <= lastExamDate) {
     const currentDateStr = currentDate.toISOString().split("T")[0];
 
     // Get the day of week
@@ -133,57 +124,102 @@ function generateTimetable(preferences, exams, revisionTimes) {
     const dayBlocks = revisionTimesMap[dayOfWeek] || [];
     const availableBlocks = dayBlocks.filter((block) => blockOrder.includes(block));
 
-    if (availableBlocks.length === 0) {
-      currentDate.setDate(currentDate.getDate() + 1);
-      continue;
-    }
-
-    let sessionIndex = 0;
     for (const block of availableBlocks) {
-      // Only schedule subjects whose exams are after the current block
-      const validSubjects = subjects.filter((subject) => {
-        const examEntry = examsBySubject[subject];
-        if (!examEntry || !examEntry.examDate) {
-          return false;
-        }
-        const examDate = new Date(examEntry.examDate);
-        if (isNaN(examDate)) {
-          return false;
-        }
-        const examDateStr = examDate.toISOString().split("T")[0];
-        if (examDateStr > currentDateStr) {
-          return true;
-        } else if (examDateStr === currentDateStr) {
-          const examTimeIndex = blockOrder.indexOf(examEntry.timeOfDay || "Morning");
-          const currentBlockIndex = blockOrder.indexOf(block);
-          // Only include if current block is before exam's time block
-          return currentBlockIndex < examTimeIndex;
-        } else {
-          return false;
-        }
-      });
-
-      if (!validSubjects.length) {
-        continue;
-      }
-
-      const subjectIndex =
-        (currentDate.getDate() + sessionIndex) % validSubjects.length;
-      const assignedSubject = validSubjects[subjectIndex];
-
-      timetableEntries.push({
-        userId: userId,
+      allSlots.push({
         date: currentDateStr,
-        block: block,
-        subject: assignedSubject,
+        block,
+        assigned: false,
+        subject: null,
       });
-
-      sessionIndex++;
     }
 
     // Move to next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  return timetableEntries;
+  // Assign immediate revision sessions before exams
+  const assignedSlots = new Set();
+  exams.forEach((exam, index) => {
+    let revisionSlot = null;
+    const examDate = new Date(exam.examDate);
+    const examDateStr = examDate.toISOString().split("T")[0];
+    const examBlockIndex = blockOrder.indexOf(exam.timeOfDay || "Morning");
+
+    // Find the slot immediately before the exam
+    let slotFound = false;
+    for (let i = allSlots.length - 1; i >= 0; i--) {
+      const slot = allSlots[i];
+      if (assignedSlots.has(i)) continue;
+
+      const slotDate = new Date(slot.date);
+      const slotBlockIndex = blockOrder.indexOf(slot.block);
+
+      if (slotDate < examDate || (slotDate.toISOString().split("T")[0] === examDateStr && slotBlockIndex < examBlockIndex)) {
+        revisionSlot = slot;
+        assignedSlots.add(i);
+        slotFound = true;
+        break;
+      }
+    }
+
+    if (revisionSlot) {
+      revisionSlot.assigned = true;
+      revisionSlot.subject = exam.subject;
+    } else {
+      // If no available slot before the exam, skip assignment
+    }
+
+    // Handle consecutive exams
+    if (index > 0) {
+      const prevExam = exams[index - 1];
+      const prevExamDate = new Date(prevExam.examDate);
+      if ((examDate - prevExamDate) / (1000 * 60 * 60 * 24) === 1) {
+        // Exams are on consecutive days
+        // Assign the slot before the previous exam to the next exam's subject
+        const prevExamDateStr = prevExamDate.toISOString().split("T")[0];
+        const prevExamBlockIndex = blockOrder.indexOf(prevExam.timeOfDay || "Morning");
+
+        let prevRevisionSlot = null;
+        for (let i = allSlots.length - 1; i >= 0; i--) {
+          const slot = allSlots[i];
+          if (assignedSlots.has(i)) continue;
+
+          const slotDate = new Date(slot.date);
+          const slotBlockIndex = blockOrder.indexOf(slot.block);
+
+          if (slotDate < prevExamDate || (slotDate.toISOString().split("T")[0] === prevExamDateStr && slotBlockIndex < prevExamBlockIndex)) {
+            prevRevisionSlot = slot;
+            assignedSlots.add(i);
+            break;
+          }
+        }
+
+        if (prevRevisionSlot) {
+          prevRevisionSlot.assigned = true;
+          prevRevisionSlot.subject = exam.subject;
+        }
+      }
+    }
+  });
+
+  // Assign remaining slots evenly among subjects
+  const remainingSubjects = exams.map((exam) => exam.subject.trim());
+  let subjectIndex = 0;
+
+  for (let i = 0; i < allSlots.length; i++) {
+    const slot = allSlots[i];
+    if (slot.assigned) continue;
+    slot.subject = remainingSubjects[subjectIndex % remainingSubjects.length];
+    slot.assigned = true;
+    subjectIndex++;
+  }
+
+  const timetableEntriesData = allSlots.map((slot) => ({
+    userId: userId,
+    date: slot.date,
+    block: slot.block,
+    subject: slot.subject,
+  }));
+
+  return timetableEntriesData;
 }

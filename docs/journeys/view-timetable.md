@@ -30,9 +30,9 @@
 
 6. **Exam Day Highlighting**
    - Days with scheduled exams are highlighted in **red**.
-   - **Revision on Exam Days**:
-     - The timetable now allows revision sessions to be scheduled on days when you have exams.
-     - This enables you to have study sessions before your exams, for example, a morning revision session before an afternoon exam.
+   - **Revision Before Exams**:
+     - The revision session immediately before an exam will always be a revision session for that exam. This ensures you are well-prepared for each exam.
+     - If two exams are scheduled consecutively, the immediate revision session before these exams will be for the first (earlier) exam subject. The revision session before that will be for the second (later) exam subject.
 
 7. **Select a Day to View Details**
    - Click on a date in the calendar to view its details.
@@ -52,3 +52,5 @@
     - The timetable is saved and can be accessed anytime by navigating to the **Timetable** page.
 
 ---
+
+**Note**: The timetable generation logic ensures that you always have a revision session for an exam subject immediately before the exam, maximizing your preparation efficiency.
