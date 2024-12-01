@@ -1,13 +1,26 @@
 import { Show, For } from 'solid-js';
 import { format, isSameDay } from 'date-fns';
+import { Icon } from 'solid-heroicons';
+import { academicCap } from 'solid-heroicons/solid';
 
 function DayCell(props) {
   const dateKey = () => props.day.toISOString().split('T')[0];
   const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
   const isToday = isSameDay(props.day, new Date());
 
+  // Function to sort sessions based on block order
+  const sessionsInOrder = () => {
+    const desiredOrder = ['Morning', 'Afternoon', 'Evening'];
+    const sessions = dataForDay().sessions.slice();
+    sessions.sort((a, b) => {
+      return desiredOrder.indexOf(a.block) - desiredOrder.indexOf(b.block);
+    });
+    return sessions;
+  };
+
   const sessionSubjects = () => {
-    const subjects = dataForDay().sessions.map((session) => session.subject);
+    const sessions = sessionsInOrder();
+    const subjects = sessions.map((session) => session.subject);
     return Array.from(new Set(subjects));
   };
 
@@ -20,10 +33,12 @@ function DayCell(props) {
     >
       <div class="font-bold text-center">{format(props.day, 'd')}</div>
       <Show when={dataForDay().exams.length > 0}>
-        <div class="text-xs text-red-600 font-semibold">Exam</div>
+        <div class="flex justify-center">
+          <Icon path={academicCap} class="w-4 h-4 text-red-600" />
+        </div>
       </Show>
       <Show when={sessionSubjects().length > 0}>
-        <div class="flex flex-wrap justify-center mt-1">
+        <div class="flex flex-col sm:flex-row items-center justify-center mt-1">
           <For each={sessionSubjects()}>
             {(subject) => (
               <div
