@@ -30,6 +30,9 @@ function Timetable() {
   const [selectedDate, setSelectedDate] = createSignal(null);
   const [subjectColours, setSubjectColours] = createSignal({});
 
+  const [minDate, setMinDate] = createSignal(null);
+  const [maxDate, setMaxDate] = createSignal(null);
+
   const examsByDate = createMemo(() => {
     const examsData = exams();
     const examsByDateMap = {};
@@ -90,13 +93,19 @@ function Timetable() {
   });
 
   const handlePrevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth(), 1));
-    setSelectedDate(null);
+    const prevMonth = subMonths(currentMonth(), 1);
+    if (!minDate() || prevMonth >= startOfMonth(minDate())) {
+      setCurrentMonth(prevMonth);
+      setSelectedDate(null);
+    }
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth(), 1));
-    setSelectedDate(null);
+    const nextMonth = addMonths(currentMonth(), 1);
+    if (!maxDate() || nextMonth <= startOfMonth(maxDate())) {
+      setCurrentMonth(nextMonth);
+      setSelectedDate(null);
+    }
   };
 
   const handleDateClick = (day) => {
@@ -185,6 +194,16 @@ function Timetable() {
         const { data } = await response.json();
         if (data) {
           setTimetable(data);
+
+          // Compute minDate and maxDate
+          const dates = Object.keys(data);
+          if (dates.length > 0) {
+            const parsedDates = dates.map(dateString => parseISO(dateString));
+            const earliestDate = parsedDates.reduce((a, b) => (a < b ? a : b));
+            const latestDate = parsedDates.reduce((a, b) => (a > b ? a : b));
+            setMinDate(earliestDate);
+            setMaxDate(latestDate);
+          }
         } else {
           setTimetable({});
         }
@@ -260,6 +279,9 @@ function Timetable() {
           <MonthNavigation
             handlePrevMonth={handlePrevMonth}
             handleNextMonth={handleNextMonth}
+            minDate={minDate}
+            maxDate={maxDate}
+            currentMonth={currentMonth}
           />
           <DayDetails
             selectedDate={selectedDate}
