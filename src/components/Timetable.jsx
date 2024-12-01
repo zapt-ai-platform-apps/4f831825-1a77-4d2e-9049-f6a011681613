@@ -6,6 +6,7 @@ import { useTimetable } from '../contexts/TimetableContext';
 import MonthNavigation from './MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
+import { isSameDay } from 'date-fns';
 
 function Timetable() {
   const { timetable, setTimetable, exams } = useTimetable();
