@@ -8,25 +8,22 @@ function DayCell(props) {
   const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
   const isToday = isSameDay(props.day, new Date());
 
-  // Function to sort sessions based on block order
-  const sessionsInOrder = () => {
-    const desiredOrder = ['Morning', 'Afternoon', 'Evening'];
-    const sessions = dataForDay().sessions.slice();
-    sessions.sort((a, b) => {
-      return desiredOrder.indexOf(a.block) - desiredOrder.indexOf(b.block);
-    });
-    return sessions;
-  };
-
-  const sessionSubjects = () => {
-    const sessions = sessionsInOrder();
-    const subjects = sessions.map((session) => session.subject);
-    return Array.from(new Set(subjects));
+  const getGridPositionClassString = (block) => {
+    switch (block) {
+      case 'Morning':
+        return 'row-start-1 col-start-1 sm:row-start-1 sm:col-start-1';
+      case 'Afternoon':
+        return 'row-start-2 col-start-1 sm:row-start-1 sm:col-start-2';
+      case 'Evening':
+        return 'row-start-3 col-start-1 sm:row-start-1 sm:col-start-3';
+      default:
+        return '';
+    }
   };
 
   return (
     <div
-      class={`border p-1 rounded-lg cursor-pointer ${
+      class={`relative border p-1 rounded-lg cursor-pointer ${
         isToday ? 'bg-blue-800' : 'bg-white text-black'
       } ${props.isSelected ? 'border-2 border-yellow-500' : ''}`}
       onClick={() => props.onDateClick(props.day)}
@@ -37,13 +34,15 @@ function DayCell(props) {
           <Icon path={academicCap} class="w-4 h-4 text-red-600" />
         </div>
       </Show>
-      <Show when={sessionSubjects().length > 0}>
-        <div class="flex flex-col sm:flex-row items-center justify-center mt-1">
-          <For each={sessionSubjects()}>
-            {(subject) => (
+      <Show when={dataForDay().sessions.length > 0}>
+        <div class="absolute inset-0 grid grid-rows-3 grid-cols-1 sm:grid-rows-1 sm:grid-cols-3">
+          <For each={dataForDay().sessions}>
+            {(session) => (
               <div
-                class="w-2 h-2 rounded-full m-0.5"
-                style={{ "background-color": props.subjectColours[subject] }}
+                class={`w-2 h-2 rounded-full m-0.5 ${getGridPositionClassString(session.block)}`}
+                style={{
+                  "background-color": props.subjectColours[session.subject],
+                }}
               ></div>
             )}
           </For>
