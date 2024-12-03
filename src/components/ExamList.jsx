@@ -40,7 +40,7 @@ function ExamList(props) {
       <h3 class="text-xl font-semibold mb-2 text-center">Upcoming Exams</h3>
       <For each={props.exams}>
         {(exam) => (
-          <div class="bg-gray-200 p-4 rounded-lg flex justify-between items-center mb-2">
+          <div class="bg-gray-200 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
             <div>
               <p class="font-semibold text-lg text-black">{exam.subject}</p>
               <p class="text-black">Exam Date: {exam.examDate}</p>
@@ -50,7 +50,7 @@ function ExamList(props) {
               <p class="text-black">Board: {exam.board}</p>
               <p class="text-black">Teacher: {exam.teacher}</p>
             </div>
-            <div class="flex space-x-2">
+            <div class="flex space-x-2 mt-2 sm:mt-0">
               <button
                 class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
                 onClick={() => handleEditExam(exam)}

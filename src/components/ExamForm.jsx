@@ -1,4 +1,4 @@
-import { createSignal, Show, For, onMount } from 'solid-js';
+import { createSignal, createEffect, Show, For } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 
@@ -13,9 +13,18 @@ function ExamForm(props) {
   });
   const [loading, setLoading] = createSignal(false);
 
-  onMount(() => {
+  createEffect(() => {
     if (props.editExam) {
       setExamData({ ...props.editExam });
+    } else {
+      setExamData({
+        id: null,
+        subject: '',
+        examDate: '',
+        timeOfDay: 'Morning',
+        board: '',
+        teacher: '',
+      });
     }
   });
 
