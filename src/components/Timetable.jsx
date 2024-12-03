@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show } from 'solid-js';
+import { createSignal, onMount, createEffect, Show } from 'solid-js';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/browser';
 import { useTimetable } from '../contexts/TimetableContext';
@@ -9,7 +9,7 @@ import Legend from './Timetable/Legend';
 import { isSameDay } from 'date-fns';
 
 function Timetable() {
-  const { timetable, setTimetable, exams, setExams } = useTimetable();
+  const { timetable, setTimetable, exams, setExams, preferences } = useTimetable();
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [currentMonth, setCurrentMonth] = createSignal(new Date());
@@ -17,6 +17,13 @@ function Timetable() {
   const [datesWithData, setDatesWithData] = createSignal({});
   const [maxDate, setMaxDate] = createSignal(null);
   const [subjectColours, setSubjectColours] = createSignal({});
+
+  createEffect(() => {
+    if (preferences() && preferences().startDate) {
+      const startDate = new Date(preferences().startDate);
+      setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+    }
+  });
 
   onMount(() => {
     fetchExams().then(() => {
