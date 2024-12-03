@@ -28,8 +28,15 @@ function DayDetails(props) {
             <div class="space-y-4">
               <For each={dataForDay().exams}>
                 {(exam) => (
-                  <div class="bg-red-100 p-4 rounded-lg">
-                    <p class="font-semibold text-red-600">{exam.subject}</p>
+                  <div
+                    class="p-4 rounded-lg text-white"
+                    style={{
+                      "background": 'linear-gradient(to right, #ff7e5f, #feb47b)'
+                    }}
+                  >
+                    <p class="font-semibold text-2xl">
+                      Exam: {capitalizeFirstLetter(exam.subject)}
+                    </p>
                     <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
                     <p>Board: {exam.board}</p>
                     <p>Teacher: {exam.teacher}</p>
@@ -45,8 +52,19 @@ function DayDetails(props) {
             <div class="space-y-4">
               <For each={sortedSessions()}>
                 {(session) => (
-                  <div class="bg-green-100 p-4 rounded-lg">
-                    <p class="font-semibold text-green-600">Subject: {capitalizeFirstLetter(session.subject)}</p>
+                  <div
+                    class="p-4 rounded-lg"
+                    style={{
+                      "background-color": props.subjectColours[session.subject] + '33',
+                      "border-left": '4px solid ' + props.subjectColours[session.subject],
+                    }}
+                  >
+                    <p
+                      class="font-semibold"
+                      style={{ color: props.subjectColours[session.subject] }}
+                    >
+                      Subject: {capitalizeFirstLetter(session.subject)}
+                    </p>
                     <p>Block: {session.block}</p>
                   </div>
                 )}

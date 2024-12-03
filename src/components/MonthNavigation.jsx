@@ -19,6 +19,13 @@ function MonthNavigation(props) {
     );
   };
 
+  const formatMonthYear = () => {
+    return props.currentMonth.toLocaleString('default', {
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div class="flex items-center justify-between mt-4 w-full sm:w-96 md:w-[32rem] lg:w-[36rem] mx-auto">
       <button
@@ -31,6 +38,11 @@ function MonthNavigation(props) {
         <Icon path={chevronLeft} class="w-6 h-6 inline-block" />
         <span class="ml-1">Previous</span>
       </button>
+
+      <div class="text-lg font-semibold">
+        {formatMonthYear()}
+      </div>
+
       <button
         class={`flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
           isNextDisabled() ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
