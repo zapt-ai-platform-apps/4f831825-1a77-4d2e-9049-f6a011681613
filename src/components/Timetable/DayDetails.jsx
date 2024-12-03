@@ -31,7 +31,7 @@ function DayDetails(props) {
                   <div
                     class="p-4 rounded-lg text-white"
                     style={{
-                      "background": 'linear-gradient(to right, #ff7e5f, #feb47b)'
+                      background: 'linear-gradient(to right, #ff7e5f, #feb47b)',
                     }}
                   >
                     <p class="font-semibold text-2xl">
@@ -53,30 +53,27 @@ function DayDetails(props) {
               <For each={sortedSessions()}>
                 {(session) => (
                   <div
-                    class="p-4 rounded-lg"
+                    class="p-4 rounded-lg border-l-4"
                     style={{
-                      "background-color": props.subjectColours[session.subject] + '33',
-                      "border-left": '4px solid ' + props.subjectColours[session.subject],
+                      'border-color': props.subjectColours[session.subject],
+                      'background-color': '#f9f9f9',
                     }}
                   >
-                    <p
-                      class="font-semibold"
-                      style={{ color: props.subjectColours[session.subject] }}
-                    >
+                    <p class="font-semibold text-black flex items-center">
+                      <span
+                        class="w-4 h-4 rounded-full mr-2"
+                        style={{ 'background-color': props.subjectColours[session.subject] }}
+                      ></span>
                       Subject: {capitalizeFirstLetter(session.subject)}
                     </p>
-                    <p>Block: {session.block}</p>
+                    <p class="text-black">Block: {session.block}</p>
                   </div>
                 )}
               </For>
             </div>
           </div>
         </Show>
-        <Show
-          when={
-            dataForDay().exams.length === 0 && sortedSessions().length === 0
-          }
-        >
+        <Show when={dataForDay().exams.length === 0 && sortedSessions().length === 0}>
           <p class="text-center">No events for this day.</p>
         </Show>
       </div>
