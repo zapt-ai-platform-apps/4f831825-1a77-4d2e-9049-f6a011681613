@@ -5,7 +5,6 @@ import { useTimetable } from '../contexts/TimetableContext';
 import MonthNavigation from './MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
-import Legend from './Timetable/Legend';
 import { isSameDay } from 'date-fns';
 
 function Timetable() {
@@ -195,7 +194,6 @@ function Timetable() {
               onDateClick={handleDateClick}
               subjectColours={subjectColours()}
             />
-            <Legend subjectColours={subjectColours()} />
             <Show when={selectedDate()}>
               <DayDetails
                 date={selectedDate()}
