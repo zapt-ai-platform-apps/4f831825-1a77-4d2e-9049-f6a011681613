@@ -3,7 +3,7 @@ import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { preferences, exams, revisionTimes, timetableEntries } from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -82,14 +82,15 @@ function generateTimetable(preferences, exams, revisionTimes) {
   // Sort exams by date
   exams.sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
 
-  // Map exams by date and timeOfDay
-  const examsByDate = {};
+  // Map exams by date and block
+  const examsByDateBlock = {};
   exams.forEach((exam) => {
     const examDateStr = exam.examDate;
-    if (!examsByDate[examDateStr]) {
-      examsByDate[examDateStr] = [];
+    const block = exam.timeOfDay || "Morning";
+    if (!examsByDateBlock[examDateStr]) {
+      examsByDateBlock[examDateStr] = new Set();
     }
-    examsByDate[examDateStr].push(exam);
+    examsByDateBlock[examDateStr].add(block);
   });
 
   // Map revision times by day of week
@@ -122,18 +123,21 @@ function generateTimetable(preferences, exams, revisionTimes) {
 
     // Get available blocks for that day
     const dayBlocks = revisionTimesMap[dayOfWeek] || [];
-    const availableBlocks = dayBlocks.filter((block) => blockOrder.includes(block));
+    let availableBlocks = dayBlocks.filter((block) => blockOrder.includes(block));
 
     // Exclude blocks after the last exam time on the last exam date
-    let filteredBlocks = availableBlocks;
     if (currentDateStr === lastExamDate.toISOString().split("T")[0]) {
       const lastExam = exams[exams.length - 1];
       const lastExamBlockIndex = blockOrder.indexOf(lastExam.timeOfDay || "Morning");
-      filteredBlocks = availableBlocks.filter((block) => {
+      availableBlocks = availableBlocks.filter((block) => {
         const blockIndex = blockOrder.indexOf(block);
         return blockIndex < lastExamBlockIndex;
       });
     }
+
+    // Exclude blocks where exams are scheduled
+    const examBlocks = examsByDateBlock[currentDateStr] || new Set();
+    const filteredBlocks = availableBlocks.filter((block) => !examBlocks.has(block));
 
     // Include only the filtered blocks
     const orderedBlocks = ["Evening", "Afternoon", "Morning"];
@@ -201,8 +205,7 @@ function generateTimetable(preferences, exams, revisionTimes) {
     // Handle consecutive exams
     if (index > 0) {
       const prevExam = exams[index - 1];
-      const prevExamDate = new Date(prevExam.examDate);
-      const daysBetweenExams = (examDate - prevExamDate) / (1000 * 60 * 60 * 24);
+      const daysBetweenExams = (examDate - new Date(prevExam.examDate)) / (1000 * 60 * 60 * 24);
       if (daysBetweenExams === 1) {
         let prevRevisionSlot = null;
         for (let i = 0; i < allSlots.length; i++) {
@@ -213,9 +216,8 @@ function generateTimetable(preferences, exams, revisionTimes) {
           const slotBlockIndex = blockOrder.indexOf(slot.block);
 
           if (
-            slotDate < prevExamDate ||
-            (slotDate.toISOString().split("T")[0] === prevExamDate.toISOString().split("T")[0] &&
-              slotBlockIndex < blockOrder.indexOf(prevExam.timeOfDay || "Morning"))
+            slotDate < new Date(prevExam.examDate) ||
+            (slotDate.toISOString().split("T")[0] === prevExam.examDate && slotBlockIndex < blockOrder.indexOf(prevExam.timeOfDay || "Morning"))
           ) {
             if (
               !prevRevisionSlot ||
