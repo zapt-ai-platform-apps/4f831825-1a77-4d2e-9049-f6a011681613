@@ -20,10 +20,21 @@
    - All your upcoming exams are displayed in a list.
    - Exams are sorted by date.
 
-4. **Delete an Exam**
+4. **Edit an Exam**
+   - To edit an exam, click the **Edit** button next to it.
+   - **Modify Exam Details**:
+     - The exam details will appear in the form above.
+     - Update the fields as needed.
+     - Click **Update Exam** to save changes.
+   - **Cancel Editing**:
+     - If you decide not to make changes, click the **Cancel** button to exit edit mode.
+
+5. **Delete an Exam**
    - To delete an exam, click the **Delete** button next to it.
    - Confirm the deletion when prompted.
 
-5. **Generate Timetable**
-   - After adding all your exams, click the **Generate Timetable** button to create your personalized revision schedule.
+6. **Generate Timetable**
+   - After adding or editing your exams, click the **Generate Timetable** button to create your personalized revision schedule.
    - **Note**: Past exams are automatically excluded from the list and timetable generation.
+
+---
