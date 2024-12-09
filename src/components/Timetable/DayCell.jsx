@@ -9,7 +9,7 @@ function DayCell(props) {
 
   return (
     <div
-      class={`relative border border-white ${
+      class={`relative border border-white cursor-pointer hover:bg-gray-700 hover:bg-opacity-25 transition duration-200 ease-in-out ${
         props.isSelected ? 'border-2 border-yellow-500' : ''
       }`}
       onClick={() => props.onDateClick(props.day)}
