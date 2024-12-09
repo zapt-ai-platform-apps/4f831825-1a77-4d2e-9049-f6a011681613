@@ -3,7 +3,9 @@ import { Link } from '@solidjs/router';
 function Header(props) {
   return (
     <header class="flex items-center justify-between mb-8 p-4">
-      <h1 class="text-4xl font-bold">UpGrade</h1>
+      <h1 class="text-4xl font-handwriting font-bold">
+        <span class="text-yellow-500">UpGrade</span>
+      </h1>
       <div class="sm:hidden">
         <button
           class="text-white cursor-pointer focus:outline-none"
