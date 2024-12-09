@@ -14,13 +14,15 @@ function CalendarGrid(props) {
   };
 
   return (
-    <div>
-      <div class="grid grid-cols-7 gap-2 mb-4">
+    <div class="w-full mx-auto">
+      <div class="grid grid-cols-7 gap-0">
         <For each={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}>
           {(day) => (
             <div class="text-center font-semibold">{day}</div>
           )}
         </For>
+      </div>
+      <div class="grid grid-cols-7 auto-rows-fr gap-0">
         <For each={Array((startDayOfWeek() + 6) % 7)}>
           {() => (
             <div></div>
