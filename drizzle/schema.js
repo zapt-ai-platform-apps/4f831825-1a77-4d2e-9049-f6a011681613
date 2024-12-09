@@ -5,6 +5,7 @@ import {
   timestamp,
   uuid,
   date,
+  time,
   primaryKey,
 } from "drizzle-orm/pg-core";
 
@@ -44,6 +45,8 @@ export const timetableEntries = pgTable(
     date: date("date").notNull(),
     block: text("block").notNull(),
     subject: text("subject").notNull(),
+    startTime: time("start_time"),
+    endTime: time("end_time"),
   },
   (table) => ({
     pk: primaryKey(table.userId, table.date, table.block),

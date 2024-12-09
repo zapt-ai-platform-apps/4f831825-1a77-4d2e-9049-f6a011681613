@@ -46,6 +46,8 @@ export default async function handler(req, res) {
       timetableData[entry.date].push({
         block: entry.block,
         subject: entry.subject,
+        startTime: entry.startTime,
+        endTime: entry.endTime,
       });
     });
 
@@ -53,6 +55,8 @@ export default async function handler(req, res) {
   } catch (error) {
     Sentry.captureException(error);
     console.error("Error fetching timetable:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
+    res
+      .status(500)
+      .json({ error: error.message || "Internal Server Error" });
   }
 }
