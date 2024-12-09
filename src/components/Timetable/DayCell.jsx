@@ -1,12 +1,11 @@
 import { Show, For } from 'solid-js';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { Icon } from 'solid-heroicons';
 import { academicCap } from 'solid-heroicons/solid';
 
 function DayCell(props) {
   const dateKey = () => props.day.toISOString().split('T')[0];
   const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
-  const isToday = isSameDay(props.day, new Date());
 
   const getGridPositionClassString = (block) => {
     switch (block) {
@@ -23,12 +22,12 @@ function DayCell(props) {
 
   return (
     <div
-      class={`relative border p-1 rounded-lg cursor-pointer ${
-        isToday ? 'bg-blue-800' : 'bg-white text-black'
-      } ${props.isSelected ? 'border-2 border-yellow-500' : ''}`}
+      class={`relative border p-1 rounded-lg cursor-pointer bg-transparent text-white border-white ${
+        props.isSelected ? 'border-2 border-yellow-500' : ''
+      }`}
       onClick={() => props.onDateClick(props.day)}
     >
-      <div class="font-bold text-center">{format(props.day, 'd')}</div>
+      <div class="font-bold text-center text-white">{format(props.day, 'd')}</div>
       <Show when={dataForDay().exams.length > 0}>
         <div class="flex justify-center">
           <Icon path={academicCap} class="w-4 h-4 text-red-600" />
@@ -39,9 +38,9 @@ function DayCell(props) {
           <For each={dataForDay().sessions}>
             {(session) => (
               <div
-                class={`w-2 h-2 rounded-full m-0.5 ${getGridPositionClassString(session.block)}`}
+                class={`w-2 h-2 rounded-full m-0.5 border border-white ${getGridPositionClassString(session.block)}`}
                 style={{
-                  "background-color": props.subjectColours[session.subject],
+                  'background-color': props.subjectColours[session.subject],
                 }}
               ></div>
             )}

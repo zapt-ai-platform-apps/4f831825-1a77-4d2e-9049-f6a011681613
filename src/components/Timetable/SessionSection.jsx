@@ -6,6 +6,11 @@ function SessionSection(props) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const formatTime = (timeString) => {
+    const [hour, minute] = timeString.split(':');
+    return `${hour}:${minute}`;
+  };
+
   return (
     <div>
       <h4 class="text-lg font-semibold mb-2">Revision Sessions</h4>
@@ -28,7 +33,7 @@ function SessionSection(props) {
               </p>
               <p class="text-black">Block: {session.block}</p>
               <p class="text-black">
-                Time: {session.startTime} - {session.endTime}
+                Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
               </p>
             </div>
           )}
