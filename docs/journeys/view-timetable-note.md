@@ -1,0 +1,1 @@
+**Note**: The timetable now displays the **start and end times** of each revision session, providing you with detailed scheduling information. This enhancement ensures you know exactly when your revision sessions begin and end, allowing for better time management.

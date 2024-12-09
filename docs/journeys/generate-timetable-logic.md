@@ -1,0 +1,23 @@
+## Understanding the Timetable Logic
+
+- **Revision Session Allocation**:
+  - The app schedules revision sessions based on your specified availability and the dates of your exams.
+  - **Immediate Revision Sessions**:
+    - The last revision session before an exam is allocated to that exam's subject.
+    - This session is scheduled in the latest available block before the exam to ensure optimal preparation.
+  - **Regular Revision Sessions**:
+    - Remaining available slots are filled by distributing your subjects evenly.
+    - Subjects with exams sooner are given priority.
+- **Conflict Avoidance**:
+  - Revision sessions are **never scheduled at the same time as exams**, preventing any scheduling conflicts.
+  - If you have multiple exams on the same day or consecutive days, the app ensures your revision sessions are optimally distributed.
+- **Exam Consideration**:
+  - No revision sessions are scheduled after your final exam, including later on the same day.
+  - This ensures that your timetable accurately reflects the completion of your exams.
+- **Time Blocks and Customization**:
+  - Revision sessions respect your custom time blocks and availability settings.
+  - The start and end times for each session are displayed in your timetable, providing clear information about your schedule.
+- **Subject Color Coding**:
+  - Each subject is assigned a unique color.
+  - Colored dots corresponding to each subject are displayed on the calendar, providing a quick visual overview.
+  - A legend is included below the calendar to map subjects to their colors.
