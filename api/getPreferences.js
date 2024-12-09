@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { preferences, revisionTimes } from "../drizzle/schema.js";
+import { preferences, revisionTimes, blockTimes } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -61,9 +61,24 @@ export default async function handler(req, res) {
       revisionTimesData[row.dayOfWeek].push(row.block);
     }
 
+    const blockTimesResult = await db
+      .select()
+      .from(blockTimes)
+      .where(eq(blockTimes.userId, user.id));
+
+    const blockTimesData = {};
+
+    for (const row of blockTimesResult) {
+      blockTimesData[row.blockName] = {
+        startTime: row.startTime,
+        endTime: row.endTime,
+      };
+    }
+
     const data = {
       startDate: userPreferences.startDate,
       revisionTimes: revisionTimesData,
+      blockTimes: blockTimesData,
     };
 
     res.status(200).json({ data: data });

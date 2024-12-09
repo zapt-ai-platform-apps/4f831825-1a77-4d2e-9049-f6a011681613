@@ -1,14 +1,14 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { db } from "../utils/dbClient.js";
 import {
-  preferences,
-  exams,
-  revisionTimes,
-  timetableEntries,
-} from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
+  deleteUserTimetableEntries,
+  getUserPreferences,
+  getUserExams,
+  getUserRevisionTimes,
+  getUserBlockTimes,
+  insertTimetableEntries,
+} from "../utils/dataAccess.js";
 import { generateTimetable } from "../utils/generateTimetable.js";
 
 Sentry.init({
@@ -31,39 +31,18 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const client = postgres(process.env.COCKROACH_DB_URL);
-    const db = drizzle(client);
-
     // Delete existing timetable entries
-    await db
-      .delete(timetableEntries)
-      .where(eq(timetableEntries.userId, user.id));
+    await deleteUserTimetableEntries(db, user.id);
 
-    // Fetch user's exams, preferences, and revision times
-    const [prefsResult, examsResult, revisionTimesResult] = await Promise.all([
-      db
-        .select()
-        .from(preferences)
-        .where(eq(preferences.userId, user.id))
-        .limit(1),
-      db
-        .select()
-        .from(exams)
-        .where(eq(exams.userId, user.id)),
-      db
-        .select()
-        .from(revisionTimes)
-        .where(eq(revisionTimes.userId, user.id)),
-    ]);
+    // Fetch user's exams, preferences, revision times, and block times
+    const userPreferences = await getUserPreferences(db, user.id);
+    const userExams = await getUserExams(db, user.id);
+    const revisionTimesResult = await getUserRevisionTimes(db, user.id);
+    const blockTimesData = await getUserBlockTimes(db, user.id);
 
-    if (!prefsResult.length) {
+    if (!userPreferences) {
       return res.status(400).json({ error: "User preferences not found" });
     }
-
-    const userPreferences = prefsResult[0];
-    userPreferences.userId = user.id;
-
-    const userExams = examsResult;
 
     if (!userExams.length) {
       return res.status(400).json({ error: "No exams found for user" });
@@ -74,15 +53,16 @@ export default async function handler(req, res) {
     }
 
     // Generate timetable entries
-    const timetableData = generateTimetable(
+    const timetableData = await generateTimetable(
       userPreferences,
       userExams,
-      revisionTimesResult
+      revisionTimesResult,
+      blockTimesData
     );
 
     // Save timetable entries
     if (timetableData && timetableData.length > 0) {
-      await db.insert(timetableEntries).values(timetableData);
+      await insertTimetableEntries(db, timetableData);
     }
 
     res.status(200).json({ message: "Timetable generated successfully" });

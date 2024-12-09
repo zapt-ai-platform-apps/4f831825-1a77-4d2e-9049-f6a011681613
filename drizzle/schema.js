@@ -52,3 +52,16 @@ export const timetableEntries = pgTable(
     pk: primaryKey(table.userId, table.date, table.block),
   })
 );
+
+export const blockTimes = pgTable(
+  "block_times",
+  {
+    userId: uuid("user_id").notNull(),
+    blockName: text("block_name").notNull(),
+    startTime: time("start_time").notNull(),
+    endTime: time("end_time").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey(table.userId, table.blockName),
+  })
+);
