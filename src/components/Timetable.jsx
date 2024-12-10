@@ -25,8 +25,8 @@ function Timetable() {
   } = useTimetableData(currentMonth, setCurrentMonth);
 
   return (
-    <div class="h-full flex flex-col text-white mt-8 px-2 sm:px-4">
-      <div class="w-full mx-auto">
+    <div class="flex flex-col text-white h-full">
+      <div class="w-full max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
         <Show when={!loading()} fallback={<p>Loading...</p>}>
           <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
@@ -36,13 +36,15 @@ function Timetable() {
               handleNextMonth={handleNextMonth}
               maxDate={maxDate()}
             />
-            <CalendarGrid
-              currentMonth={currentMonth()}
-              datesWithData={datesWithData}
-              selectedDate={selectedDate}
-              onDateClick={handleDateClick}
-              subjectColours={subjectColours}
-            />
+            <div class="mt-4 flex justify-center">
+              <CalendarGrid
+                currentMonth={currentMonth()}
+                datesWithData={datesWithData}
+                selectedDate={selectedDate}
+                onDateClick={handleDateClick}
+                subjectColours={subjectColours}
+              />
+            </div>
             <Show when={selectedDate()}>
               <DayDetails
                 date={selectedDate()}
