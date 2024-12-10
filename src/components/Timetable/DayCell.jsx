@@ -13,11 +13,12 @@ function DayCell(props) {
         props.isSelected() ? 'border-2 border-yellow-500' : ''
       }`}
       onClick={() => props.onDateClick(props.day)}
+      style={{ 'min-height': '50px' }}
     >
-      <div class="absolute top-1 left-1 font-bold text-white">{format(props.day, 'd')}</div>
+      <div class="absolute top-1 left-1 font-bold text-xs sm:text-base text-white">{format(props.day, 'd')}</div>
       <Show when={dataForDay().exams.length > 0}>
         <div class="absolute top-1 right-1">
-          <Icon path={academicCap} class="w-4 h-4 text-red-600" />
+          <Icon path={academicCap} class="w-3 h-3 sm:w-5 sm:h-5 text-red-600" />
         </div>
       </Show>
       <Show when={dataForDay().sessions.length > 0}>
@@ -25,7 +26,7 @@ function DayCell(props) {
           <For each={dataForDay().sessions}>
             {(session) => (
               <div
-                class="w-2 h-2 rounded-full m-0.5"
+                class="w-1 h-1 sm:w-2 sm:h-2 rounded-full m-0.5"
                 style={{
                   'background-color': props.subjectColours()[session.subject],
                 }}
