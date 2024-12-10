@@ -14,6 +14,7 @@ Welcome to **UpGrade**, a personalized revision timetable app designed to help y
 6. [View Timetable](docs/journeys/view-timetable.md) - Access and navigate your personalized revision schedule.
 7. [Use Navigation Menu](docs/journeys/use-navigation-menu.md) - Navigate between different sections of the app.
 8. [Manage Account](docs/journeys/manage-account.md) - Sign out and understand account management features.
+9. [Manage Revision Sessions](docs/journeys/manage-revision-sessions.md) - Add, edit, and delete revision sessions for specific days.
 
 ---
 
@@ -37,5 +38,11 @@ Welcome to **UpGrade**, a personalized revision timetable app designed to help y
 **UpGrade** is free to use and does not require any subscription. All data is securely stored, and privacy is maintained.
 
 If you encounter any issues or errors, rest assured they are automatically reported and will be addressed promptly.
+
+---
+
+# Design Framework Documentation
+
+For detailed design documentation, please refer to the [Design Folder](design/README.md).
 
 ---

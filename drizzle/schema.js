@@ -7,6 +7,7 @@ import {
   date,
   time,
   primaryKey,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const preferences = pgTable("preferences", {
@@ -47,6 +48,7 @@ export const timetableEntries = pgTable(
     subject: text("subject").notNull(),
     startTime: time("start_time"),
     endTime: time("end_time"),
+    isUserCreated: boolean("is_user_created").default(false),
   },
   (table) => ({
     pk: primaryKey(table.userId, table.date, table.block),

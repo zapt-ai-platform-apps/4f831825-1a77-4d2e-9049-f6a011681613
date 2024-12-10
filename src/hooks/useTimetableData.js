@@ -10,11 +10,7 @@ export function useTimetableData(currentMonth, setCurrentMonth) {
   const [maxDate, setMaxDate] = createSignal(null);
   const [subjectColours, setSubjectColours] = createSignal({});
 
-  onMount(() => {
-    fetchData();
-  });
-
-  const fetchData = async () => {
+  const refreshTimetableData = async () => {
     setLoading(true);
     try {
       await fetchExams(setExams);
@@ -26,12 +22,16 @@ export function useTimetableData(currentMonth, setCurrentMonth) {
     }
   };
 
+  onMount(() => {
+    refreshTimetableData();
+  });
+
   return {
     loading,
     error,
     datesWithData,
     maxDate,
     subjectColours,
-    fetchData,
+    refreshTimetableData,
   };
 }

@@ -1,9 +1,11 @@
-import { Show, createMemo } from 'solid-js';
-import { format } from 'date-fns';
-import ExamSection from './ExamSection';
-import SessionSection from './SessionSection';
+import { createSignal, createMemo } from 'solid-js';
+import DayDetailsContent from './DayDetailsContent';
+import { deleteSession } from '../../api/deleteSession';
 
 function DayDetails(props) {
+  const [editSession, setEditSession] = createSignal(null);
+  const [loading, setLoading] = createSignal(false);
+
   const dateKey = () => props.date.toISOString().split('T')[0];
   const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
 
@@ -15,23 +17,43 @@ function DayDetails(props) {
     });
   });
 
+  const refreshTimetableData = props.refreshTimetableData;
+
+  const handleSessionSaved = () => {
+    setEditSession(null);
+    refreshTimetableData();
+  };
+
+  const handleEditSession = (session) => {
+    setEditSession(session);
+  };
+
+  const handleDeleteSession = async (session) => {
+    if (!confirm('Are you sure you want to delete this session?')) return;
+    setLoading(true);
+    try {
+      await deleteSession(props.date.toISOString().split('T')[0], session.block);
+      refreshTimetableData();
+    } catch (error) {
+      // Error handling is done in deleteSession
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div class="bg-white text-black p-4 rounded-lg shadow-lg mt-4">
-      <h3 class="text-xl font-bold mb-4 text-center">
-        Details for {format(props.date, 'MMMM d, yyyy')}
-      </h3>
-      <div class="space-y-6">
-        <Show when={dataForDay().exams.length > 0}>
-          <ExamSection exams={() => dataForDay().exams} />
-        </Show>
-        <Show when={sortedSessions().length > 0}>
-          <SessionSection sessions={sortedSessions} subjectColours={props.subjectColours} />
-        </Show>
-        <Show when={dataForDay().exams.length === 0 && sortedSessions().length === 0}>
-          <p class="text-center">No events for this day.</p>
-        </Show>
-      </div>
-    </div>
+    <DayDetailsContent
+      date={props.date}
+      dataForDay={dataForDay}
+      sortedSessions={sortedSessions}
+      subjectColours={props.subjectColours}
+      editSession={editSession}
+      setEditSession={setEditSession}
+      loading={loading}
+      handleSessionSaved={handleSessionSaved}
+      handleEditSession={handleEditSession}
+      handleDeleteSession={handleDeleteSession}
+    />
   );
 }
 

@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { db } from "../utils/dbClient.js";
 import {
-  deleteUserTimetableEntries,
+  deleteGeneratedTimetableEntries,
   getUserPreferences,
   getUserExams,
   getUserRevisionTimes,
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    // Delete existing timetable entries
-    await deleteUserTimetableEntries(db, user.id);
+    // Delete existing generated timetable entries (exclude user-created entries)
+    await deleteGeneratedTimetableEntries(db, user.id);
 
     // Fetch user's exams, preferences, revision times, and block times
     const userPreferences = await getUserPreferences(db, user.id);

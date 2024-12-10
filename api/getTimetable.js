@@ -1,9 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
 import { timetableEntries } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
+import { db } from "../utils/dbClient.js";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -25,9 +24,6 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const client = postgres(process.env.COCKROACH_DB_URL);
-    const db = drizzle(client);
-
     const result = await db
       .select()
       .from(timetableEntries)
@@ -48,6 +44,7 @@ export default async function handler(req, res) {
         subject: entry.subject,
         startTime: entry.startTime,
         endTime: entry.endTime,
+        isUserCreated: entry.isUserCreated,
       });
     });
 
