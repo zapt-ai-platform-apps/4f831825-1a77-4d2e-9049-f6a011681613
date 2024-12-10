@@ -38,16 +38,16 @@ function Timetable() {
             />
             <CalendarGrid
               currentMonth={currentMonth()}
-              datesWithData={datesWithData()}
+              datesWithData={datesWithData}
               selectedDate={selectedDate}
               onDateClick={handleDateClick}
-              subjectColours={subjectColours()}
+              subjectColours={subjectColours}
             />
             <Show when={selectedDate()}>
               <DayDetails
                 date={selectedDate()}
-                datesWithData={datesWithData()}
-                subjectColours={subjectColours()}
+                datesWithData={datesWithData}
+                subjectColours={subjectColours}
                 refreshTimetableData={refreshTimetableData}
               />
             </Show>

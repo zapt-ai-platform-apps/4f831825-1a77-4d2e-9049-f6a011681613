@@ -6,7 +6,7 @@ import SessionForm from '../SessionForm';
 
 function DayDetailsContent(props) {
   return (
-    <div class="bg-white text-black p-4 rounded-lg shadow-lg mt-4">
+    <div class="bg-white text-black p-4 rounded-lg mt-4">
       <h3 class="text-xl font-bold mb-4 text-center">
         Details for {format(props.date, 'MMMM d, yyyy')}
       </h3>

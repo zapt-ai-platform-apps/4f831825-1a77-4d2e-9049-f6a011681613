@@ -5,12 +5,12 @@ import { academicCap } from 'solid-heroicons/solid';
 
 function DayCell(props) {
   const dateKey = () => props.day.toISOString().split('T')[0];
-  const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
+  const dataForDay = () => props.datesWithData()[dateKey()] || { sessions: [], exams: [] };
 
   return (
     <div
       class={`relative border border-white cursor-pointer hover:bg-gray-700 hover:bg-opacity-25 transition duration-200 ease-in-out ${
-        props.isSelected ? 'border-2 border-yellow-500' : ''
+        props.isSelected() ? 'border-2 border-yellow-500' : ''
       }`}
       onClick={() => props.onDateClick(props.day)}
     >
@@ -27,7 +27,7 @@ function DayCell(props) {
               <div
                 class="w-2 h-2 rounded-full m-0.5"
                 style={{
-                  'background-color': props.subjectColours[session.subject],
+                  'background-color': props.subjectColours()[session.subject],
                 }}
               ></div>
             )}

@@ -7,7 +7,7 @@ function DayDetails(props) {
   const [loading, setLoading] = createSignal(false);
 
   const dateKey = () => props.date.toISOString().split('T')[0];
-  const dataForDay = () => props.datesWithData[dateKey()] || { sessions: [], exams: [] };
+  const dataForDay = () => props.datesWithData()[dateKey()] || { sessions: [], exams: [] };
 
   const sortedSessions = createMemo(() => {
     const sessions = dataForDay().sessions || [];

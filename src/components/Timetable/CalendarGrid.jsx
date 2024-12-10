@@ -1,5 +1,11 @@
 import { For } from 'solid-js';
-import { startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
+import {
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  getDay,
+  isSameDay,
+} from 'date-fns';
 import DayCell from './DayCell';
 
 function CalendarGrid(props) {
@@ -34,7 +40,7 @@ function CalendarGrid(props) {
               <DayCell
                 day={day}
                 datesWithData={props.datesWithData}
-                isSelected={props.selectedDate && isSameDay(day, props.selectedDate)}
+                isSelected={() => props.selectedDate() && isSameDay(day, props.selectedDate())}
                 onDateClick={props.onDateClick}
                 subjectColours={props.subjectColours}
               />

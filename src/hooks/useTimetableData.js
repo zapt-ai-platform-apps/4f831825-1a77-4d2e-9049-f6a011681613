@@ -1,6 +1,11 @@
 import { createSignal, onMount } from 'solid-js';
 import { useTimetable } from '../contexts/TimetableContext';
-import { fetchTimetable, fetchExams, prepareDatesWithData, computeMaxDate } from '../utils/timetableUtils';
+import {
+  fetchTimetable,
+  fetchExams,
+  prepareDatesWithData,
+  computeMaxDate,
+} from '../utils/timetableUtils';
 
 export function useTimetableData(currentMonth, setCurrentMonth) {
   const { timetable, setTimetable, exams, setExams } = useTimetable();
