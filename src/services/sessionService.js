@@ -14,9 +14,9 @@ export async function saveSession(originalData, sessionData, date, onSessionSave
       ? {
           originalDate: date,
           originalBlock: originalData.block,
-          data: sessionData(),
+          data: sessionData,
         }
-      : { data: sessionData() };
+      : { data: sessionData };
 
     const response = await fetch(url, {
       method: method,
