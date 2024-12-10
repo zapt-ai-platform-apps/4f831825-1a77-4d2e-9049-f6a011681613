@@ -14,9 +14,9 @@ export function useTimetableData(currentMonth, setCurrentMonth) {
     setLoading(true);
     try {
       await fetchExams(setExams);
-      computeMaxDate(exams, setMaxDate, currentMonth, setCurrentMonth);
+      computeMaxDate(exams(), setMaxDate, currentMonth, setCurrentMonth);
       await fetchTimetable(setTimetable, setError);
-      prepareDatesWithData(timetable, exams, setDatesWithData, setSubjectColours);
+      prepareDatesWithData(timetable(), exams(), setDatesWithData, setSubjectColours);
     } finally {
       setLoading(false);
     }

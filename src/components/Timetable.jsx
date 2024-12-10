@@ -8,6 +8,7 @@ import DayDetails from './Timetable/DayDetails';
 function Timetable() {
   const {
     currentMonth,
+    setCurrentMonth,
     selectedDate,
     handlePrevMonth,
     handleNextMonth,
@@ -21,7 +22,7 @@ function Timetable() {
     maxDate,
     subjectColours,
     refreshTimetableData,
-  } = useTimetableData(currentMonth, selectedDate);
+  } = useTimetableData(currentMonth, setCurrentMonth);
 
   return (
     <div class="h-full flex flex-col text-white p-4">
@@ -30,23 +31,23 @@ function Timetable() {
         <Show when={!loading()} fallback={<p>Loading...</p>}>
           <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
             <MonthNavigation
-              currentMonth={currentMonth}
+              currentMonth={currentMonth()}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
-              maxDate={maxDate}
+              maxDate={maxDate()}
             />
             <CalendarGrid
-              currentMonth={currentMonth}
-              datesWithData={datesWithData}
+              currentMonth={currentMonth()}
+              datesWithData={datesWithData()}
               selectedDate={selectedDate}
               onDateClick={handleDateClick}
-              subjectColours={subjectColours}
+              subjectColours={subjectColours()}
             />
             <Show when={selectedDate()}>
               <DayDetails
-                date={selectedDate}
-                datesWithData={datesWithData}
-                subjectColours={subjectColours}
+                date={selectedDate()}
+                datesWithData={datesWithData()}
+                subjectColours={subjectColours()}
                 refreshTimetableData={refreshTimetableData}
               />
             </Show>

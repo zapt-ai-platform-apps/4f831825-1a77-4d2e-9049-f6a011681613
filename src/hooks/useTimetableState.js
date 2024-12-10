@@ -10,7 +10,7 @@ function useTimetableState() {
   createEffect(() => {
     if (preferences() && preferences().startDate) {
       const startDate = new Date(preferences().startDate);
-      setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      setCurrentMonth(() => new Date(startDate.getFullYear(), startDate.getMonth(), 1));
     }
   });
 
@@ -42,6 +42,7 @@ function useTimetableState() {
 
   return {
     currentMonth,
+    setCurrentMonth,
     selectedDate,
     handlePrevMonth,
     handleNextMonth,
