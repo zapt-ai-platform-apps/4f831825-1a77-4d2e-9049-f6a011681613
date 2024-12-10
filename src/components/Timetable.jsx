@@ -25,8 +25,8 @@ function Timetable() {
   } = useTimetableData(currentMonth, setCurrentMonth);
 
   return (
-    <div class="h-full flex flex-col text-white p-4">
-      <div class="w-full max-w-screen-xl mx-auto">
+    <div class="h-full flex flex-col text-white mt-8 px-2 sm:px-4">
+      <div class="w-full mx-auto">
         <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
         <Show when={!loading()} fallback={<p>Loading...</p>}>
           <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
