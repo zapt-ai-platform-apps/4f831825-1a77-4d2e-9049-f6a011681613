@@ -5,7 +5,7 @@ import {
   timetableEntries,
   blockTimes,
 } from "../drizzle/schema.js";
-import { eq, and, not } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function deleteUserTimetableEntries(db, userId) {
   await db.delete(timetableEntries).where(eq(timetableEntries.userId, userId));
@@ -38,4 +38,35 @@ export async function getUserPreferences(db, userId) {
   return userPreferences;
 }
 
-// ... rest remains the same
+export async function getUserExams(db, userId) {
+  return await db
+    .select()
+    .from(exams)
+    .where(eq(exams.userId, userId));
+}
+
+export async function getUserRevisionTimes(db, userId) {
+  return await db
+    .select()
+    .from(revisionTimes)
+    .where(eq(revisionTimes.userId, userId));
+}
+
+export async function getUserBlockTimes(db, userId) {
+  const blockTimesResult = await db
+    .select()
+    .from(blockTimes)
+    .where(eq(blockTimes.userId, userId));
+  const blockTimesData = {};
+  for (const row of blockTimesResult) {
+    blockTimesData[row.blockName] = {
+      startTime: row.startTime,
+      endTime: row.endTime,
+    };
+  }
+  return blockTimesData;
+}
+
+export async function insertTimetableEntries(db, timetableData) {
+  await db.insert(timetableEntries).values(timetableData);
+}
