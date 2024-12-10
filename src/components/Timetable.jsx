@@ -1,7 +1,7 @@
 import { Show } from 'solid-js';
 import useTimetableState from '../hooks/useTimetableState';
 import { useTimetableData } from '../hooks/useTimetableData';
-import MonthNavigation from './MonthNavigation';
+import MonthNavigation from './Timetable/MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
 
