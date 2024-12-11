@@ -1,4 +1,4 @@
-import { Show, createMemo } from 'solid-js';
+import { Show, createMemo, For } from 'solid-js';
 import { format } from 'date-fns';
 import { Icon } from 'solid-heroicons';
 import { academicCap } from 'solid-heroicons/solid';
@@ -34,6 +34,26 @@ function DayCell(props) {
         </div>
       </Show>
       <div class="mt-5 sm:mt-10">
+        {/* Display exam details on desktop */}
+        <Show when={dataForDay().exams.length > 0}>
+          <div class="hidden sm:block mb-2 px-1">
+            <For each={dataForDay().exams}>
+              {(exam) => (
+                <div
+                  class="mb-1 p-1 rounded text-white text-xs cursor-pointer"
+                  style={{
+                    'background-color': '#ff6a88',
+                  }}
+                >
+                  <div class="font-bold">Exam: {exam.subject}</div>
+                  <div class="text-[10px]">Time of Day: {exam.timeOfDay || 'Morning'}</div>
+                  <div class="text-[10px]">Board: {exam.board}</div>
+                  <div class="text-[10px]">Teacher: {exam.teacher}</div>
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
         <SessionsList
           sortedSessions={sortedSessions}
           subjectColours={props.subjectColours}
