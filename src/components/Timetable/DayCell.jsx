@@ -40,15 +40,15 @@ function DayCell(props) {
             <For each={dataForDay().exams}>
               {(exam) => (
                 <div
-                  class="mb-1 p-1 rounded text-white text-xs cursor-pointer"
+                  class="mb-1 p-2 rounded-lg text-white cursor-pointer"
                   style={{
-                    'background-color': '#ff6a88',
+                    'background': 'linear-gradient(to right, #ff5f6d, #ffc371)',
                   }}
                 >
-                  <div class="font-bold">Exam: {exam.subject}</div>
-                  <div class="text-[10px]">Time of Day: {exam.timeOfDay || 'Morning'}</div>
-                  <div class="text-[10px]">Board: {exam.board}</div>
-                  <div class="text-[10px]">Teacher: {exam.teacher}</div>
+                  <div class="font-bold text-base">Exam: {exam.subject}</div>
+                  <div class="text-sm">Time of Day: {exam.timeOfDay || 'Morning'}</div>
+                  <div class="text-sm">Board: {exam.board}</div>
+                  <div class="text-sm">Teacher: {exam.teacher}</div>
                 </div>
               )}
             </For>

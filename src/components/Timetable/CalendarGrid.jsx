@@ -20,7 +20,7 @@ function CalendarGrid(props) {
   };
 
   return (
-    <div class="w-screen">
+    <div class="w-screen px-2 box-border">
       <div class="grid grid-cols-7 gap-0 sm:gap-2">
         <For each={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}>
           {(day) => (
