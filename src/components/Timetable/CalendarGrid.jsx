@@ -1,4 +1,3 @@
-```jsx
 import { For } from 'solid-js';
 import {
   startOfMonth,
@@ -54,4 +53,3 @@ function CalendarGrid(props) {
 }
 
 export default CalendarGrid;
-```
