@@ -1,3 +1,4 @@
+```jsx
 import { For } from 'solid-js';
 import {
   startOfMonth,
@@ -20,7 +21,7 @@ function CalendarGrid(props) {
   };
 
   return (
-    <div class="w-full min-w-[320px] sm:min-w-[600px]">
+    <div class="w-screen">
       <div class="grid grid-cols-7 gap-0 sm:gap-2">
         <For each={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}>
           {(day) => (
@@ -53,3 +54,4 @@ function CalendarGrid(props) {
 }
 
 export default CalendarGrid;
+```
