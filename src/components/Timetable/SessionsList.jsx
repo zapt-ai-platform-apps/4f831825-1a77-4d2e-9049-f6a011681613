@@ -28,7 +28,7 @@ function SessionsList(props) {
         </div>
       </Show>
       <Show when={props.sortedSessions().length > 0}>
-        <div class="hidden sm:block mt-5 px-1 overflow-y-auto max-h-[80px]">
+        <div class="hidden sm:block mt-5 px-1">
           <For each={props.sortedSessions()}>
             {(session) => (
               <div

@@ -28,7 +28,7 @@ function CalendarGrid(props) {
           )}
         </For>
       </div>
-      <div class="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(80px,auto)] gap-0 sm:gap-2">
+      <div class="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(150px,auto)] gap-0 sm:gap-2">
         <For each={Array((startDayOfWeek() + 6) % 7)}>
           {() => (
             <div></div>
