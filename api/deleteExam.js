@@ -3,7 +3,6 @@ import { authenticateUser } from "./_apiUtils.js";
 import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
-import getRawBody from "raw-body";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -25,11 +24,14 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const bodyBuffer = await getRawBody(req);
-    const bodyString = bodyBuffer.toString("utf-8");
+    let data = '';
+    for await (const chunk of req) {
+      data += chunk;
+    }
+
     let body;
     try {
-      body = JSON.parse(bodyString);
+      body = JSON.parse(data);
     } catch (e) {
       throw new Error("Invalid JSON");
     }

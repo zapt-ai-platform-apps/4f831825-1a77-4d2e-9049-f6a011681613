@@ -1,6 +1,5 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import getRawBody from "raw-body";
 import { deleteUserData, insertPreferences, insertRevisionTimes, insertBlockTimes } from "./preferencesService.js";
 
 Sentry.init({
@@ -23,26 +22,29 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const bodyBuffer = await getRawBody(req);
-    const bodyString = bodyBuffer.toString('utf-8');
+    let data = '';
+    for await (const chunk of req) {
+      data += chunk;
+    }
+
     let body;
     try {
-      body = JSON.parse(bodyString);
+      body = JSON.parse(data);
     } catch (e) {
       throw new Error('Invalid JSON');
     }
 
-    const { data } = body;
+    const { data: prefsData } = body;
 
-    if (!data) {
+    if (!prefsData) {
       return res.status(400).json({ error: 'Preferences data is required' });
     }
 
-    if (!data.startDate) {
+    if (!prefsData.startDate) {
       return res.status(400).json({ error: 'Start date is required' });
     }
 
-    const hasAtLeastOneBlockSelected = Object.values(data.revisionTimes || {}).some(
+    const hasAtLeastOneBlockSelected = Object.values(prefsData.revisionTimes || {}).some(
       (blocks) => blocks && blocks.length > 0
     );
 
@@ -51,9 +53,9 @@ export default async function handler(req, res) {
     }
 
     await deleteUserData(user.id);
-    await insertPreferences(user.id, data);
-    await insertRevisionTimes(user.id, data);
-    await insertBlockTimes(user.id, data);
+    await insertPreferences(user.id, prefsData);
+    await insertRevisionTimes(user.id, prefsData);
+    await insertBlockTimes(user.id, prefsData);
 
     res.status(200).json({ message: 'Preferences saved and old timetable removed' });
   } catch (error) {
