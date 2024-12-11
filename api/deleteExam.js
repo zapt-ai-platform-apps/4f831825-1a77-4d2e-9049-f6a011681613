@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
 import getRawBody from "raw-body";
@@ -40,9 +39,6 @@ export default async function handler(req, res) {
     if (!id) {
       return res.status(400).json({ error: "Exam ID is required" });
     }
-
-    const client = postgres(process.env.COCKROACH_DB_URL);
-    const db = drizzle(client);
 
     await db.delete(exams).where(
       and(eq(exams.id, id), eq(exams.userId, user.id))

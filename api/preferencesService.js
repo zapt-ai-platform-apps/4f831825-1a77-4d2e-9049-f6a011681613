@@ -1,4 +1,5 @@
-import { db, preferences, revisionTimes, timetableEntries, blockTimes } from "./db.js";
+import { db } from "../utils/dbClient.js";
+import { preferences, revisionTimes, timetableEntries, blockTimes } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 export async function deleteUserData(userId) {
@@ -47,7 +48,7 @@ export async function insertBlockTimes(userId, data) {
       const defaultTimes = {
         Morning: { startTime: '09:00', endTime: '13:00' },
         Afternoon: { startTime: '14:00', endTime: '17:00' },
-        Evening: { startTime: '19:00', endTime: '21:00' }, // Changed default start time to 19:00
+        Evening: { startTime: '19:00', endTime: '21:00' },
       };
       blockTimesData.push({
         userId: userId,

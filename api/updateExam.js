@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import getRawBody from "raw-body";
 import { eq, and } from "drizzle-orm";
@@ -47,9 +46,6 @@ export default async function handler(req, res) {
     const examTimeOfDay = validTimeOfDay.includes(timeOfDay)
       ? timeOfDay
       : "Morning";
-
-    const client = postgres(process.env.COCKROACH_DB_URL);
-    const db = drizzle(client);
 
     const result = await db
       .update(exams)

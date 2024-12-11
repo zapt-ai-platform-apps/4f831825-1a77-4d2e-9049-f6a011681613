@@ -1,10 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import getRawBody from "raw-body";
-import { eq } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -49,9 +47,6 @@ export default async function handler(req, res) {
 
     const validTimeOfDay = ["Morning", "Afternoon", "Evening"];
     const examTimeOfDay = validTimeOfDay.includes(timeOfDay) ? timeOfDay : 'Morning';
-
-    const client = postgres(process.env.COCKROACH_DB_URL);
-    const db = drizzle(client);
 
     await db.insert(exams).values({
       userId: user.id,
