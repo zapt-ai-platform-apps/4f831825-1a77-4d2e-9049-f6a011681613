@@ -1,7 +1,7 @@
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 
 function SessionSection(props) {
-  const { sessions, subjectColours, onEditSession, onDeleteSession, loading } = props;
+  const { sessions, subjectColours } = props;
 
   const capitalizeFirstLetter = (string) => {
     if (!string) return '';
@@ -37,24 +37,6 @@ function SessionSection(props) {
               <p class="text-black">
                 Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
               </p>
-              <Show when={session.isUserCreated}>
-                <div class="absolute top-2 right-2 flex space-x-2">
-                  <button
-                    class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                    onClick={() => onEditSession(session)}
-                    disabled={loading()}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                    onClick={() => onDeleteSession(session)}
-                    disabled={loading()}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </Show>
             </div>
           )}
         </For>

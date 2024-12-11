@@ -21,7 +21,6 @@
     "@sentry/browser": "^7.63.0",
     "@sentry/node": "^7.63.0",
     "@sentry/tracing": "^7.63.0",
-    "raw-body": "^2.5.1",
     "date-fns": "^2.30.0",
     "solid-heroicons": "^1.0.7"
   },

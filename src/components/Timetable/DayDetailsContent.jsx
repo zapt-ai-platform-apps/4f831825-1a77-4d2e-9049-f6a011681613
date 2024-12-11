@@ -2,7 +2,6 @@ import { Show } from 'solid-js';
 import { format } from 'date-fns';
 import ExamSection from './ExamSection';
 import SessionSection from './SessionSection';
-import SessionForm from '../SessionForm';
 
 function DayDetailsContent(props) {
   return (
@@ -18,17 +17,8 @@ function DayDetailsContent(props) {
           <SessionSection
             sessions={props.sortedSessions}
             subjectColours={props.subjectColours}
-            onEditSession={props.handleEditSession}
-            onDeleteSession={props.handleDeleteSession}
-            loading={props.loading}
           />
         </Show>
-        <SessionForm
-          date={props.date.toISOString().split('T')[0]}
-          onSessionSaved={props.handleSessionSaved}
-          editSession={props.editSession()}
-          onCancelEdit={() => props.setEditSession(null)}
-        />
         <Show
           when={
             props.dataForDay().exams.length === 0 &&
