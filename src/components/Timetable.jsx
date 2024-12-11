@@ -1,3 +1,4 @@
+```jsx
 import { Show } from 'solid-js';
 import useTimetableState from '../hooks/useTimetableState';
 import { useTimetableData } from '../hooks/useTimetableData';
@@ -26,9 +27,13 @@ function Timetable() {
 
   return (
     <div class="flex flex-col text-white h-full">
-      <div class="w-screen">
+      <div class="w-screen h-full">
         <h2 class="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
-        <Show when={!loading()} fallback={<p>Loading...</p>}>
+        <Show when={!loading()} fallback={
+          <div class="flex items-center justify-center h-full">
+            <p class="text-center">Loading...</p>
+          </div>
+        }>
           <Show when={!error()} fallback={<p class="text-red-500">{error()}</p>}>
             <MonthNavigation
               currentMonth={currentMonth()}
@@ -63,3 +68,4 @@ function Timetable() {
 }
 
 export default Timetable;
+```
