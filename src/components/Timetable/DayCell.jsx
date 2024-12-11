@@ -6,7 +6,8 @@ import SessionsList from './SessionsList';
 
 function DayCell(props) {
   const dateKey = () => props.day.toISOString().split('T')[0];
-  const dataForDay = () => props.datesWithData()[dateKey()] || { sessions: [], exams: [] };
+  const dataForDay = () =>
+    props.datesWithData()[dateKey()] || { sessions: [], exams: [] };
 
   const sortedSessions = createMemo(() => {
     const desiredOrder = ['Morning', 'Afternoon', 'Evening'];
@@ -32,10 +33,12 @@ function DayCell(props) {
           <Icon path={academicCap} class="w-3 h-3 sm:w-5 sm:h-5 text-red-600" />
         </div>
       </Show>
-      <SessionsList
-        sortedSessions={sortedSessions}
-        subjectColours={props.subjectColours}
-      />
+      <div class="mt-5 sm:mt-10">
+        <SessionsList
+          sortedSessions={sortedSessions}
+          subjectColours={props.subjectColours}
+        />
+      </div>
     </div>
   );
 }
