@@ -17,7 +17,7 @@
    - Customize the start and end times for each revision block (Morning, Afternoon, Evening).
      - **Morning**: Default is 9:00 AM to 1:00 PM.
      - **Afternoon**: Default is 2:00 PM to 5:00 PM.
-     - **Evening**: Default is 6:00 PM to 9:00 PM.
+     - **Evening**: Default is 7:00 PM to 9:00 PM.
    - Enter your preferred start and end times for each block.
      - Click on the time input fields next to each block and select your preferred times.
      - Ensure that the end time is later than the start time for each block.
