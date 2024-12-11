@@ -23,17 +23,7 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    let data = '';
-    for await (const chunk of req) {
-      data += chunk;
-    }
-
-    let body;
-    try {
-      body = JSON.parse(data);
-    } catch (e) {
-      throw new Error("Invalid JSON");
-    }
+    const body = req.body;
 
     const { data: timetableData } = body;
 
