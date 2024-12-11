@@ -45,14 +45,16 @@ function Timetable() {
                 subjectColours={subjectColours}
               />
             </div>
-            <Show when={selectedDate()}>
-              <DayDetails
-                date={selectedDate()}
-                datesWithData={datesWithData}
-                subjectColours={subjectColours}
-                refreshTimetableData={refreshTimetableData}
-              />
-            </Show>
+            <div class="md:hidden">
+              <Show when={selectedDate()}>
+                <DayDetails
+                  date={selectedDate()}
+                  datesWithData={datesWithData}
+                  subjectColours={subjectColours}
+                  refreshTimetableData={refreshTimetableData}
+                />
+              </Show>
+            </div>
           </Show>
         </Show>
       </div>
