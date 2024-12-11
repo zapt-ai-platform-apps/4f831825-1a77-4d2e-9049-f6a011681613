@@ -1,4 +1,3 @@
-```jsx
 import { Show } from 'solid-js';
 import useTimetableState from '../hooks/useTimetableState';
 import { useTimetableData } from '../hooks/useTimetableData';
@@ -68,4 +67,3 @@ function Timetable() {
 }
 
 export default Timetable;
-```
