@@ -15,7 +15,7 @@ function ExamSection(props) {
             <div
               class="p-4 rounded-lg text-white"
               style={{
-                background: 'linear-gradient(to right, #ff7e5f, #feb47b)',
+                'background-color': '#FF0000', // Bright red color for exams
               }}
             >
               <p class="font-semibold text-2xl">

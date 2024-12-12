@@ -34,16 +34,13 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
 
   const subjectColours = {};
   const colors = [
-    '#ff7e5f',
-    '#feb47b',
-    '#ff6a88',
-    '#00d2ff',
-    '#0083b0',
-    '#8e44ad',
-    '#3c3b3f',
-    '#11998e',
-    '#38ef7d',
-    '#b1ea4d',
+    '#00d2ff', // Light Blue
+    '#0083b0', // Dark Blue
+    '#8e44ad', // Purple
+    '#3c3b3f', // Gray
+    '#11998e', // Teal
+    '#38ef7d', // Light Green
+    '#b1ea4d', // Yellow Green
   ];
 
   let colorIndex = 0;
