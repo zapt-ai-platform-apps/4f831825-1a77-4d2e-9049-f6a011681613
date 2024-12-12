@@ -28,7 +28,7 @@ function DayCell(props) {
       </div>
       {/* Indicator for exams on mobile screens */}
       <Show when={dataForDay().exams.length > 0}>
-        <div class="absolute bottom-1 left-1 w-2 h-2 rounded-full bg-red-500 sm:hidden"></div>
+        <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 sm:hidden"></div>
       </Show>
       <div class="mt-5 sm:mt-10">
         {/* Display exam details on desktop */}
