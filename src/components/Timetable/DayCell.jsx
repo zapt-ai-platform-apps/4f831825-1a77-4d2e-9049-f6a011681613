@@ -44,8 +44,6 @@ function DayCell(props) {
                 >
                   <div class="font-bold text-base">Exam: {exam.subject}</div>
                   <div class="text-sm">Time of Day: {exam.timeOfDay || 'Morning'}</div>
-                  <div class="text-sm">Board: {exam.board}</div>
-                  <div class="text-sm">Teacher: {exam.teacher}</div>
                 </div>
               )}
             </For>

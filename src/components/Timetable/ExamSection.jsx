@@ -22,8 +22,6 @@ function ExamSection(props) {
                 Exam: {capitalizeFirstLetter(exam.subject)}
               </p>
               <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
-              <p>Board: {exam.board}</p>
-              <p>Teacher: {exam.teacher}</p>
             </div>
           )}
         </For>
