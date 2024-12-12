@@ -42,7 +42,7 @@ function Timetable() {
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               maxDate={maxDate()}
-              minDate={preferences && preferences.startDate ? new Date(preferences.startDate) : null}
+              minDate={preferences() && preferences().startDate ? new Date(preferences().startDate) : null}
             />
             <div class="mt-4">
               <CalendarGrid
