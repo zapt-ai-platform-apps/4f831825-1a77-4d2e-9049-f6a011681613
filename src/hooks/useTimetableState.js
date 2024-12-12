@@ -3,14 +3,13 @@ import { useTimetable } from '../contexts/TimetableContext';
 import { isSameDay } from 'date-fns';
 
 function useTimetableState() {
-  const { preferences } = useTimetable();
-  const [currentMonth, setCurrentMonth] = createSignal(new Date());
+  const { preferences, currentMonth, setCurrentMonth } = useTimetable();
   const [selectedDate, setSelectedDate] = createSignal(null);
 
   createEffect(() => {
-    if (preferences() && preferences().startDate) {
+    if (currentMonth() === null && preferences() && preferences().startDate) {
       const startDate = new Date(preferences().startDate);
-      setCurrentMonth(() => new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
     }
   });
 
