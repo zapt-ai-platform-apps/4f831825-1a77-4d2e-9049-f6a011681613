@@ -15,8 +15,14 @@ function useTimetableState() {
 
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
-      const newMonth = new Date(prev);
-      newMonth.setMonth(prev.getMonth() - 1);
+      const newMonth = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
+      if (preferences() && preferences().startDate) {
+        const minMonth = new Date(preferences().startDate);
+        minMonth.setDate(1); // Set to first day of the month
+        if (newMonth < minMonth) {
+          return prev; // Do not update if newMonth is before startDate month
+        }
+      }
       return newMonth;
     });
     setSelectedDate(null);
@@ -24,8 +30,7 @@ function useTimetableState() {
 
   const handleNextMonth = () => {
     setCurrentMonth((prev) => {
-      const newMonth = new Date(prev);
-      newMonth.setMonth(prev.getMonth() + 1);
+      const newMonth = new Date(prev.getFullYear(), prev.getMonth() + 1, 1);
       return newMonth;
     });
     setSelectedDate(null);

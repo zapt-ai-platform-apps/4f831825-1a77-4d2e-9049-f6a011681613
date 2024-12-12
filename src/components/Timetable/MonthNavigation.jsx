@@ -3,20 +3,17 @@ import { chevronLeft, chevronRight } from 'solid-heroicons/solid';
 
 function MonthNavigation(props) {
   const isPrevDisabled = () => {
-    // Implement minDate logic here if needed
-    return false; // Currently allowing navigation to previous months without restriction
+    if (!props.minDate) return false;
+    const prevMonth = new Date(props.currentMonth.getFullYear(), props.currentMonth.getMonth() - 1, 1);
+    const minMonth = new Date(props.minDate.getFullYear(), props.minDate.getMonth(), 1);
+    return prevMonth < minMonth;
   };
 
   const isNextDisabled = () => {
     if (!props.maxDate) return false;
-    const currentYear = props.currentMonth.getFullYear();
-    const currentMonth = props.currentMonth.getMonth();
-    const maxYear = props.maxDate.getFullYear();
-    const maxMonth = props.maxDate.getMonth();
-    return (
-      currentYear > maxYear ||
-      (currentYear === maxYear && currentMonth >= maxMonth)
-    );
+    const nextMonth = new Date(props.currentMonth.getFullYear(), props.currentMonth.getMonth() + 1, 1);
+    const maxMonth = new Date(props.maxDate.getFullYear(), props.maxDate.getMonth(), 1);
+    return nextMonth > maxMonth;
   };
 
   const formatMonthYear = () => {

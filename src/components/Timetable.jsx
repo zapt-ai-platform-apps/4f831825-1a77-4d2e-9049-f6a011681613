@@ -4,6 +4,7 @@ import { useTimetableData } from '../hooks/useTimetableData';
 import MonthNavigation from './Timetable/MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
+import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
   const {
@@ -24,6 +25,8 @@ function Timetable() {
     refreshTimetableData,
   } = useTimetableData(currentMonth, setCurrentMonth);
 
+  const { preferences } = useTimetable();
+
   return (
     <div class="flex flex-col text-white h-full">
       <div class="w-screen h-full">
@@ -39,6 +42,7 @@ function Timetable() {
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               maxDate={maxDate()}
+              minDate={preferences && preferences.startDate ? new Date(preferences.startDate) : null}
             />
             <div class="mt-4">
               <CalendarGrid
