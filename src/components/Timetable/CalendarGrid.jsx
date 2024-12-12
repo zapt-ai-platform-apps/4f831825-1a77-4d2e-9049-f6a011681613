@@ -20,7 +20,7 @@ function CalendarGrid(props) {
   };
 
   return (
-    <div class="w-screen px-2 box-border">
+    <div class="w-screen px-2 md:px-10 lg:px-20 xl:px-40 box-border">
       <div class="grid grid-cols-7 gap-0 sm:gap-2">
         <For each={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}>
           {(day) => (
@@ -30,9 +30,7 @@ function CalendarGrid(props) {
       </div>
       <div class="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(150px,auto)] gap-0 sm:gap-2">
         <For each={Array((startDayOfWeek() + 6) % 7)}>
-          {() => (
-            <div></div>
-          )}
+          {() => <div></div>}
         </For>
         <For each={daysInMonth()}>
           {(day) => (
