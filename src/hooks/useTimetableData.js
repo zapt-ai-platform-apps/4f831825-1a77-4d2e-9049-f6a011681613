@@ -5,7 +5,7 @@ import {
   fetchExams,
   prepareDatesWithData,
   computeMaxDate,
-} from '../utils/timetableUtils';
+} from '../utils/timetableUtils.js';
 
 export function useTimetableData(currentMonth, setCurrentMonth) {
   const { timetable, setTimetable, exams, setExams } = useTimetable();
