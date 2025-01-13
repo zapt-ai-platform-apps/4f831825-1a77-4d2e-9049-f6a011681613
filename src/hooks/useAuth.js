@@ -32,7 +32,7 @@ function useAuth() {
   }, [navigate, location.pathname]);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null);
         if (
@@ -51,7 +51,7 @@ function useAuth() {
     );
 
     return () => {
-      authListener?.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [navigate, location.pathname]);
 
