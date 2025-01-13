@@ -1,28 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './Header';
 import MobileMenu from './MobileMenu';
 import Footer from './Footer';
 import { TimetableProvider } from '../contexts/TimetableContext';
+import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/react';
 
-function ProtectedRoute({ children, ...props }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+function ProtectedRoute({ children, user, setUser, timetable, setTimetable, exams, setExams, preferences }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSignOut = async () => {
-    await props.setUser(null);
-    navigate('/login');
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      Sentry.captureException(error);
+    }
   };
 
   return (
     <TimetableProvider
       value={{
-        timetable: props.timetable,
-        setTimetable: props.setTimetable,
-        exams: props.exams,
-        setExams: props.setExams,
-        preferences: props.preferences,
+        timetable: timetable,
+        setTimetable: setTimetable,
+        exams: exams,
+        setExams: setExams,
+        preferences: preferences,
       }}
     >
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">

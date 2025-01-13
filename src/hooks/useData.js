@@ -14,7 +14,7 @@ function useData(user) {
     }
   }, [user]);
 
-  return { timetable, exams, preferences };
+  return { timetable, exams, preferences, setTimetable, setExams };
 }
 
 export default useData;

@@ -8,9 +8,10 @@ import Timetable from './components/Timetable';
 import ProtectedRoute from './components/ProtectedRoute';
 import useAuth from './hooks/useAuth';
 import useData from './hooks/useData';
+import Footer from './components/Footer';
 
 function App() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { timetable, exams, preferences } = useData(user);
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,6 +27,7 @@ function App() {
             user ? (
               <ProtectedRoute
                 user={user}
+                setUser={setUser}
                 timetable={timetable}
                 exams={exams}
                 preferences={preferences}
@@ -43,6 +45,7 @@ function App() {
             user ? (
               <ProtectedRoute
                 user={user}
+                setUser={setUser}
                 timetable={timetable}
                 exams={exams}
                 preferences={preferences}
@@ -60,6 +63,7 @@ function App() {
             user ? (
               <ProtectedRoute
                 user={user}
+                setUser={setUser}
                 timetable={timetable}
                 exams={exams}
                 preferences={preferences}
@@ -73,6 +77,7 @@ function App() {
         />
         <Route path="*" element={<LandingPage />} />
       </Routes>
+      <Footer />
     </div>
   );
 }

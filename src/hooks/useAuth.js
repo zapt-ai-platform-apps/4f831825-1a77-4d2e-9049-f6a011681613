@@ -55,7 +55,7 @@ function useAuth() {
     };
   }, [navigate, location.pathname]);
 
-  return { user };
+  return { user, setUser };
 }
 
 export default useAuth;
