@@ -3,7 +3,7 @@ import useTimetableData from './Timetable/useTimetableData';
 import MonthNavigation from './Timetable/MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
-import { useTimetable } from '../../contexts/TimetableContext';
+import { useTimetable } from '../contexts/TimetableContext';
 
 function Timetable() {
   const {
@@ -21,7 +21,6 @@ function Timetable() {
     refreshTimetableData,
   } = useTimetableData();
 
-  // Fix "preferences is not defined" by retrieving it from TimetableContext
   const { preferences } = useTimetable();
 
   return (
