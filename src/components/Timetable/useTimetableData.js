@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import useTimetableState from '../../hooks/useTimetableState';
 import { useTimetable } from '../../contexts/TimetableContext';
-import { fetchTimetable, fetchExams } from '../../api';
-import { prepareDatesWithData, computeMaxDate } from '../../utils/dateUtils';
+import { computeMaxDate, prepareDatesWithData, fetchTimetable, fetchExams } from '../../utils/timetableUtils';
 
 function useTimetableData() {
   const {
@@ -13,6 +12,7 @@ function useTimetableData() {
     handleNextMonth,
     handleDateClick,
   } = useTimetableState();
+
   const { timetable, setTimetable, exams, setExams, preferences } = useTimetable();
 
   const [loading, setLoading] = useState(true);
@@ -22,13 +22,25 @@ function useTimetableData() {
   const [subjectColours, setSubjectColours] = useState({});
 
   const refreshTimetableData = async () => {
+    console.log('[INFO] Refreshing timetable data...');
     setLoading(true);
     try {
-      await fetchExams(setExams);
-      computeMaxDate(exams, setMaxDate, currentMonth, setCurrentMonth);
-      await fetchTimetable(setTimetable, setError);
-      prepareDatesWithData(timetable, exams, setDatesWithData, setSubjectColours);
+      // Fetch exams
+      const examResult = await fetchExams();
+      setExams(examResult);
+
+      // Compute max date based on newly fetched exams
+      computeMaxDate(examResult, setMaxDate, currentMonth, setCurrentMonth);
+
+      // Fetch timetable
+      const timetableResult = await fetchTimetable();
+      setTimetable(timetableResult);
+
+      // Prepare combined data
+      prepareDatesWithData(timetableResult, examResult, setDatesWithData, setSubjectColours);
+
     } catch (err) {
+      console.error('[ERROR] Failed to load timetable data:', err);
       setError('Failed to load timetable data.');
     } finally {
       setLoading(false);
@@ -36,9 +48,21 @@ function useTimetableData() {
   };
 
   useEffect(() => {
+    // If we have no user or no preferences yet, skip
+    if (!preferences) {
+      setLoading(false);
+      return;
+    }
     refreshTimetableData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth, exams]);
+  }, [currentMonth]);
+
+  // Also refetch when exams change from outside
+  useEffect(() => {
+    if (!preferences) return;
+    refreshTimetableData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exams?.length]);
 
   return {
     currentMonth,
