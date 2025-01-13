@@ -34,11 +34,11 @@ export async function insertRevisionTimes(userId, data) {
 
 export async function insertBlockTimes(userId, data) {
   const validBlocks = ['Morning', 'Afternoon', 'Evening'];
-  const blockTimesData = [];
+  const blockTimesDataArr = [];
   for (const block of validBlocks) {
     const blockTime = data.blockTimes[block];
     if (blockTime && blockTime.startTime && blockTime.endTime) {
-      blockTimesData.push({
+      blockTimesDataArr.push({
         userId: userId,
         blockName: block,
         startTime: blockTime.startTime,
@@ -50,7 +50,7 @@ export async function insertBlockTimes(userId, data) {
         Afternoon: { startTime: '14:00', endTime: '17:00' },
         Evening: { startTime: '19:00', endTime: '21:00' },
       };
-      blockTimesData.push({
+      blockTimesDataArr.push({
         userId: userId,
         blockName: block,
         startTime: defaultTimes[block].startTime,
@@ -58,5 +58,5 @@ export async function insertBlockTimes(userId, data) {
       });
     }
   }
-  await db.insert(blockTimes).values(blockTimesData);
+  await db.insert(blockTimes).values(blockTimesDataArr);
 }

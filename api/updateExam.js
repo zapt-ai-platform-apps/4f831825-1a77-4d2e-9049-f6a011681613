@@ -23,9 +23,7 @@ export default async function handler(req, res) {
     }
 
     const user = await authenticateUser(req);
-
     const body = req.body;
-
     const { id, subject, examDate, timeOfDay, board, teacher } = body.data;
 
     if (!id || !subject || !examDate) {

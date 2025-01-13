@@ -24,7 +24,6 @@ export default async function handler(req, res) {
     const user = await authenticateUser(req);
 
     const body = req.body;
-
     const { data: examData } = body;
 
     if (!examData) {
