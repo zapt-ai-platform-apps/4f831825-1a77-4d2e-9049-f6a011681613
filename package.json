@@ -20,7 +20,6 @@
     "@solidjs/router": "^0.8.4",
     "@sentry/browser": "^7.63.0",
     "@sentry/node": "^7.63.0",
-    "@sentry/tracing": "^7.63.0",
     "date-fns": "^2.30.0",
     "solid-heroicons": "^1.0.7"
   },
