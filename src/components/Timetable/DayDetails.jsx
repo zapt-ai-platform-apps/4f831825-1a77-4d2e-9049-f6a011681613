@@ -1,25 +1,35 @@
-import { createMemo } from 'solid-js';
-import DayDetailsContent from './DayDetailsContent';
+import React from 'react';
+import { format } from 'date-fns';
+import ExamSection from './ExamSection';
+import SessionSection from './SessionSection';
 
-function DayDetails(props) {
-  const dateKey = () => props.date.toISOString().split('T')[0];
-  const dataForDay = () => props.datesWithData()[dateKey()] || { sessions: [], exams: [] };
+function DayDetails({ date, datesWithData, subjectColours, refreshTimetableData }) {
+  const dateKey = date.toISOString().split('T')[0];
+  const dataForDay = datesWithData[dateKey] || { sessions: [], exams: [] };
 
-  const sortedSessions = createMemo(() => {
-    const sessions = dataForDay().sessions || [];
-    const desiredOrder = ['Morning', 'Afternoon', 'Evening'];
-    return sessions.slice().sort((a, b) => {
-      return desiredOrder.indexOf(a.block) - desiredOrder.indexOf(b.block);
-    });
+  const sortedSessions = dataForDay.sessions.slice().sort((a, b) => {
+    const blockOrder = ['Morning', 'Afternoon', 'Evening'];
+    return blockOrder.indexOf(a.block) - blockOrder.indexOf(b.block);
   });
 
   return (
-    <DayDetailsContent
-      date={props.date}
-      dataForDay={dataForDay}
-      sortedSessions={sortedSessions}
-      subjectColours={props.subjectColours}
-    />
+    <div className="bg-white text-black p-4 rounded-lg mt-4">
+      <h3 className="text-xl font-bold mb-4 text-center">
+        Details for {new Date(date).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}
+      </h3>
+      <div className="space-y-6">
+        {dataForDay.exams.length > 0 && <ExamSection exams={dataForDay.exams} />}
+        {sortedSessions.length > 0 && (
+          <SessionSection
+            sessions={sortedSessions}
+            subjectColours={subjectColours}
+          />
+        )}
+        {dataForDay.exams.length === 0 && sortedSessions.length === 0 && (
+          <p className="text-center">No events for this day.</p>
+        )}
+      </div>
+    </div>
   );
 }
 

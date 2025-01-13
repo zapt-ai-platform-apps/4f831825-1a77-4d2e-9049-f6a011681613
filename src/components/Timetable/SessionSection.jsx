@@ -1,8 +1,6 @@
-import { For } from 'solid-js';
+import React from 'react';
 
-function SessionSection(props) {
-  const { sessions, subjectColours } = props;
-
+function SessionSection({ sessions, subjectColours }) {
   const capitalizeFirstLetter = (string) => {
     if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -15,31 +13,27 @@ function SessionSection(props) {
 
   return (
     <div>
-      <h4 class="text-lg font-semibold mb-2">Revision Sessions</h4>
-      <div class="space-y-4">
-        <For each={sessions()}>
-          {(session) => (
-            <div
-              class="p-4 rounded-lg border-l-4 relative"
-              style={{
-                'border-color': subjectColours()[session.subject],
-                'background-color': '#f9f9f9',
-              }}
-            >
-              <p class="font-semibold text-black flex items-center">
-                <span
-                  class="w-4 h-4 rounded-full mr-2"
-                  style={{ 'background-color': subjectColours()[session.subject] }}
-                ></span>
-                Subject: {capitalizeFirstLetter(session.subject)}
-              </p>
-              <p class="text-black">Block: {session.block}</p>
-              <p class="text-black">
-                Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
-              </p>
-            </div>
-          )}
-        </For>
+      <h4 className="text-lg font-semibold mb-2">Revision Sessions</h4>
+      <div className="space-y-4">
+        {sessions.map((session, index) => (
+          <div
+            key={index}
+            className="p-4 rounded-lg border-l-4 relative"
+            style={{ borderColor: subjectColours[session.subject] }}
+          >
+            <p className="font-semibold text-black flex items-center">
+              <span
+                className="w-4 h-4 rounded-full mr-2"
+                style={{ backgroundColor: subjectColours[session.subject] }}
+              ></span>
+              Subject: {capitalizeFirstLetter(session.subject)}
+            </p>
+            <p className="text-black">Block: {session.block}</p>
+            <p className="text-black">
+              Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

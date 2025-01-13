@@ -1,9 +1,11 @@
-import { createSignal, createEffect, Show, For } from 'solid-js';
+import React, { useState, useEffect } from 'react';
+import * as Sentry from '@sentry/react';
 import { supabase } from '../supabaseClient';
-import * as Sentry from '@sentry/browser';
+import ExamFormFields from './ExamFormFields';
+import { saveExamData, resetExamDataValues } from '../services/examService';
 
-function ExamForm(props) {
-  const [examData, setExamData] = createSignal({
+function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
+  const [examData, setExamData] = useState({
     id: null,
     subject: '',
     examDate: '',
@@ -11,30 +13,23 @@ function ExamForm(props) {
     board: '',
     teacher: '',
   });
-  const [loading, setLoading] = createSignal(false);
+  const [loading, setLoading] = useState(false);
 
-  createEffect(() => {
-    if (props.editExam) {
-      setExamData({ ...props.editExam });
+  useEffect(() => {
+    if (editExam) {
+      setExamData({ ...editExam });
     } else {
-      setExamData({
-        id: null,
-        subject: '',
-        examDate: '',
-        timeOfDay: 'Morning',
-        board: '',
-        teacher: '',
-      });
+      setExamData(resetExamDataValues());
     }
-  });
+  }, [editExam]);
 
   const isFormValid = () => {
-    const exam = examData();
+    const exam = examData;
     return exam.subject && exam.examDate && exam.board && exam.teacher;
   };
 
   const handleInputChange = (e) => {
-    setExamData({ ...examData(), [e.target.name]: e.target.value });
+    setExamData({ ...examData, [e.target.name]: e.target.value });
   };
 
   const handleSaveExam = async () => {
@@ -45,32 +40,9 @@ function ExamForm(props) {
         data: { session },
       } = await supabase.auth.getSession();
 
-      const url = examData().id ? '/api/updateExam' : '/api/saveExams';
-      const method = examData().id ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: examData() }),
-      });
-
-      if (response.ok) {
-        setExamData({
-          id: null,
-          subject: '',
-          examDate: '',
-          timeOfDay: 'Morning',
-          board: '',
-          teacher: '',
-        });
-        props.onExamSaved();
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Error saving exam');
-      }
+      await saveExamData(examData, session.access_token);
+      setExamData(resetExamDataValues());
+      onExamSaved();
     } catch (error) {
       console.error('Error saving exam:', error);
       Sentry.captureException(error);
@@ -79,87 +51,35 @@ function ExamForm(props) {
     }
   };
 
-  const timeOptions = ['Morning', 'Afternoon', 'Evening'];
-
   return (
     <div>
-      <h3 class="text-xl font-semibold mb-2 text-center">
-        {examData().id ? 'Edit Exam' : 'Add New Exam'}
+      <h3 className="text-xl font-semibold mb-2 text-center">
+        {examData.id ? 'Edit Exam' : 'Add New Exam'}
       </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          name="subject"
-          placeholder="Subject"
-          value={examData().subject}
-          onInput={handleInputChange}
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
-        />
-        <input
-          type="date"
-          name="examDate"
-          placeholder="Exam Date"
-          value={examData().examDate}
-          onInput={handleInputChange}
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
-        />
-        <select
-          name="timeOfDay"
-          value={examData().timeOfDay}
-          onInput={handleInputChange}
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border cursor-pointer"
-        >
-          <For each={timeOptions}>
-            {(option) => <option value={option}>{option}</option>}
-          </For>
-        </select>
-        <input
-          type="text"
-          name="board"
-          placeholder="Examination Board"
-          value={examData().board}
-          onInput={handleInputChange}
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
-        />
-        <input
-          type="text"
-          name="teacher"
-          placeholder="Teacher's Name"
-          value={examData().teacher}
-          onInput={handleInputChange}
-          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent text-black box-border"
-        />
-      </div>
-      <div class="flex space-x-4 mt-4">
+      <ExamFormFields examData={examData} handleInputChange={handleInputChange} />
+      <div className="flex space-x-4 mt-4">
         <button
-          class={`flex-1 px-6 py-3 ${
-            loading() || !isFormValid()
+          className={`flex-1 px-6 py-3 ${
+            loading || !isFormValid()
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-500 hover:bg-blue-600 transform hover:scale-105'
           } text-white rounded-lg transition duration-300 ease-in-out cursor-pointer`}
           onClick={handleSaveExam}
-          disabled={loading() || !isFormValid()}
+          disabled={loading || !isFormValid()}
         >
-          {loading() ? 'Saving...' : examData().id ? 'Update Exam' : 'Add Exam'}
+          {loading ? 'Saving...' : examData.id ? 'Update Exam' : 'Add Exam'}
         </button>
-        <Show when={examData().id}>
+        {examData.id && (
           <button
-            class="flex-1 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+            className="flex-1 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
             onClick={() => {
-              setExamData({
-                id: null,
-                subject: '',
-                examDate: '',
-                timeOfDay: 'Morning',
-                board: '',
-                teacher: '',
-              });
-              props.onCancelEdit();
+              setExamData(resetExamDataValues());
+              onCancelEdit();
             }}
           >
             Cancel
           </button>
-        </Show>
+        )}
       </div>
     </div>
   );

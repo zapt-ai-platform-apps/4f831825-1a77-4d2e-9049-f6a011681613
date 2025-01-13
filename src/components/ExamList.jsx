@@ -1,10 +1,8 @@
-import { For } from 'solid-js';
-import { supabase } from '../supabaseClient';
-import * as Sentry from '@sentry/browser';
+import React from 'react';
 
-function ExamList(props) {
+function ExamList({ exams, onExamDeleted, onEditExam }) {
   const handleDeleteExam = async (examId) => {
-    if (!confirm('Are you sure you want to delete this exam?')) return;
+    if (!window.confirm('Are you sure you want to delete this exam?')) return;
     try {
       const {
         data: { session },
@@ -20,7 +18,7 @@ function ExamList(props) {
       });
 
       if (response.ok) {
-        props.onExamDeleted();
+        onExamDeleted();
       } else {
         const errorText = await response.text();
         throw new Error(errorText || 'Error deleting exam');
@@ -32,41 +30,40 @@ function ExamList(props) {
   };
 
   const handleEditExam = (exam) => {
-    props.onEditExam(exam);
+    onEditExam(exam);
   };
 
   return (
     <div>
-      <h3 class="text-xl font-semibold mb-2 text-center">Upcoming Exams</h3>
-      <For each={props.exams}>
-        {(exam) => (
-          <div class="bg-gray-200 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
-            <div>
-              <p class="font-semibold text-lg text-black">{exam.subject}</p>
-              <p class="text-black">Exam Date: {exam.examDate}</p>
-              <p class="text-black">
-                Time of Day: {exam.timeOfDay || 'Morning'}
-              </p>
-              <p class="text-black">Board: {exam.board}</p>
-              <p class="text-black">Teacher: {exam.teacher}</p>
-            </div>
-            <div class="flex space-x-2 mt-2 sm:mt-0">
-              <button
-                class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                onClick={() => handleEditExam(exam)}
-              >
-                Edit
-              </button>
-              <button
-                class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-                onClick={() => handleDeleteExam(exam.id)}
-              >
-                Delete
-              </button>
-            </div>
+      <h3 className="text-xl font-semibold mb-2 text-center">Upcoming Exams</h3>
+      {exams.map((exam) => (
+        <div
+          key={exam.id}
+          className="bg-gray-200 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2"
+        >
+          <div>
+            <p className="font-semibold text-lg text-black">{exam.subject}</p>
+            <p className="text-black">Exam Date: {exam.examDate}</p>
+            <p className="text-black">Time of Day: {exam.timeOfDay || 'Morning'}</p>
+            <p className="text-black">Board: {exam.board}</p>
+            <p className="text-black">Teacher: {exam.teacher}</p>
           </div>
-        )}
-      </For>
+          <div className="flex space-x-2 mt-2 sm:mt-0">
+            <button
+              className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={() => handleEditExam(exam)}
+            >
+              Edit
+            </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+              onClick={() => handleDeleteExam(exam.id)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

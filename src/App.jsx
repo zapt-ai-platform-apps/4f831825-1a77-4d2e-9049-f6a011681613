@@ -1,91 +1,33 @@
-import { createSignal, onMount, createEffect } from 'solid-js';
-import { supabase } from './supabaseClient';
-import { Routes, Route, useNavigate, useLocation } from '@solidjs/router';
+import React from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Preferences from './components/Preferences';
 import Exams from './components/Exams';
 import Timetable from './components/Timetable';
 import ProtectedRoute from './components/ProtectedRoute';
-import { fetchTimetable, fetchExams, fetchPreferences } from './api';
-import { handleSignOut } from './auth';
+import useAuth from './hooks/useAuth';
+import useData from './hooks/useData';
 
 function App() {
-  const [user, setUser] = createSignal(null);
-  const [timetable, setTimetable] = createSignal(null);
-  const [exams, setExams] = createSignal([]);
-  const [preferences, setPreferences] = createSignal(null);
+  const { user } = useAuth();
+  const { timetable, exams, preferences } = useData(user);
   const navigate = useNavigate();
   const location = useLocation();
 
-  onMount(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    setUser(user);
-
-    if (
-      user &&
-      (location.pathname === '/' || location.pathname === '/login')
-    ) {
-      navigate('/preferences');
-    } else if (
-      !user &&
-      location.pathname !== '/' &&
-      location.pathname !== '/login'
-    ) {
-      navigate('/login');
-    }
-  });
-
-  createEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        if (
-          session?.user &&
-          (location.pathname === '/login' || location.pathname === '/')
-        ) {
-          navigate('/preferences');
-        } else if (
-          !session?.user &&
-          location.pathname !== '/' &&
-          location.pathname !== '/login'
-        ) {
-          navigate('/login');
-        }
-      }
-    );
-
-    return () => {
-      authListener?.unsubscribe();
-    };
-  });
-
-  createEffect(() => {
-    if (user()) {
-      fetchTimetable(setTimetable);
-      fetchExams(setExams);
-      fetchPreferences(setPreferences);
-    }
-  });
-
   return (
-    <div class="min-h-screen">
+    <div className="min-h-screen">
       <Routes>
-        <Route path="/" component={LandingPage} />
-        <Route path="/login" component={Login} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/preferences"
           element={
-            user() ? (
+            user ? (
               <ProtectedRoute
                 user={user}
-                setUser={setUser}
                 timetable={timetable}
-                setTimetable={setTimetable}
                 exams={exams}
-                setExams={setExams}
                 preferences={preferences}
               >
                 <Preferences />
@@ -98,14 +40,11 @@ function App() {
         <Route
           path="/exams"
           element={
-            user() ? (
+            user ? (
               <ProtectedRoute
                 user={user}
-                setUser={setUser}
                 timetable={timetable}
-                setTimetable={setTimetable}
                 exams={exams}
-                setExams={setExams}
                 preferences={preferences}
               >
                 <Exams />
@@ -118,14 +57,11 @@ function App() {
         <Route
           path="/timetable"
           element={
-            user() ? (
+            user ? (
               <ProtectedRoute
                 user={user}
-                setUser={setUser}
                 timetable={timetable}
-                setTimetable={setTimetable}
                 exams={exams}
-                setExams={setExams}
                 preferences={preferences}
               >
                 <Timetable />

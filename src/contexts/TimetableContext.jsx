@@ -1,19 +1,11 @@
-import { createContext, useContext, createSignal } from 'solid-js';
+import React, { createContext, useContext } from 'react';
 
 const TimetableContext = createContext();
 
-export function TimetableProvider(props) {
-  const [currentMonth, setCurrentMonth] = createSignal(null);
-
-  const value = {
-    ...props.value,
-    currentMonth,
-    setCurrentMonth,
-  };
-
+export function TimetableProvider({ children, value }) {
   return (
     <TimetableContext.Provider value={value}>
-      {props.children}
+      {children}
     </TimetableContext.Provider>
   );
 }

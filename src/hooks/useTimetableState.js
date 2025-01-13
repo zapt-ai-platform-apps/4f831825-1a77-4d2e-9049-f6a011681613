@@ -1,23 +1,23 @@
-import { createSignal, createEffect } from 'solid-js';
+import { useState, useEffect } from 'react';
 import { useTimetable } from '../contexts/TimetableContext';
 import { isSameDay } from 'date-fns';
 
 function useTimetableState() {
   const { preferences, currentMonth, setCurrentMonth } = useTimetable();
-  const [selectedDate, setSelectedDate] = createSignal(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  createEffect(() => {
-    if (currentMonth() === null && preferences() && preferences().startDate) {
-      const startDate = new Date(preferences().startDate);
+  useEffect(() => {
+    if (currentMonth === null && preferences && preferences.startDate) {
+      const startDate = new Date(preferences.startDate);
       setCurrentMonth(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
     }
-  });
+  }, [currentMonth, preferences, setCurrentMonth]);
 
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
       const newMonth = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
-      if (preferences() && preferences().startDate) {
-        const minMonth = new Date(preferences().startDate);
+      if (preferences && preferences.startDate) {
+        const minMonth = new Date(preferences.startDate);
         minMonth.setDate(1); // Set to first day of the month
         if (newMonth < minMonth) {
           return prev; // Do not update if newMonth is before startDate month
@@ -37,7 +37,7 @@ function useTimetableState() {
   };
 
   const handleDateClick = (date) => {
-    if (selectedDate() && isSameDay(selectedDate(), date)) {
+    if (selectedDate && isSameDay(selectedDate, date)) {
       setSelectedDate(null);
     } else {
       setSelectedDate(date);

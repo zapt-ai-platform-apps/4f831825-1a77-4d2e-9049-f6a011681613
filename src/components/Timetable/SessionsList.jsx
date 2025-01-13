@@ -1,6 +1,6 @@
-import { Show, For } from 'solid-js';
+import React from 'react';
 
-function SessionsList(props) {
+function SessionsList({ sortedSessions, subjectColours }) {
   const getSubjectCode = (subject) => {
     return subject ? subject.substring(0, 4).toUpperCase() : '';
   };
@@ -13,9 +13,9 @@ function SessionsList(props) {
 
   const sessionsByBlock = () => {
     const map = {};
-    for (const session of props.sortedSessions()) {
+    sortedSessions.forEach((session) => {
       map[session.block] = session;
-    }
+    });
     return map;
   };
 
@@ -27,53 +27,42 @@ function SessionsList(props) {
   return (
     <>
       {/* Mobile view */}
-      <div class="mt-5 flex flex-col gap-1 px-1 sm:hidden">
-        <For each={sessionsToDisplay()}>
-          {(session) => (
-            <Show
-              when={session.subject}
-              fallback={<div class="flex-1 h-4"></div>}
+      <div className="mt-5 flex flex-col gap-1 px-1 sm:hidden">
+        {sessionsToDisplay().map((session, index) => (
+          session.subject ? (
+            <div
+              key={index}
+              className="flex items-center justify-center h-4 text-[8px] font-bold text-white rounded cursor-pointer"
+              style={{ backgroundColor: subjectColours[session.subject] }}
             >
-              <div
-                class="flex items-center justify-center h-4 text-[8px] font-bold text-white rounded cursor-pointer"
-                style={{
-                  'background-color': props.subjectColours()[session.subject],
-                }}
-              >
-                {getSubjectCode(session.subject)}
-              </div>
-            </Show>
-          )}
-        </For>
+              {getSubjectCode(session.subject)}
+            </div>
+          ) : (
+            <div key={index} className="flex-1 h-4"></div>
+          )
+        ))}
       </div>
       {/* Desktop view */}
-      <div class="hidden sm:block mt-5 px-1">
-        <For each={sessionsToDisplay()}>
-          {(session) => (
-            <Show
-              when={session.subject}
-              fallback={
-                <div class="mb-1 p-1 rounded text-transparent text-xs cursor-default">
-                  {/* Empty placeholder */}
-                  <div class="font-bold">&nbsp;</div>
-                  <div class="text-[10px]">&nbsp;</div>
-                </div>
-              }
+      <div className="hidden sm:block mt-5 px-1">
+        {sessionsToDisplay().map((session, index) => (
+          session.subject ? (
+            <div
+              key={index}
+              className="mb-1 p-1 rounded text-white text-xs cursor-pointer"
+              style={{ backgroundColor: subjectColours[session.subject] }}
             >
-              <div
-                class="mb-1 p-1 rounded text-white text-xs cursor-pointer"
-                style={{
-                  'background-color': props.subjectColours()[session.subject],
-                }}
-              >
-                <div class="font-bold">{session.subject}</div>
-                <div class="text-[10px]">
-                  {session.block} ({getSessionTime(session)})
-                </div>
+              <div className="font-bold">{session.subject}</div>
+              <div className="text-[10px]">
+                {session.block} ({getSessionTime(session)})
               </div>
-            </Show>
-          )}
-        </For>
+            </div>
+          ) : (
+            <div key={index} className="mb-1 p-1 rounded text-transparent text-xs cursor-default">
+              <div className="font-bold">&nbsp;</div>
+              <div className="text-[10px]">&nbsp;</div>
+            </div>
+          )
+        ))}
       </div>
     </>
   );

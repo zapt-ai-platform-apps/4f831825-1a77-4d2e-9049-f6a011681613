@@ -1,40 +1,38 @@
-import { For } from 'solid-js';
+import React from 'react';
 
-function BlockTimeForm(props) {
+function BlockTimeForm({ blockTimes, onChange }) {
   const timeBlocks = ['Morning', 'Afternoon', 'Evening'];
 
   const handleTimeChange = (blockName, field, value) => {
-    const times = {
-      ...props.blockTimes[blockName],
+    const updatedTimes = {
+      ...blockTimes[blockName],
       [field]: value,
     };
-    props.onChange(blockName, times);
+    onChange(blockName, updatedTimes);
   };
 
   return (
-    <div class="space-y-4">
-      <For each={timeBlocks}>
-        {(block) => (
-          <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
-            <label class="font-semibold mb-1 md:mb-0 md:w-32">{block}</label>
-            <div class="flex-1 flex space-x-2">
-              <input
-                type="time"
-                value={props.blockTimes[block]?.startTime || ''}
-                onInput={(e) => handleTimeChange(block, 'startTime', e.target.value)}
-                class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
-              />
-              <span class="self-center">to</span>
-              <input
-                type="time"
-                value={props.blockTimes[block]?.endTime || ''}
-                onInput={(e) => handleTimeChange(block, 'endTime', e.target.value)}
-                class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
-              />
-            </div>
+    <div className="space-y-4">
+      {timeBlocks.map((block) => (
+        <div key={block} className="flex flex-col md:flex-row md:items-center md:space-x-4">
+          <label className="font-semibold mb-1 md:mb-0 md:w-32">{block}</label>
+          <div className="flex-1 flex space-x-2">
+            <input
+              type="time"
+              value={blockTimes[block]?.startTime || ''}
+              onChange={(e) => handleTimeChange(block, 'startTime', e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
+            />
+            <span className="self-center">to</span>
+            <input
+              type="time"
+              value={blockTimes[block]?.endTime || ''}
+              onChange={(e) => handleTimeChange(block, 'endTime', e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-black box-border cursor-pointer"
+            />
           </div>
-        )}
-      </For>
+        </div>
+      ))}
     </div>
   );
 }

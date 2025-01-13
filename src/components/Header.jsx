@@ -1,44 +1,50 @@
-import { Link } from '@solidjs/router';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-function Header(props) {
+function Header({ menuOpen, setMenuOpen, handleSignOut }) {
+  const location = useLocation();
+
   return (
-    <header class="flex items-center justify-between mb-8 p-4">
-      <h1 class="text-4xl font-handwriting font-bold">
-        <span class="text-yellow-500">UpGrade</span>
+    <header className="flex items-center justify-between mb-8 p-4">
+      <h1 className="text-4xl font-handwriting font-bold">
+        <span className="text-yellow-500">UpGrade</span>
       </h1>
-      <div class="sm:hidden">
+      <div className="sm:hidden">
         <button
-          class="text-white cursor-pointer focus:outline-none"
-          onClick={() => props.setMenuOpen(true)}
+          className="text-white cursor-pointer focus:outline-none"
+          onClick={() => setMenuOpen(true)}
         >
           &#9776;
         </button>
       </div>
-      <nav class="hidden sm:flex space-x-4">
+      <nav className="hidden sm:flex space-x-4">
         <Link
-          href="/preferences"
-          class="hover:underline cursor-pointer"
-          classList={{ 'font-bold': props.location.pathname === '/preferences' }}
+          to="/preferences"
+          className={`hover:underline cursor-pointer ${
+            location.pathname === '/preferences' ? 'font-bold' : ''
+          }`}
         >
           Preferences
         </Link>
         <Link
-          href="/exams"
-          class="hover:underline cursor-pointer"
-          classList={{ 'font-bold': props.location.pathname === '/exams' }}
+          to="/exams"
+          className={`hover:underline cursor-pointer ${
+            location.pathname === '/exams' ? 'font-bold' : ''
+          }`}
         >
           Exams
         </Link>
         <Link
-          href="/timetable"
-          class="hover:underline cursor-pointer"
-          classList={{ 'font-bold': props.location.pathname === '/timetable' }}
+          to="/timetable"
+          className={`hover:underline cursor-pointer ${
+            location.pathname === '/timetable' ? 'font-bold' : ''
+          }`}
         >
           Timetable
         </Link>
         <button
-          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-          onClick={props.handleSignOut}
+          className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+          onClick={handleSignOut}
         >
           Sign Out
         </button>
