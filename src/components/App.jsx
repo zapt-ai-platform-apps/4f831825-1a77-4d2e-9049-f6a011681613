@@ -1,16 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import AppRoutes from '../routes/AppRoutes';
-import Footer from './Footer';
-import useAuth from '../hooks/useAuth';
-import useData from '../hooks/useData';
+import React from 'react';
+import AppRoutes from './AppRoutes';
+import useAuth from './hooks/useAuth';
+import useData from './hooks/useData';
 
 function App() {
   const { user, setUser } = useAuth();
-  const { timetable, exams, preferences, setTimetable, setExams } = useData(user);
-  const [currentMonth, setCurrentMonth] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { timetable, setTimetable, exams, setExams, preferences } = useData(user);
 
   return (
     <div className="min-h-screen">
@@ -22,10 +17,7 @@ function App() {
         exams={exams}
         setExams={setExams}
         preferences={preferences}
-        currentMonth={currentMonth}
-        setCurrentMonth={setCurrentMonth}
       />
-      <Footer />
     </div>
   );
 }

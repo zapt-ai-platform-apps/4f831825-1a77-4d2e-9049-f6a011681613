@@ -8,8 +8,9 @@ function useData(user) {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!user) return;
+      if (timetable || exams.length > 0 || preferences) return; // Prevent refetching if data exists
       try {
-        if (!user) return;
         console.log('[INFO] Fetching data for user:', user?.id);
 
         const examData = await fetchExams();
@@ -27,7 +28,7 @@ function useData(user) {
     };
 
     loadData();
-  }, [user]);
+  }, [user, timetable, exams, preferences]);
 
   return { timetable, exams, preferences, setTimetable, setExams };
 }

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './Header';
 import MobileMenu from './MobileMenu';
-import Footer from './Footer';
 import { TimetableProvider } from '../contexts/TimetableContext';
 import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/react';
@@ -53,7 +52,6 @@ function ProtectedRoute({ children, user, setUser, timetable, setTimetable, exam
         <main className="flex-grow p-4 flex items-center justify-center">
           {children}
         </main>
-        <Footer />
       </div>
     </TimetableProvider>
   );
