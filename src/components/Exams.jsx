@@ -1,19 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as Sentry from '@sentry/react';
+import { supabase } from '../supabaseClient';
 import ExamForm from './ExamForm';
 import ExamList from './ExamList';
-import useExams from '../hooks/useExams';
 
-function Exams() {
-  const {
-    exams,
-    loading,
-    editExam,
-    handleExamSaved,
-    handleEditExam,
-    handleCancelEdit,
-    handleNext,
-  } = useExams();
+function Exams({
+  exams,
+  setExams,
+  preferences,
+  timetable,
+  setTimetable,
+  refetchExams,
+}) {
+  const [editExam, setEditExam] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleExamSaved = () => {
+    refetchExams();
+    setEditExam(null);
+  };
+
+  const handleExamDeleted = () => {
+    refetchExams();
+  };
+
+  const handleEditExam = (exam) => {
+    setEditExam(exam);
+  };
+
+  const handleCancelEdit = () => {
+    setEditExam(null);
+  };
+
+  const handleNext = async () => {
+    setLoading(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const response = await fetch('/api/generateTimetable', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        window.location.href = '/timetable';
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error generating timetable');
+      }
+    } catch (error) {
+      console.error('Error generating timetable:', error);
+      Sentry.captureException(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="h-full flex flex-col text-white">
@@ -28,7 +72,7 @@ function Exams() {
             />
             <ExamList
               exams={exams}
-              onExamDeleted={handleExamSaved}
+              onExamDeleted={handleExamDeleted}
               onEditExam={handleEditExam}
             />
             <button
