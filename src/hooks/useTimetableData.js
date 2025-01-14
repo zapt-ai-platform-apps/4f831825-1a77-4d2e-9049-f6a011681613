@@ -55,14 +55,7 @@ function useTimetableData() {
     }
     refreshTimetableData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth]);
-
-  // Also refetch when exams change from outside
-  useEffect(() => {
-    if (!preferences) return;
-    refreshTimetableData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exams?.length]);
+  }, [currentMonth, exams?.length]);
 
   return {
     currentMonth,
