@@ -26,11 +26,7 @@ function useTimetableData() {
     console.log('[INFO] Refreshing timetable data...');
     setLoading(true);
     try {
-      // Use the already fetched exams and timetable from context
-      // Update maxDate if needed
       computeMaxDate(exams, setMaxDate, currentMonth, setCurrentMonth);
-
-      // Prepare combined data
       prepareDatesWithData(timetable, exams, setDatesWithData, setSubjectColours);
     } catch (err) {
       console.error('[ERROR] Failed to load timetable data:', err);
@@ -42,14 +38,13 @@ function useTimetableData() {
   };
 
   useEffect(() => {
-    // If we have no user preferences yet, skip
     if (!preferences) {
       setLoading(false);
       return;
     }
     refreshTimetableData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth, exams?.length]);
+    // Removed exams?.length from dependencies to avoid repeated fetching.
+  }, [currentMonth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     currentMonth,
