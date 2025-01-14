@@ -4,7 +4,8 @@ export const computeMaxDate = (exams, setMaxDate, currentMonth, setCurrentMonth)
     const lastExamDate = new Date(Math.max.apply(null, examDates));
     setMaxDate(lastExamDate);
 
-    if (currentMonth() > new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1)) {
+    // Fix: currentMonth is a date, not a function
+    if (currentMonth > new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1)) {
       setCurrentMonth(new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1));
     }
   } else {
