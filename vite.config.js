@@ -6,15 +6,15 @@ export default defineConfig({
   plugins: [
     react(),
     sentryVitePlugin({
-      org: "your-org",
-      project: "your-project",
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "zapt-apps",
+      project: import.meta.env.VITE_PUBLIC_APP_ID,
+      authToken: import.meta.env.SENTRY_AUTH_TOKEN,
     })
   ],
   build: {
     target: 'esnext',
     polyfillDynamicImport: false,
-    sourcemap: true  // Added for Sentry source maps
+    sourcemap: true
   },
   resolve: {
     conditions: ['development', 'browser'],
