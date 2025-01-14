@@ -1,15 +1,10 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { isSameDay, format } from 'date-fns';
 import SessionsList from './SessionsList';
 
 function DayCell({ day, datesWithData, isSelected, onDateClick, subjectColours }) {
   const dateKey = day.toISOString().split('T')[0];
   const dataForDay = datesWithData[dateKey] || { sessions: [], exams: [] };
-
-  const sortedSessions = dataForDay.sessions.slice().sort((a, b) => {
-    const blockOrder = ['Morning', 'Afternoon', 'Evening'];
-    return blockOrder.indexOf(a.block) - blockOrder.indexOf(b.block);
-  });
 
   return (
     <div
@@ -21,19 +16,17 @@ function DayCell({ day, datesWithData, isSelected, onDateClick, subjectColours }
       <div className="absolute top-1 left-1 font-bold text-xs sm:text-base text-white">
         {format(day, 'd')}
       </div>
-      {/* Indicator for exams on mobile screens */}
       {dataForDay.exams.length > 0 && (
         <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 sm:hidden"></div>
       )}
       <div className="mt-5 sm:mt-10">
-        {/* Display exam details on desktop */}
         {dataForDay.exams.length > 0 && (
           <div className="hidden sm:block mb-2 px-1">
             {dataForDay.exams.map((exam) => (
               <div
                 key={exam.id}
                 className="mb-1 p-2 rounded-lg text-white cursor-pointer"
-                style={{ backgroundColor: '#FF0000' }} // Bright red color for exams
+                style={{ backgroundColor: '#FF0000' }}
               >
                 <div className="font-bold text-base">Exam: {exam.subject}</div>
                 <div className="text-sm">Time of Day: {exam.timeOfDay || 'Morning'}</div>
@@ -41,10 +34,7 @@ function DayCell({ day, datesWithData, isSelected, onDateClick, subjectColours }
             ))}
           </div>
         )}
-        <SessionsList
-          sortedSessions={sortedSessions}
-          subjectColours={subjectColours}
-        />
+        <SessionsList sortedSessions={dataForDay.sessions} subjectColours={subjectColours} />
       </div>
     </div>
   );
