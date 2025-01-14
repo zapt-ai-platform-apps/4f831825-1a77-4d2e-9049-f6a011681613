@@ -35,13 +35,15 @@ function Timetable() {
           <p className="text-red-500">{error}</p>
         ) : (
           <>
-            <MonthNavigation
-              currentMonth={currentMonth}
-              handlePrevMonth={handlePrevMonth}
-              handleNextMonth={handleNextMonth}
-              maxDate={maxDate}
-              minDate={preferences && preferences.startDate ? new Date(preferences.startDate) : null}
-            />
+            {currentMonth && (
+              <MonthNavigation
+                currentMonth={currentMonth}
+                handlePrevMonth={handlePrevMonth}
+                handleNextMonth={handleNextMonth}
+                maxDate={maxDate}
+                minDate={preferences && preferences.startDate ? new Date(preferences.startDate) : null}
+              />
+            )}
             <div className="mt-4">
               <CalendarGrid
                 currentMonth={currentMonth}

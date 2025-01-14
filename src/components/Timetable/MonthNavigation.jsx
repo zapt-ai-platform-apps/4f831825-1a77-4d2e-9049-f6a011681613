@@ -1,26 +1,33 @@
 import React from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import * as Sentry from '@sentry/react';
 
 function MonthNavigation({ currentMonth, handlePrevMonth, handleNextMonth, maxDate, minDate }) {
   const isPrevDisabled = () => {
-    if (!minDate) return false;
+    if (!minDate || !currentMonth) return false;
     const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
     const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
     return prevMonth < minMonth;
   };
 
   const isNextDisabled = () => {
-    if (!maxDate) return false;
+    if (!maxDate || !currentMonth) return false;
     const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
     const maxMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
     return nextMonth > maxMonth;
   };
 
   const formatMonthYear = () => {
-    return currentMonth.toLocaleString('default', {
-      month: 'long',
-      year: 'numeric',
-    });
+    if (!currentMonth) return 'Loading...';
+    try {
+      return currentMonth.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
+      });
+    } catch (error) {
+      Sentry.captureException(error);
+      return 'Invalid Date';
+    }
   };
 
   return (
