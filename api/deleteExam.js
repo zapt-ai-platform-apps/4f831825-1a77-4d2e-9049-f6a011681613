@@ -4,17 +4,6 @@ import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
 
-Sentry.init({
-  dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
-  environment: process.env.VITE_PUBLIC_APP_ENV,
-  initialScope: {
-    tags: {
-      type: "backend",
-      projectId: process.env.VITE_PUBLIC_APP_ID,
-    },
-  },
-});
-
 export default async function handler(req, res) {
   try {
     if (req.method !== "DELETE") {
