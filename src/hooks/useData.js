@@ -7,29 +7,29 @@ function useData(user) {
   const [preferences, setPreferences] = useState(null);
   const [hasFetched, setHasFetched] = useState(false);
 
+  async function fetchAllUserData() {
+    try {
+      console.log('[INFO] Fetching data for user:', user?.id);
+
+      const examData = await fetchExams();
+      setExams(examData);
+
+      const timetableData = await fetchTimetable();
+      setTimetable(timetableData);
+
+      const prefData = await fetchPreferences();
+      setPreferences(prefData);
+
+      setHasFetched(true);
+    } catch (err) {
+      console.error('Error loading data in useData:', err);
+    }
+  }
+
   useEffect(() => {
-    const loadData = async () => {
-      if (!user) return;
-      if (hasFetched) return;
-      try {
-        console.log('[INFO] Fetching data for user:', user?.id);
-
-        const examData = await fetchExams();
-        setExams(examData);
-
-        const timetableData = await fetchTimetable();
-        setTimetable(timetableData);
-
-        const prefData = await fetchPreferences();
-        setPreferences(prefData);
-
-        setHasFetched(true);
-      } catch (err) {
-        console.error('Error loading data in useData:', err);
-      }
-    };
-
-    loadData();
+    if (!user) return;
+    if (hasFetched) return;
+    fetchAllUserData();
   }, [user, hasFetched]);
 
   async function refetchExams() {

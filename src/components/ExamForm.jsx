@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/react';
 
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
-  const [examName, setExamName] = useState('');
+  const [examSubject, setExamSubject] = useState('');
   const [examDate, setExamDate] = useState('');
 
   useEffect(() => {
     if (editExam) {
-      setExamName(editExam.name);
-      setExamDate(editExam.date);
+      setExamSubject(editExam.subject);
+      setExamDate(editExam.examDate);
     } else {
-      setExamName('');
+      setExamSubject('');
       setExamDate('');
     }
   }, [editExam]);
@@ -18,15 +20,15 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
     e.preventDefault();
     try {
       if (editExam) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('exams')
-          .update({ name: examName, date: examDate })
+          .update({ subject: examSubject, examDate })
           .eq('id', editExam.id);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('exams')
-          .insert([{ name: examName, date: examDate }]);
+          .insert([{ subject: examSubject, examDate }]);
         if (error) throw error;
       }
       onExamSaved();
@@ -39,11 +41,11 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium">Exam Name</label>
+        <label className="block text-sm font-medium">Subject</label>
         <input
           type="text"
-          value={examName}
-          onChange={(e) => setExamName(e.target.value)}
+          value={examSubject}
+          onChange={(e) => setExamSubject(e.target.value)}
           required
           className="mt-1 p-2 w-full border rounded"
         />
@@ -63,14 +65,14 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           <button
             type="button"
             onClick={onCancelEdit}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded cursor-pointer"
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
         </button>
