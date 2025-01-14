@@ -23,7 +23,7 @@ export const fetchTimetable = async () => {
       const errorText = await response.text();
       console.error('Error fetching timetable:', errorText);
       Sentry.captureMessage(errorText);
-      throw new Error(errorText);
+      throw new Error('Failed to load timetable data. Please try again later.');
     }
 
     const { data } = await response.json();
@@ -32,6 +32,6 @@ export const fetchTimetable = async () => {
   } catch (error) {
     console.error('Error fetching timetable:', error);
     Sentry.captureException(error);
-    throw error;
+    throw new Error('Failed to load timetable data. Please try again later.');
   }
 };
