@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Sentry from '@sentry/react';
 import { startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
 import CalendarHeader from './CalendarHeader';
 import CalendarDay from './CalendarDay';
@@ -7,7 +8,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   const daysInMonth = () => {
     const parsedMonth = new Date(currentMonth);
     if (isNaN(parsedMonth)) {
-      console.error('Invalid currentMonth:', currentMonth);
+      Sentry.captureMessage(`Invalid currentMonth: ${currentMonth}`);
       return [];
     }
     const start = startOfMonth(parsedMonth);
@@ -18,7 +19,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   const startDayOfWeek = () => {
     const parsedMonth = new Date(currentMonth);
     if (isNaN(parsedMonth)) {
-      console.error('Invalid currentMonth:', currentMonth);
+      Sentry.captureMessage(`Invalid currentMonth: ${currentMonth}`);
       return 0;
     }
     return getDay(startOfMonth(parsedMonth));
