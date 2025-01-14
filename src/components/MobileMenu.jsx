@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
-function MobileMenu({ setMenuOpen, handleSignOut }) {
+function MobileMenu({ setMenuOpen }) {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-3/4 max-w-xs relative">
         <button
-          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 cursor-pointer"
           onClick={() => setMenuOpen(false)}
         >
           &times;
@@ -44,7 +46,7 @@ function MobileMenu({ setMenuOpen, handleSignOut }) {
           <button
             className="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
             onClick={() => {
-              handleSignOut();
+              signOut();
               setMenuOpen(false);
             }}
           >

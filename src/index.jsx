@@ -29,6 +29,15 @@ script.setAttribute('src', 'https://progressier.app/z8yY3IKmfpDIw3mSncPh/script.
 script.setAttribute('defer', 'true');
 document.querySelector('head').appendChild(script);
 
+// Umami tracking
+if (import.meta.env.VITE_PUBLIC_APP_ENV !== 'development') {
+  const script = document.createElement('script');
+  script.defer = true;
+  script.src = 'https://cloud.umami.is/script.js';
+  script.setAttribute('data-website-id', import.meta.env.VITE_PUBLIC_UMAMI_WEBSITE_ID);
+  document.head.appendChild(script);
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <Router>

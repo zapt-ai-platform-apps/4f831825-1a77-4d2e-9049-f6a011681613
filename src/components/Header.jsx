@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
-function Header({ menuOpen, setMenuOpen, handleSignOut }) {
+function Header({ menuOpen, setMenuOpen }) {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   return (
     <header className="flex items-center justify-between mb-8 p-4">
@@ -44,7 +46,7 @@ function Header({ menuOpen, setMenuOpen, handleSignOut }) {
         </Link>
         <button
           className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
-          onClick={handleSignOut}
+          onClick={signOut}
         >
           Sign Out
         </button>

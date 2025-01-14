@@ -5,14 +5,13 @@ import useAuth from './hooks/useAuth';
 import useData from './hooks/useData';
 
 function App() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const { timetable, setTimetable, exams, setExams, preferences } = useData(user);
 
   return (
     <div className="min-h-screen">
       <AppRoutes
         user={user}
-        setUser={setUser}
         timetable={timetable}
         setTimetable={setTimetable}
         exams={exams}
