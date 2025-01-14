@@ -7,8 +7,8 @@ export default defineConfig({
     react(),
     sentryVitePlugin({
       org: "zapt-apps",
-      project: import.meta.env.VITE_PUBLIC_APP_ID,
-      authToken: import.meta.env.SENTRY_AUTH_TOKEN,
+      project: process.env.VITE_PUBLIC_APP_ID,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
     })
   ],
   build: {
