@@ -21,6 +21,7 @@ function useData(user) {
       setPreferences(prefData);
 
       setHasFetched(true);
+      console.log('user data loaded')
     } catch (err) {
       console.error('Error loading data in useData:', err);
     }
