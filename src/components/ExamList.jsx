@@ -1,4 +1,6 @@
 import React from 'react';
+import { supabase } from '../supabaseClient';
+import * as Sentry from '@sentry/react';
 
 function ExamList({ exams, onExamDeleted, onEditExam }) {
   const handleDeleteExam = async (examId) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import * as Sentry from '@sentry/react';
 import useTimetableState from '../../hooks/useTimetableState';
 import { useTimetable } from '../../contexts/TimetableContext';
 import { computeMaxDate, prepareDatesWithData } from '../../utils/dateUtils';
@@ -43,6 +44,7 @@ function useTimetableData() {
 
     } catch (err) {
       console.error('[ERROR] Failed to load timetable data:', err);
+      Sentry.captureException(err);
       setError('Failed to load timetable data.');
     } finally {
       setLoading(false);
