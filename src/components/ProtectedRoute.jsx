@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './Header';
 import MobileMenu from './MobileMenu';
@@ -8,7 +8,8 @@ import { supabase } from '../supabaseClient';
 import * as Sentry from '@sentry/react';
 
 function ProtectedRoute({ children, user, setUser, timetable, setTimetable, exams, setExams, preferences }) {
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,6 +32,8 @@ function ProtectedRoute({ children, user, setUser, timetable, setTimetable, exam
         exams: exams,
         setExams: setExams,
         preferences: preferences,
+        currentMonth: currentMonth,
+        setCurrentMonth: setCurrentMonth,
       }}
     >
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
