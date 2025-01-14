@@ -8,7 +8,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   const daysInMonth = () => {
     const parsedMonth = new Date(currentMonth);
     if (isNaN(parsedMonth)) {
-      Sentry.captureMessage(`Invalid currentMonth: ${currentMonth}`);
+      Sentry.captureException(`Invalid currentMonth: ${currentMonth}`);
       return [];
     }
     const start = startOfMonth(parsedMonth);
@@ -19,7 +19,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   const startDayOfWeek = () => {
     const parsedMonth = new Date(currentMonth);
     if (isNaN(parsedMonth)) {
-      Sentry.captureMessage(`Invalid currentMonth: ${currentMonth}`);
+      Sentry.captureException(`Invalid currentMonth: ${currentMonth}`);
       return 0;
     }
     return getDay(startOfMonth(parsedMonth));
