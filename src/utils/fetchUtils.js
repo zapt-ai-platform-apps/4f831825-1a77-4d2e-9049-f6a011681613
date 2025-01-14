@@ -31,11 +31,12 @@ export const fetchTimetable = async (setTimetable, setError) => {
   }
 };
 
-export const fetchExams = async (setExams) => {
+export const fetchExams = async (setExams, setError) => {
   try {
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
     const response = await fetch('/api/getExams', {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
@@ -51,10 +52,12 @@ export const fetchExams = async (setExams) => {
       }
     } else {
       const errorText = await response.text();
-      throw new Error(errorText || 'Error fetching exams');
+      console.error('Error fetching exams:', errorText);
+      setError('Error fetching exams');
     }
   } catch (error) {
     console.error('Error fetching exams:', error);
     Sentry.captureException(error);
+    setError('Error fetching exams');
   }
 };
