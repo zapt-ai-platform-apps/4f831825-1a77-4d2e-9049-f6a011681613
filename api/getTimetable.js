@@ -30,7 +30,8 @@ export default async function handler(req, res) {
       .where(eq(timetableEntries.userId, user.id));
 
     if (!result.length) {
-      return res.status(200).json({ data: null });
+      // Return empty object instead of null so it doesn't trigger an error on the frontend
+      return res.status(200).json({ data: {} });
     }
 
     // Group timetable entries by date
