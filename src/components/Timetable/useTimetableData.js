@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import useTimetableState from '../../hooks/useTimetableState';
 import { useTimetable } from '../../contexts/TimetableContext';
-import { computeMaxDate, prepareDatesWithData, fetchTimetable, fetchExams } from '../../utils/timetableUtils';
+import { computeMaxDate, prepareDatesWithData } from '../../utils/dateUtils';
+import { fetchTimetable } from '../../fetchTimetable';
+import { fetchExams } from '../../fetchExamsPreferences';
 
 function useTimetableData() {
   const {
@@ -55,9 +57,7 @@ function useTimetableData() {
     }
     refreshTimetableData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth]);
-
-  // Removed useEffect that depended on exams.length
+  }, [currentMonth, exams?.length]);
 
   return {
     currentMonth,
