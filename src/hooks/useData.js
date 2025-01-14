@@ -5,11 +5,12 @@ function useData(user) {
   const [timetable, setTimetable] = useState(null);
   const [exams, setExams] = useState([]);
   const [preferences, setPreferences] = useState(null);
+  const [hasFetched, setHasFetched] = useState(false); // Added flag to prevent multiple fetches
 
   useEffect(() => {
     const loadData = async () => {
       if (!user) return;
-      if (timetable || exams.length > 0 || preferences) return; // Prevent refetching if data exists
+      if (hasFetched) return; // Prevent refetching if data has already been fetched
       try {
         console.log('[INFO] Fetching data for user:', user?.id);
 
@@ -21,6 +22,8 @@ function useData(user) {
 
         const prefData = await fetchPreferences();
         setPreferences(prefData);
+        
+        setHasFetched(true); // Mark as fetched
 
       } catch (err) {
         console.error('Error loading data in useData:', err);
@@ -28,7 +31,7 @@ function useData(user) {
     };
 
     loadData();
-  }, [user, timetable, exams, preferences]);
+  }, [user, hasFetched]); // Updated dependencies
 
   return { timetable, exams, preferences, setTimetable, setExams };
 }
