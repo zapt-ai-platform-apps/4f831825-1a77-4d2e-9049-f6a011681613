@@ -8,5 +8,14 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/generateTimetable.js": {
+      "timeout": 300,
+      "includeFiles": "../drizzle/schema.js"
+    },
+    "api/*.js": {
+      "includeFiles": "../drizzle/schema.js"
+    }
+  }
 }
