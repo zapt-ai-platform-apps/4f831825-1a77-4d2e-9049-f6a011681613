@@ -15,6 +15,7 @@ function AppRoutes({
   exams,
   setExams,
   preferences,
+  refetchExams
 }) {
   return (
     <Routes>
@@ -32,6 +33,7 @@ function AppRoutes({
               exams={exams}
               setExams={setExams}
               preferences={preferences}
+              refetchExams={refetchExams}
             >
               <Preferences />
             </ProtectedRoute>
@@ -52,6 +54,7 @@ function AppRoutes({
               exams={exams}
               setExams={setExams}
               preferences={preferences}
+              refetchExams={refetchExams}
             >
               <Exams />
             </ProtectedRoute>
@@ -72,6 +75,7 @@ function AppRoutes({
               exams={exams}
               setExams={setExams}
               preferences={preferences}
+              refetchExams={refetchExams}
             >
               <Timetable />
             </ProtectedRoute>

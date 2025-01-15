@@ -6,7 +6,8 @@ import useData from './hooks/useData';
 
 function App() {
   const { user } = useAuth();
-  const { timetable, setTimetable, exams, setExams, preferences } = useData(user);
+  // Include refetchExams in the destructuring so we can pass it down
+  const { timetable, setTimetable, exams, setExams, preferences, refetchExams } = useData(user);
 
   return (
     <div className="min-h-screen">
@@ -17,6 +18,7 @@ function App() {
         exams={exams}
         setExams={setExams}
         preferences={preferences}
+        refetchExams={refetchExams}
       />
       <Footer />
     </div>

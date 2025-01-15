@@ -12,6 +12,7 @@ function ProtectedRoute({
   exams,
   setExams,
   preferences,
+  refetchExams
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(null);
@@ -20,13 +21,14 @@ function ProtectedRoute({
   return (
     <TimetableProvider
       value={{
-        timetable: timetable,
-        setTimetable: setTimetable,
-        exams: exams,
-        setExams: setExams,
-        preferences: preferences,
-        currentMonth: currentMonth,
-        setCurrentMonth: setCurrentMonth,
+        timetable,
+        setTimetable,
+        exams,
+        setExams,
+        preferences,
+        refetchExams,
+        currentMonth,
+        setCurrentMonth
       }}
     >
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
@@ -34,7 +36,7 @@ function ProtectedRoute({
         {menuOpen && (
           <MobileMenu setMenuOpen={setMenuOpen} location={location} />
         )}
-        <main className="flex-grow p-4 flex items-center justify-center">
+        <main className="flex-grow p-4 flex items-center justify-center h-full">
           {children}
         </main>
       </div>
