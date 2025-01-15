@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/react';
 import ExamFormFields from './ExamFormFields';
 import { saveExam } from '../services/examService';
 
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
-  const handleSubmit = async (formData) => {
+  const [formData, setFormData] = useState({
+    subject: '',
+    examDate: '',
+    timeOfDay: 'Morning',
+    board: '',
+    teacher: '',
+  });
+
+  useEffect(() => {
+    if (editExam) {
+      setFormData({
+        subject: editExam.subject,
+        examDate: editExam.examDate,
+        timeOfDay: editExam.timeOfDay || 'Morning',
+        board: editExam.board || '',
+        teacher: editExam.teacher || '',
+      });
+    } else {
+      setFormData({
+        subject: '',
+        examDate: '',
+        timeOfDay: 'Morning',
+        board: '',
+        teacher: '',
+      });
+    }
+  }, [editExam]);
+
+  const handleSubmit = async () => {
     try {
       await saveExam(formData, editExam);
       onExamSaved();
@@ -14,9 +42,20 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
     }
   };
 
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-      <ExamFormFields editExam={editExam} />
+      <ExamFormFields
+        formData={formData}
+        onChange={handleChange}
+        editExam={editExam}
+      />
       <div className="flex justify-end space-x-2">
         {editExam && (
           <button
@@ -29,10 +68,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         )}
         <button
           type="submit"
-          onClick={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
+          onClick={handleSubmit}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
