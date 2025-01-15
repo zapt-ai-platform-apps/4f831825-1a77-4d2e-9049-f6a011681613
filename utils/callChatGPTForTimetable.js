@@ -41,9 +41,10 @@ export async function callChatGPTForTimetable({
           role: "user",
           content: prompt,
         },
-      ],
-      temperature: 0.7,
+      ]
     });
+
+    console.log(completion);
 
     const rawResponse = completion.choices?.[0]?.message?.content?.trim() || "";
     const parsed = parseChatGPTResponse(rawResponse);
