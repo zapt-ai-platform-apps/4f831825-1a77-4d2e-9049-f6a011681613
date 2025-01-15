@@ -35,7 +35,7 @@ export async function callChatGPTForTimetable({
     console.log("[INFO] Sending prompt to OpenAI:", prompt);
 
     const completion = await client.chat.completions.create({
-      model: "o1",
+      model: "gpt-4o",
       messages: [
         {
           role: "user",
