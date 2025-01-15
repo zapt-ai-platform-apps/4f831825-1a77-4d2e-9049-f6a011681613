@@ -16,7 +16,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-      <ExamFormFields editExam={editExam} onSubmit={handleSubmit} />
+      <ExamFormFields editExam={editExam} />
       <div className="flex justify-end space-x-2">
         {editExam && (
           <button
