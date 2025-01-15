@@ -2,6 +2,7 @@ export async function generateTimetable(supabase) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
   const response = await fetch('/api/generateTimetable', {
     method: 'POST',
     headers: {
@@ -9,9 +10,8 @@ export async function generateTimetable(supabase) {
       'Content-Type': 'application/json',
     },
   });
-  if (response.ok) {
-    window.location.href = '/timetable';
-  } else {
+
+  if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText || 'Error generating timetable');
   }

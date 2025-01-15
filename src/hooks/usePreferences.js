@@ -7,8 +7,11 @@ import {
   generateTimetable,
 } from '../api/preferencesAPI';
 import { fetchPreferencesHelper, savePreferencesHelper } from './usePreferencesHelpers';
+import { fetchTimetable } from '../fetchTimetable';
+import { useTimetable } from '../contexts/TimetableContext';
 
 function usePreferences(navigate) {
+  const { setTimetable } = useTimetable();
   const [preferences, setPreferences] = useState({
     revisionTimes: {
       monday: [],
@@ -55,16 +58,18 @@ function usePreferences(navigate) {
   };
 
   const handleSavePreferences = async () => {
-    await savePreferencesHelper(
+    await savePreferencesHelper({
       supabase,
       savePreferences,
       generateTimetable,
+      fetchTimetable,
+      setTimetable,
       preferences,
       setError,
       setLoading,
       navigate,
-      Sentry
-    );
+      Sentry,
+    });
   };
 
   return {
