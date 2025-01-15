@@ -1,10 +1,12 @@
 import * as Sentry from "@sentry/node";
-import openai from "./openaiClient.js";
+import client from "./openaiClient.js";
 import { buildTimetablePrompt } from "./promptBuilder.js";
+import { prepareExamsData, prepareRevisionTimes } from "./helpers/dataPreparer.js";
+import { parseChatGPTResponse } from "./helpers/responseParser.js";
 
 /**
  * callChatGPTForTimetable
- * Calls the OpenAI API with the newly released model "o1"
+ * Calls the OpenAI API with the model "o1"
  * to generate a timetable based on user data (exams, preferences).
  * Expects the model to return a JSON array of objects:
  * [
@@ -25,23 +27,14 @@ export async function callChatGPTForTimetable({
   blockTimesData,
 }) {
   try {
-    const examsData = userExams.map((e) => ({
-      subject: e.subject,
-      examDate: e.examDate,
-      timeOfDay: e.timeOfDay,
-    }));
-
-    const revisionTimes = {};
-    for (const row of revisionTimesResult) {
-      if (!revisionTimes[row.dayOfWeek]) {
-        revisionTimes[row.dayOfWeek] = [];
-      }
-      revisionTimes[row.dayOfWeek].push(row.block);
-    }
+    const examsData = prepareExamsData(userExams);
+    const revisionTimes = prepareRevisionTimes(revisionTimesResult);
 
     const prompt = buildTimetablePrompt(examsData, userPreferences, revisionTimes, blockTimesData);
 
-    const completion = await openai.createChatCompletion({
+    console.log("[INFO] Sending prompt to OpenAI:", prompt);
+
+    const completion = await client.chat.completions.create({
       model: "o1",
       messages: [
         {
@@ -52,29 +45,8 @@ export async function callChatGPTForTimetable({
       temperature: 0.7,
     });
 
-    const rawResponse = completion.data.choices[0]?.message?.content?.trim() || "";
-    let parsed;
-    try {
-      parsed = JSON.parse(rawResponse);
-    } catch (jsonErr) {
-      throw new Error(`Failed to parse ChatGPT JSON response: ${jsonErr.message}`);
-    }
-
-    if (!Array.isArray(parsed)) {
-      throw new Error("ChatGPT did not return a JSON array.");
-    }
-
-    for (const item of parsed) {
-      if (
-        typeof item.date !== "string" ||
-        typeof item.block !== "string" ||
-        typeof item.subject !== "string" ||
-        typeof item.startTime !== "string" ||
-        typeof item.endTime !== "string"
-      ) {
-        throw new Error("Invalid timetable item fields from ChatGPT.");
-      }
-    }
+    const rawResponse = completion.choices?.[0]?.message?.content?.trim() || "";
+    const parsed = parseChatGPTResponse(rawResponse);
 
     const timetableData = parsed.map((entry) => ({
       userId: userId,
@@ -89,6 +61,7 @@ export async function callChatGPTForTimetable({
     return timetableData;
   } catch (error) {
     Sentry.captureException(error);
+    console.error("Error calling ChatGPT for timetable:", error);
     throw error;
   }
 }
