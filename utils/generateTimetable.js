@@ -1,12 +1,14 @@
 import {
-  sortExamsByDate,
+  sortExamsByDate
+} from './helpers/sorting.js';
+import {
   mapExamsByDateBlock,
-  mapRevisionTimesByDay,
-  getBlockTimes,
-  generateAllSlots,
+  mapRevisionTimesByDay
+} from './helpers/mapping.js';
+import {
   assignImmediateRevisionSessions,
-  assignRemainingSlots,
-} from './helpers.js';
+  assignRemainingSlots
+} from './helpers/assignment.js';
 
 export async function generateTimetable(preferences, exams, revisionTimes, blockTimes) {
   const { startDate, userId } = preferences;
@@ -74,3 +76,5 @@ export async function generateTimetable(preferences, exams, revisionTimes, block
 
   return timetableEntriesData;
 }
+
+import { getBlockTimes, generateAllSlots } from './helpers/time.js';

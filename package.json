@@ -20,7 +20,8 @@
     "@sentry/react": "^8.35.0",
     "@sentry/node": "^8.35.0",
     "date-fns": "^2.30.0",
-    "react-icons": "^4.10.1"
+    "react-icons": "^4.10.1",
+    "openai": "^4.7.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
