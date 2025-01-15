@@ -1,13 +1,20 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
+import { supabase } from '../supabaseClient';
 
 function ExamList({ exams = [], onExamDeleted, onEditExam }) {
   const handleDelete = async (id) => {
     try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        throw error;
+      }
+
       const response = await fetch('/api/deleteExam', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({ id }),
       });
