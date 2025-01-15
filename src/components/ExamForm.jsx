@@ -1,36 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import React from 'react';
 import * as Sentry from '@sentry/react';
+import ExamFormFields from './ExamFormFields';
+import { saveExam } from '../services/examService';
 
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
-  const [examSubject, setExamSubject] = useState('');
-  const [examDate, setExamDate] = useState('');
-
-  useEffect(() => {
-    if (editExam) {
-      setExamSubject(editExam.subject);
-      setExamDate(editExam.examDate);
-    } else {
-      setExamSubject('');
-      setExamDate('');
-    }
-  }, [editExam]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (formData) => {
     try {
-      if (editExam) {
-        const { error } = await supabase
-          .from('exams')
-          .update({ subject: examSubject, examDate })
-          .eq('id', editExam.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('exams')
-          .insert([{ subject: examSubject, examDate }]);
-        if (error) throw error;
-      }
+      await saveExam(formData, editExam);
       onExamSaved();
     } catch (error) {
       console.error('Error saving exam:', error);
@@ -39,27 +15,8 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium">Subject</label>
-        <input
-          type="text"
-          value={examSubject}
-          onChange={(e) => setExamSubject(e.target.value)}
-          required
-          className="mt-1 p-2 w-full border rounded"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium">Exam Date</label>
-        <input
-          type="date"
-          value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
-          required
-          className="mt-1 p-2 w-full border rounded"
-        />
-      </div>
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+      <ExamFormFields editExam={editExam} onSubmit={handleSubmit} />
       <div className="flex justify-end space-x-2">
         {editExam && (
           <button
@@ -72,6 +29,10 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         )}
         <button
           type="submit"
+          onClick={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
