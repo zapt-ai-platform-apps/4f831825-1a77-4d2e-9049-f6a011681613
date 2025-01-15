@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function ExamFormFields({ editExam, onSubmit }) {
+function ExamFormFields({ editExam }) {
   const [examSubject, setExamSubject] = useState('');
   const [examDate, setExamDate] = useState('');
   const [timeOfDay, setTimeOfDay] = useState('Morning');
@@ -22,18 +22,6 @@ function ExamFormFields({ editExam, onSubmit }) {
       setTeacher('');
     }
   }, [editExam]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({
-      id: editExam ? editExam.id : undefined,
-      subject: examSubject,
-      examDate,
-      timeOfDay,
-      board,
-      teacher,
-    });
-  };
 
   return (
     <>
@@ -88,15 +76,6 @@ function ExamFormFields({ editExam, onSubmit }) {
           required
           className="mt-1 p-2 w-full border rounded box-border cursor-pointer"
         />
-      </div>
-      <div className="flex justify-end space-x-2">
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-        >
-          {editExam ? 'Update Exam' : 'Add Exam'}
-        </button>
       </div>
     </>
   );
