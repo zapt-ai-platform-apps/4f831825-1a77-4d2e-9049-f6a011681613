@@ -52,5 +52,3 @@ Please create a file named **.env** at the project root with the following envir
 ---
 
 Enjoy using **UpGrade** for all your revision scheduling needs!
-
----
