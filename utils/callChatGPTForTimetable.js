@@ -41,12 +41,13 @@ export async function callChatGPTForTimetable({
           role: "user",
           content: prompt,
         },
-      ]
+      ],
+      response_format: { "type": "json_object" }
     });
 
     console.log(completion);
 
-    const rawResponse = completion.choices?.[0]?.message?.content?.trim() || "";
+    const rawResponse = JSON.parse(completion.choices.[0].message.content).revision_dates;
     const parsed = parseChatGPTResponse(rawResponse);
 
     const timetableData = parsed.map((entry) => ({
