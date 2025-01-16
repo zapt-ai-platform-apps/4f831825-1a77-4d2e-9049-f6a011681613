@@ -7,13 +7,12 @@ export function parseChatGPTResponse(arrayData) {
     if (
       typeof item.date !== "string" ||
       typeof item.block !== "string" ||
-      typeof item.subject !== "string" ||
-      typeof item.startTime !== "string" ||
-      typeof item.endTime !== "string"
+      typeof item.subject !== "string"
     ) {
-      throw new Error("Invalid timetable item fields from ChatGPT.");
+      throw new Error("Invalid timetable item fields from ChatGPT (only date, block, subject required).");
     }
   }
 
+  // Return the items directly, as they only have date, block, subject
   return arrayData;
 }

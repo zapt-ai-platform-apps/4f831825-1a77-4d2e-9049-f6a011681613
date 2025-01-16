@@ -7,6 +7,7 @@ function SessionSection({ sessions, subjectColours }) {
   };
 
   const formatTime = (timeString) => {
+    if (!timeString) return '';
     const [hour, minute] = timeString.split(':');
     return `${hour}:${minute}`;
   };
@@ -29,9 +30,12 @@ function SessionSection({ sessions, subjectColours }) {
               Subject: {capitalizeFirstLetter(session.subject)}
             </p>
             <p className="text-black">Block: {session.block}</p>
-            <p className="text-black">
-              Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
-            </p>
+            {/* Show time range only if present */}
+            {session.startTime && session.endTime && (
+              <p className="text-black">
+                Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
+              </p>
+            )}
           </div>
         ))}
       </div>
