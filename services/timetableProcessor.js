@@ -6,7 +6,6 @@ import {
 } from "../utils/dataAccess.js";
 import { buildBlankSessions } from "./timetableSessionBuilder.js";
 import { generateTimetableLocally } from "./timetableLocalGenerator.js";
-import { reviewTimetable } from "./timetableReviewer.js";
 import { saveTimetable } from "./timetableSaver.js";
 import * as Sentry from "@sentry/node";
 
@@ -15,9 +14,8 @@ import * as Sentry from "@sentry/node";
  * 1) Deletes non-user-created timetable entries
  * 2) Fetches user data
  * 3) Builds blank sessions
- * 4) Generates timetable locally (with session IDs)
- * 5) Reviews timetable with ChatGPT
- * 6) Saves final timetable to database
+ * 4) Generates timetable locally
+ * 5) Saves timetable to the database (Skipping ChatGPT review)
  */
 export async function processTimetableGeneration(db, userId) {
   // 1) Delete existing generated timetable entries (exclude user-created entries)
@@ -40,15 +38,12 @@ export async function processTimetableGeneration(db, userId) {
     throw new Error("No revision times found for user");
   }
 
-  // 3) Build array of blank sessions (date/block/subject="")
+  // 3) Build array of blank sessions
   const blankSessions = buildBlankSessions(userPreferences, userExams, revisionTimesResult);
 
-  // 4) Generate a timetable locally (now each session has an ID)
+  // 4) Generate a timetable locally (skipping ChatGPT final review)
   const localTimetable = generateTimetableLocally(userExams, blankSessions);
 
-  // 5) Review timetable with ChatGPT
-  const finalTimetable = await reviewTimetable(userId, localTimetable);
-
-  // 6) Save the final schedule to DB
-  await saveTimetable(db, userId, finalTimetable);
+  // 5) Save the final schedule to the database (using localTimetable directly)
+  await saveTimetable(db, userId, localTimetable);
 }

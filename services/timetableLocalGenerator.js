@@ -6,78 +6,73 @@ export function generateTimetableLocally(userExams, blankSessions) {
   const sortedSubjects = getSortedSubjects(userExams);
   const sortedSessions = sortBlankSessions(blankSessions);
 
+  // Build a counter to track how many sessions each subject has
+  const subjectAssignments = {};
+  for (const s of sortedSubjects) {
+    subjectAssignments[s.subject] = 0;
+  }
+
   let lastSubject = null;
   let consecutiveCount = 0;
-
   const result = [];
 
-  for (let i = 0; i < sortedSessions.length; i++) {
-    const session = sortedSessions[i];
+  for (const session of sortedSessions) {
     const sessionDate = new Date(session.date);
 
-    let assignedSubject = null;
+    // 1) Filter out subjects whose examDate <= sessionDate
+    const validSubjects = sortedSubjects.filter(
+      (candidate) => sessionDate < candidate.examDate
+    );
 
-    for (let s = 0; s < sortedSubjects.length; s++) {
-      const candidate = sortedSubjects[s];
-      const candidateExamDate = candidate.examDate;
+    // 2) Among the valid subjects, choose the one with the fewest assignments
+    //    that doesn't break the consecutive rule (if possible).
+    let chosenSubject = null;
+    let minCount = Infinity;
 
-      if (sessionDate >= candidateExamDate) {
-        continue;
-      }
+    for (const candidate of validSubjects) {
+      const candidateSubject = candidate.subject;
+      const countSoFar = subjectAssignments[candidateSubject];
 
       let violatesConsecutiveRule = false;
-
-      if (candidate.subject === lastSubject) {
-        if (consecutiveCount >= 2) {
-          violatesConsecutiveRule = true;
-        } else {
-          if (result.length > 0) {
-            const prevDay = result[result.length - 1].date;
-            if (session.date === prevDay) {
-              violatesConsecutiveRule = true;
-            }
-          }
-        }
+      if (candidateSubject === lastSubject && consecutiveCount >= 2) {
+        violatesConsecutiveRule = true;
       }
 
-      if (!violatesConsecutiveRule) {
-        assignedSubject = candidate.subject;
-        break;
+      if (!violatesConsecutiveRule && countSoFar < minCount) {
+        chosenSubject = candidateSubject;
+        minCount = countSoFar;
       }
     }
 
-    if (!assignedSubject) {
-      for (let s = 0; s < sortedSubjects.length; s++) {
-        const candidate = sortedSubjects[s];
-        const candidateExamDate = candidate.examDate;
-        if (sessionDate >= candidateExamDate) {
-          continue;
-        }
-        if (candidate.subject === lastSubject && consecutiveCount >= 2) {
-          continue;
-        }
-        assignedSubject = candidate.subject;
-        break;
-      }
+    // If none could be chosen due to the consecutive rule, ignore that rule once
+    if (!chosenSubject && validSubjects.length > 0) {
+      chosenSubject = validSubjects.reduce(
+        (lowest, c) =>
+          subjectAssignments[c.subject] < subjectAssignments[lowest.subject] ? c : lowest
+      ).subject;
     }
 
-    if (!assignedSubject) {
-      assignedSubject = lastSubject || sortedSubjects[0].subject;
+    // Fallback if still no subject found
+    if (!chosenSubject) {
+      chosenSubject = sortedSubjects[0].subject;
     }
 
-    if (assignedSubject === lastSubject) {
-      consecutiveCount++;
-    } else {
-      lastSubject = assignedSubject;
-      consecutiveCount = 1;
-    }
-
+    // Assign the chosen subject to this session
     result.push({
       id: randomUUID(),
       date: session.date,
       block: session.block,
-      subject: assignedSubject,
+      subject: chosenSubject,
     });
+    subjectAssignments[chosenSubject]++;
+
+    // Update consecutive subject tracking
+    if (chosenSubject === lastSubject) {
+      consecutiveCount++;
+    } else {
+      lastSubject = chosenSubject;
+      consecutiveCount = 1;
+    }
   }
 
   return result;
