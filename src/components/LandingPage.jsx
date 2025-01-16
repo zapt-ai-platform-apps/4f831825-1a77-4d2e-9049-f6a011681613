@@ -12,7 +12,7 @@ function LandingPage() {
       </p>
       <Link
         to="/login"
-        className="btn bg-white text-primary rounded-full shadow-lg hover:bg-card hover:text-primary transition duration-300 ease-in-out transform hover:scale-105"
+        className="btn bg-white text-primary rounded-full shadow-lg hover:bg-card hover:text-primary transition duration-300 ease-in-out transform hover:scale-105 px-6 py-3"
       >
         Get Started
       </Link>
