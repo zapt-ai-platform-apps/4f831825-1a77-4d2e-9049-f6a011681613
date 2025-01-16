@@ -26,14 +26,18 @@ export async function callChatGPTForReview(userId, localTimetable) {
           content: prompt,
         },
       ],
-      // Possibly no special response format needed beyond valid JSON
-      // We'll rely on parseChatGPTResponse to confirm correctness
     });
 
-    const content = completion.choices[0].message.content;
-    console.log("[DEBUG] ChatGPT partial-update content:", content);
+    let content = completion.choices[0].message.content;
+    console.log("[DEBUG] ChatGPT partial-update content (before sanitization):", content);
 
-    const updatedSessions = parseChatGPTResponse(content);
+    // Sanitize the response to remove any unwanted code blocks or extra text
+    const sanitizedContent = content
+      .replace(/```json([\s\S]*?)```/gi, '$1')
+      .replace(/```([\s\S]*?)```/gi, '$1');
+    console.log("[DEBUG] ChatGPT partial-update content (after sanitization):", sanitizedContent);
+
+    const updatedSessions = parseChatGPTResponse(sanitizedContent);
 
     return updatedSessions;
   } catch (err) {

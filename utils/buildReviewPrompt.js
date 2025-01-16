@@ -37,6 +37,8 @@ export function buildReviewPrompt(localTimetable) {
     subject: item.subject,
   }));
 
+  // Added explicit instructions to ensure ChatGPT outputs valid JSON only.
+  // No triple backticks, no disclaimers, no extra text.
   const prompt = `
 We have generated a revision timetable with sessions that each include an "id", "date", "block", and "subject".
 
@@ -47,7 +49,12 @@ Please review this schedule to see if it meets typical scheduling constraints:
 4. Avoid consecutive scheduling of the same subject in the same day if possible.
 5. If the schedule is acceptable, don't change anything.
 
-IMPORTANT: Only return the sessions that need adjustments in this exact JSON structure:
+IMPORTANT:
+• Output ONLY the JSON object with the "updated_sessions" array.
+• Do NOT include extra text, explanations, disclaimers, or code blocks.
+• Do NOT include triple backticks or any formatting other than valid JSON.
+
+Return exactly in this format:
 {
   "updated_sessions": [
     {
@@ -61,7 +68,6 @@ If no changes are required, return:
 {
   "updated_sessions": []
 }
-Do not return all sessions, only the changed ones. Use each session's "id" to reference it.
 
 Here is the current timetable data (array of session objects):
 ${JSON.stringify(payload, null, 2)}
