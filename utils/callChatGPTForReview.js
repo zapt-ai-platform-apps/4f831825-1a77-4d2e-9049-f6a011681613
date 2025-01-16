@@ -5,40 +5,37 @@ import { parseChatGPTResponse } from "./parseChatGPTResponse.js";
 
 /**
  * callChatGPTForReview
- * We pass our locally generated schedule to ChatGPT for a "review" or "adjustments."
- * If ChatGPT returns a valid schedule, we use it. If it fails or the format is invalid, we keep ours.
+ * We pass our locally generated schedule (with IDs) to ChatGPT for a "review."
+ * ChatGPT should return only the sessions it modifies, with { "updated_sessions": [{id, subject}, ...] }.
  *
- * The user wants a final JSON array:
- * {
- *   "revision_dates": [
- *     { "date": "YYYY-MM-DD", "block": "Morning", "subject": "..." },
- *     ...
- *   ]
- * }
+ * If no changes are needed, ChatGPT returns { "updated_sessions": [] }.
+ * We return an array of updated session objects from parseChatGPTResponse, each containing { id, subject }.
  */
 export async function callChatGPTForReview(userId, localTimetable) {
   const prompt = buildReviewPrompt(localTimetable);
 
   try {
-    console.log("[INFO] Sending local schedule to ChatGPT for review...");
+    console.log("[INFO] Sending local schedule to ChatGPT for partial update check...");
 
+    // Example call; adjust as needed for your OpenAI library usage
     const completion = await client.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o", // or whichever model is appropriate
       messages: [
         {
           role: "user",
           content: prompt,
         },
       ],
-      response_format: { type: "json_object" },
+      // Possibly no special response format needed beyond valid JSON
+      // We'll rely on parseChatGPTResponse to confirm correctness
     });
 
     const content = completion.choices[0].message.content;
-    console.log("[DEBUG] ChatGPT review content:", content);
+    console.log("[DEBUG] ChatGPT partial-update content:", content);
 
-    const revisedTimetable = parseChatGPTResponse(content);
+    const updatedSessions = parseChatGPTResponse(content);
 
-    return revisedTimetable;
+    return updatedSessions;
   } catch (err) {
     Sentry.captureException(err);
     console.error("Error in callChatGPTForReview:", err);

@@ -1,39 +1,70 @@
 /**
  * Builds the prompt to send to ChatGPT for reviewing the timetable.
  *
- * @param {Array} localTimetable - The locally generated timetable.
+ * We now only want ChatGPT to return the sessions that have changed,
+ * referencing each session by its unique ID. If no changes are needed,
+ * return "updated_sessions": [].
+ *
+ * @param {Array} localTimetable - The locally generated timetable with IDs.
  * @returns {string} - The constructed prompt.
  */
 export function buildReviewPrompt(localTimetable) {
-  const reviewPayload = localTimetable.map((item) => ({
+  /*
+    We'll send ChatGPT each session's ID, date, block, and subject.
+    We want ChatGPT to return only the sessions that need to change,
+    in the format:
+
+    {
+      "updated_sessions": [
+        {
+          "id": "...",
+          "subject": "..."
+        },
+        ...
+      ]
+    }
+
+    If no changes are needed, return:
+    {
+      "updated_sessions": []
+    }
+  */
+
+  const payload = localTimetable.map((item) => ({
+    id: item.id,
     date: item.date,
     block: item.block,
     subject: item.subject,
   }));
 
   const prompt = `
-We have generated a revision timetable locally with the following sessions:
-${JSON.stringify(reviewPayload, null, 2)}
+We have generated a revision timetable with sessions that each include an "id", "date", "block", and "subject".
 
 Please review this schedule to see if it meets typical scheduling constraints:
 1. No subject scheduled on or after its exam date.
-2. Avoiding more than two consecutive sessions of the same subject where possible.
-3. Balanced distribution among all subjects.
-4. No intense consecutive scheduling of the same subject on the same day if possible.
-5. Otherwise, keep the schedule as is.
+2. Avoid more than two consecutive sessions of the same subject if possible.
+3. Distribute sessions evenly among subjects, prioritizing those with earlier exams.
+4. Avoid consecutive scheduling of the same subject in the same day if possible.
+5. If the schedule is acceptable, don't change anything.
 
-If changes are needed, please correct them. Return valid JSON in the format:
+IMPORTANT: Only return the sessions that need adjustments in this exact JSON structure:
 {
-  "revision_dates": [
+  "updated_sessions": [
     {
-      "date": "YYYY-MM-DD",
-      "block": "Morning/Afternoon/Evening",
-      "subject": "SubjectName"
+      "id": "<ID of the session that needs a change>",
+      "subject": "<New subject>"
     },
     ...
   ]
 }
-If no changes are needed, simply return the same array in the JSON structure above.
-`;
+If no changes are required, return:
+{
+  "updated_sessions": []
+}
+Do not return all sessions, only the changed ones. Use each session's "id" to reference it.
+
+Here is the current timetable data (array of session objects):
+${JSON.stringify(payload, null, 2)}
+  `;
   return prompt;
 }

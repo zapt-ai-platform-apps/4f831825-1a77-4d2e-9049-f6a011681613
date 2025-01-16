@@ -1,5 +1,6 @@
 import { getSortedSubjects } from './utils/subjects.js';
 import { sortBlankSessions } from './utils/sessionSorter.js';
+import { randomUUID } from 'crypto';
 
 export function generateTimetableLocally(userExams, blankSessions) {
   const sortedSubjects = getSortedSubjects(userExams);
@@ -72,6 +73,7 @@ export function generateTimetableLocally(userExams, blankSessions) {
     }
 
     result.push({
+      id: randomUUID(),
       date: session.date,
       block: session.block,
       subject: assignedSubject,

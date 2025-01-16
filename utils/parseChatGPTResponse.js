@@ -1,8 +1,12 @@
 /**
  * Parses and validates the response from ChatGPT.
+ * We're expecting a JSON object with "updated_sessions": an array of
+ * { id: string, subject: string } objects.
+ *
+ * If there are no changes, "updated_sessions" could be an empty array.
  *
  * @param {string} content - The JSON string returned by ChatGPT.
- * @returns {Array} - The revised timetable.
+ * @returns {Array} - An array of updated session objects, each { id, subject }.
  * @throws Will throw an error if the JSON is invalid or the structure is incorrect.
  */
 export function parseChatGPTResponse(content) {
@@ -13,21 +17,17 @@ export function parseChatGPTResponse(content) {
     throw new Error("Invalid JSON from ChatGPT review");
   }
 
-  if (!parsed.revision_dates || !Array.isArray(parsed.revision_dates)) {
-    throw new Error("ChatGPT did not return a valid 'revision_dates' array.");
+  if (!parsed.updated_sessions || !Array.isArray(parsed.updated_sessions)) {
+    throw new Error('ChatGPT did not return a valid "updated_sessions" array.');
   }
 
-  for (const item of parsed.revision_dates) {
-    if (!item.date || !item.block || !item.subject) {
-      throw new Error("Invalid item in ChatGPT's revised schedule.");
+  // Validate each updated session
+  for (const item of parsed.updated_sessions) {
+    if (!item.id || typeof item.subject !== 'string') {
+      throw new Error("Invalid updated session structure. Each must have { id, subject }.");
     }
   }
 
-  const revisedTimetable = parsed.revision_dates.map((d) => ({
-    date: d.date,
-    block: d.block,
-    subject: d.subject,
-  }));
-
-  return revisedTimetable;
+  // Return the array of updated sessions
+  return parsed.updated_sessions;
 }
