@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/node";
 import client from "./openaiClient.js";
 import { buildTimetablePrompt } from "./promptBuilder.js";
 import { parseChatGPTResponse } from "./helpers/responseParser.js";
+import { isBlockSameOrLater } from "./helpers/timetableHelper.js";
 
 /**
  * callChatGPTForTimetable
@@ -39,12 +40,24 @@ export async function callChatGPTForTimetable({
 
     let timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
 
-    // Extra safety: filter out sessions scheduled on or after the exam date
+    // Adjust filter logic to allow same-day revision if it's earlier than the exam block
     const filteredItems = timetableItems.filter((entry) => {
       const exam = examsData.find((e) => e.subject === entry.subject);
-      if (!exam) return true;
-      // If entry.date >= exam.examDate, exclude it
-      return entry.date < exam.examDate;
+      if (!exam) return true; // If we don't even have an exam for this subject, keep it.
+
+      // If entry is on the same calendar date as the exam
+      if (entry.date === exam.examDate) {
+        // Exclude only if the entry block is the same or later than the exam block
+        return !isBlockSameOrLater(entry.block, exam.timeOfDay);
+      }
+
+      // If entry date is after exam date, exclude it
+      if (entry.date > exam.examDate) {
+        return false;
+      }
+
+      // Otherwise, keep it
+      return true;
     });
 
     // Return the final data with userId appended
