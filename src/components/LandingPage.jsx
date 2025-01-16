@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-b from-primary to-lightBlue text-white">
       <h1 className="text-3xl sm:text-5xl font-handwriting font-bold mb-6 text-center">
         Welcome to <span className="text-yellow-500">UpGrade</span>
       </h1>
@@ -12,7 +12,7 @@ function LandingPage() {
       </p>
       <Link
         to="/login"
-        className="px-8 py-4 bg-white text-[#004AAD] rounded-full shadow-lg hover:bg-opacity-90 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+        className="btn bg-white text-primary rounded-full shadow-lg hover:bg-card hover:text-primary transition duration-300 ease-in-out transform hover:scale-105"
       >
         Get Started
       </Link>

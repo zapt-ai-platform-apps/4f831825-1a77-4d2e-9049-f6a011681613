@@ -45,7 +45,7 @@ function Header({ menuOpen, setMenuOpen }) {
           Timetable
         </Link>
         <button
-          className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
+          className="btn btn-destructive py-2 px-6 rounded-full shadow-md transform hover:scale-105 cursor-pointer"
           onClick={signOut}
         >
           Sign Out

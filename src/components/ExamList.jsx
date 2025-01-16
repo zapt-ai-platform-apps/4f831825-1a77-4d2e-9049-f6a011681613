@@ -39,21 +39,24 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
       ) : (
         <ul className="space-y-2">
           {exams.map((exam) => (
-            <li key={exam.id} className="flex justify-between items-center p-2 bg-gray-100 rounded-md box-border">
+            <li
+              key={exam.id}
+              className="flex justify-between items-center p-2 bg-input rounded-md box-border"
+            >
               <div>
                 <p className="font-medium">{exam.subject}</p>
-                <p className="text-sm text-gray-600">{exam.examDate}</p>
+                <p className="text-sm text-muted-foreground">{exam.examDate}</p>
               </div>
               <div className="space-x-2">
                 <button
                   onClick={() => onEditExam(exam)}
-                  className="px-3 py-1 rounded-md font-semibold bg-yellow-500 hover:bg-yellow-600 transition-colors duration-200 text-white cursor-pointer"
+                  className="btn px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(exam.id)}
-                  className="px-3 py-1 rounded-md font-semibold bg-red-500 hover:bg-red-600 transition-colors duration-200 text-white cursor-pointer"
+                  className="btn btn-destructive px-3 py-1"
                 >
                   Delete
                 </button>

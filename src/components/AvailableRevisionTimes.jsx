@@ -41,10 +41,10 @@ function AvailableRevisionTimes(props) {
                 {timeBlocks.map((block) => (
                   <button
                     key={block}
-                    className={`px-3 py-1 rounded-full cursor-pointer ${
+                    className={`btn px-3 py-1 ${
                       preferences.revisionTimes[day].includes(block)
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-300 text-gray-700'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-input text-foreground'
                     }`}
                     onClick={() => handleBlockSelection(day, block)}
                   >

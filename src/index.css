@@ -11,3 +11,32 @@
 html, body, #root {
   @apply h-full font-sans;
 }
+
+/* Button base class for a shadcn/ui-like style */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50;
+}
+
+/* Button variants */
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.btn-destructive {
+  @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+}
+
+/* Card styling */
+.card {
+  @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+}
+
+/* Input styling (shadcn/ui-like) */
+.input {
+  @apply block w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+}
+
+/* We keep a utility class for partial transparency if needed */
+.bg-card-90 {
+  @apply bg-card/90;
+}

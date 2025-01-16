@@ -17,7 +17,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           <button
             type="button"
             onClick={onCancelEdit}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-semibold transition-colors duration-200 text-black cursor-pointer"
+            className="btn bg-input text-black hover:bg-gray-300"
           >
             Cancel
           </button>
@@ -26,11 +26,11 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           type="submit"
           onClick={handleSubmit}
           disabled={submitting}
-          className={`px-4 py-2 rounded-md font-semibold transition-transform duration-300 transform hover:scale-[1.02] text-white ${
-            editExam
-              ? 'bg-blue-600 hover:bg-blue-700'
-              : 'bg-green-600 hover:bg-green-700'
-          } ${submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`btn ${
+            editExam ? 'btn-primary' : 'bg-primary hover:bg-primary/90'
+          } px-4 py-2 transition-transform duration-300 transform hover:scale-[1.02] ${
+            submitting ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
         </button>
