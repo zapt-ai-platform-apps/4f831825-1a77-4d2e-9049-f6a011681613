@@ -1,5 +1,5 @@
-import { sortExams, mapExamDates, initializeAssignedCount } from "./examUtils";
-import { sortBlankSessions, getAvailableSubjects, chooseSubject } from "./sessionUtils";
+import { sortExams, mapExamDates, initializeAssignedCount } from "./examUtils.js";
+import { sortBlankSessions, getAvailableSubjects, chooseSubject } from "./sessionUtils.js";
 import { parseISO } from "date-fns";
 
 /**
