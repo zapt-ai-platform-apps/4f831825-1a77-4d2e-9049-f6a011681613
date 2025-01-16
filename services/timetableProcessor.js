@@ -5,8 +5,6 @@ import {
   getUserRevisionTimes,
 } from "../utils/dataAccess.js";
 import { buildBlankSessions } from "./timetableSessionBuilder.js";
-// Removed old import for generateTimetableLocally
-// import { generateTimetableLocally } from "./timetableLocalGenerator.js";
 import { generateTimetableImproved } from "./timetableGeneratorNew.js";
 import { saveTimetable } from "./timetableSaver.js";
 import * as Sentry from "@sentry/node";
@@ -43,8 +41,13 @@ export async function processTimetableGeneration(db, userId) {
   // 3) Build array of blank sessions
   const blankSessions = buildBlankSessions(userPreferences, userExams, revisionTimesResult);
 
-  // 4) Generate a timetable with our new improved approach
-  const localTimetable = generateTimetableImproved(userExams, userPreferences, revisionTimesResult);
+  // 4) Generate a timetable with our new improved approach (filling every blank session)
+  const localTimetable = generateTimetableImproved(
+    userExams,
+    userPreferences,
+    revisionTimesResult,
+    blankSessions
+  );
 
   // 5) Save the final schedule to the database (using localTimetable directly)
   await saveTimetable(db, userId, localTimetable);

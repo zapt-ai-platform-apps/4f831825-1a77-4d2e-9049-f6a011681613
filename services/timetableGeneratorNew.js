@@ -1,28 +1,59 @@
-export function generateTimetableImproved(userExams, userPreferences, revisionTimesResult) {
-  // Example improved approach:
-  // 1) Sort exams by date
-  const sortedExams = [...userExams].sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
+import { sortExams, mapExamDates, initializeAssignedCount } from "./examUtils";
+import { sortBlankSessions, getAvailableSubjects, chooseSubject } from "./sessionUtils";
+import { parseISO } from "date-fns";
 
-  // 2) Build an array of blank sessions based on revisionTimesResult and the date range
-  //    (We'll assume this has already been handled outside, or we can do partial checks if needed)
+/**
+ * generateTimetableImproved
+ * Fills all blank sessions with subjects according to a balanced distribution:
+ * 1) Sorts blank sessions in chronological order.
+ * 2) For each blank session, picks a subject among those whose exam date is >= that day.
+ * 3) Chooses the subject with the fewest assigned sessions so far, to distribute study time evenly.
+ * 4) Returns an array of session objects: { date, block, subject }.
+ */
+export function generateTimetableImproved(
+  userExams,
+  userPreferences,
+  revisionTimesResult,
+  blankSessions
+) {
+  // Sort exams by date
+  const sortedExams = sortExams(userExams);
 
-  // For demonstration, just return a dummy array showing we did "improved logic"
-  // In a real scenario, you'd implement advanced constraints or weighting here.
+  // Convert examDate strings to actual Date objects for comparisons
+  const examDatesMap = mapExamDates(sortedExams);
+
+  // Keep track of how many sessions each subject has been assigned
+  const assignedCount = initializeAssignedCount(examDatesMap);
+
+  // Sort blank sessions by date (and optionally by block priority: Morning < Afternoon < Evening)
+  const sortedBlankSessions = sortBlankSessions(blankSessions);
+
   const finalSessions = [];
 
-  // This is just a placeholder “improved logic” example
-  // In a real app, you'd distribute sessions more intelligently:
-  sortedExams.forEach((exam) => {
-    // Sample “logic”: each exam gets 3 sessions in the days leading up to it
-    const sessionCount = 3;
-    for (let i = 0; i < sessionCount; i++) {
-      finalSessions.push({
-        date: exam.examDate,    // In reality, pick earlier dates
-        block: i === 0 ? 'Morning' : i === 1 ? 'Afternoon' : 'Evening',
-        subject: exam.subject,
-      });
+  for (const session of sortedBlankSessions) {
+    const sessionDateObj = parseISO(session.date);
+
+    // Filter the subjects that still have an exam date >= session date
+    const availableSubjects = getAvailableSubjects(examDatesMap, sessionDateObj);
+
+    // If no subjects are available, skip assigning
+    if (!availableSubjects.length) {
+      continue;
     }
-  });
+
+    // Choose the subject with the fewest assigned sessions
+    const chosenSubject = chooseSubject(availableSubjects, assignedCount);
+
+    // Assign the chosen subject
+    finalSessions.push({
+      date: session.date,
+      block: session.block,
+      subject: chosenSubject,
+    });
+
+    // Increment assigned count
+    assignedCount[chosenSubject] = (assignedCount[chosenSubject] || 0) + 1;
+  }
 
   return finalSessions;
 }
