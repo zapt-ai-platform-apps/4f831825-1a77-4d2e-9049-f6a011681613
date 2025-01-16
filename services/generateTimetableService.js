@@ -5,11 +5,20 @@ import {
   getUserPreferences,
   getUserExams,
   getUserRevisionTimes,
-  getUserBlockTimes,
   insertTimetableEntries,
 } from "../utils/dataAccess.js";
-import { callChatGPTForTimetable } from "../utils/callChatGPTForTimetable.js";
+import { buildBlankSessions } from "./timetableSessionBuilder.js";
+import { generateAndSaveTimetable } from "./timetableGenerator.js";
+import * as Sentry from "@sentry/node";
 
+/**
+ * generateTimetableHandler
+ * 1) Deletes non-user-created timetable entries
+ * 2) Builds an array of blank sessions [date, block, subject=""]
+ *    using the user’s preferences (start date, chosen blocks)
+ * 3) Calls ChatGPT with only the blank sessions + exam data
+ * 4) Stores the generated timetable
+ */
 export async function generateTimetableHandler(req, res, Sentry) {
   try {
     if (req.method !== "POST") {
@@ -22,11 +31,10 @@ export async function generateTimetableHandler(req, res, Sentry) {
     // Delete existing generated timetable entries (exclude user-created entries)
     await deleteGeneratedTimetableEntries(db, user.id);
 
-    // Fetch user's exams, preferences, revision times, and block times
+    // Fetch user's exams, preferences, and revision times
     const userPreferences = await getUserPreferences(db, user.id);
     const userExams = await getUserExams(db, user.id);
     const revisionTimesResult = await getUserRevisionTimes(db, user.id);
-    const blockTimesData = await getUserBlockTimes(db, user.id);
 
     if (!userPreferences) {
       return res.status(400).json({ error: "User preferences not found" });
@@ -40,21 +48,11 @@ export async function generateTimetableHandler(req, res, Sentry) {
       return res.status(400).json({ error: "No revision times found for user" });
     }
 
-    // -----------------------------------------------------------------------------------
-    // NEW: Call ChatGPT for timetable generation
-    // -----------------------------------------------------------------------------------
-    const timetableData = await callChatGPTForTimetable({
-      userId: user.id,
-      userPreferences,
-      userExams,
-      revisionTimesResult,
-      blockTimesData,
-    });
+    // Build array of blank sessions (date/block/subject="")
+    const blankSessions = buildBlankSessions(userPreferences, userExams, revisionTimesResult);
 
-    // Save timetable entries
-    if (timetableData && timetableData.length > 0) {
-      await insertTimetableEntries(db, timetableData);
-    }
+    // Generate and save timetable using ChatGPT
+    await generateAndSaveTimetable(db, user, userExams, blankSessions);
 
     res.status(200).json({ message: "Timetable generated via ChatGPT" });
   } catch (error) {

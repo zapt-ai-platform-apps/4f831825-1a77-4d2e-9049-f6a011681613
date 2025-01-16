@@ -1,26 +1,21 @@
 import * as Sentry from "@sentry/node";
 import client from "./openaiClient.js";
 import { buildTimetablePrompt } from "./promptBuilder.js";
-import { prepareExamsData, prepareRevisionTimes } from "./helpers/dataPreparer.js";
 import { parseChatGPTResponse } from "./helpers/responseParser.js";
 
 /**
  * callChatGPTForTimetable
- * Calls the OpenAI API to generate a timetable based on user data.
- * Expects valid JSON in the "revision_dates" property, with only date, block, subject.
+ * Takes an array of blank sessions + array of exams, builds a prompt,
+ * calls ChatGPT, and returns the filled timetable data.
  */
 export async function callChatGPTForTimetable({
   userId,
-  userPreferences,
-  userExams,
-  revisionTimesResult,
-  blockTimesData,
+  examsData,
+  blankSessions,
 }) {
   try {
-    const examsData = prepareExamsData(userExams);
-    const revisionTimes = prepareRevisionTimes(revisionTimesResult);
-
-    const prompt = buildTimetablePrompt(examsData, userPreferences, revisionTimes, blockTimesData);
+    // Build prompt using only blankSessions + examsData
+    const prompt = buildTimetablePrompt(examsData, blankSessions);
     console.log("[INFO] Sending prompt to OpenAI:", prompt);
 
     const completion = await client.chat.completions.create({
@@ -31,7 +26,7 @@ export async function callChatGPTForTimetable({
           content: prompt,
         },
       ],
-      response_format: { "type": "json_object" }
+      response_format: { type: "json_object" },
     });
 
     console.log(completion);
@@ -44,14 +39,14 @@ export async function callChatGPTForTimetable({
 
     const timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
 
-    // For each item, we store their block, date, subject, but no start/end time
+    // Return the final data with userId appended
     const timetableData = timetableItems.map((entry) => ({
-      userId: userId,
+      userId,
       date: entry.date,
       block: entry.block,
       subject: entry.subject,
-      startTime: null, // ChatGPT no longer provides these
-      endTime: null,   // ChatGPT no longer provides these
+      startTime: null,
+      endTime: null,
       isUserCreated: false,
     }));
 

@@ -1,28 +1,37 @@
-export function buildTimetablePrompt(examsData, userPreferences, revisionTimes, blockTimesData) {
+/**
+ * buildTimetablePrompt
+ * We only provide ChatGPT:
+ * - The user's upcoming exams (examsData)
+ * - A list of blank session slots (blankSessions) that have {date, block, subject: ""}
+ * 
+ * ChatGPT should fill only the "subject" field for each session.
+ * If no study session is needed, set subject = "Rest".
+ * Must return valid JSON with the property "revision_dates" containing the array.
+ */
+export function buildTimetablePrompt(examsData, blankSessions) {
   return `
-You are an AI that helps create a study timetable.
+We have an array of session slots, each with a date, a block, and an empty subject.
+We also have an array of upcoming exams.
+Please fill in the "subject" for each session. If not needed, set subject = "Rest".
+Return exactly the same array, as valid JSON, in the property "revision_dates".
 
-User's exam data (array of exams with date/time):
-${JSON.stringify(examsData, null, 2)}
+No other keys should be added. Do not change the date or block fields.
 
-User's preferences:
-Start date: ${userPreferences.startDate}
-Revision times: ${JSON.stringify(revisionTimes, null, 2)}
-Block times: ${JSON.stringify(blockTimesData, null, 2)}
+Here is the data:
+"exams": ${JSON.stringify(examsData, null, 2)}
+"blankSessions": ${JSON.stringify(blankSessions, null, 2)}
 
-We want you to produce a JSON array listing every block (Morning, Afternoon, Evening) for each day, from the user's start date up to the last exam date. If a block is not used for active study, use "subject": "Rest".
+Your response should be in this format only:
 
-Each item of the array must have exactly:
 {
-  "date": "YYYY-MM-DD",
-  "block": "Morning or Afternoon or Evening",
-  "subject": "string"
+  "revision_dates": [
+    {
+      "date": "YYYY-MM-DD",
+      "block": "Morning/Afternoon/Evening",
+      "subject": "some value"
+    },
+    ...
+  ]
 }
-
-Do not return "startTime" or "endTime" or any other keys. Return valid JSON only.
-
-Wrap your JSON array in an object with the single property "revision_dates".
-
-No additional text outside of that JSON structure.
   `;
 }
