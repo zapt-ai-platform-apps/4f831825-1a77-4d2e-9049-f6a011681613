@@ -29,7 +29,7 @@ function SessionSection({ sessions, subjectColours }) {
               ></span>
               Subject: {capitalizeFirstLetter(session.subject)}
             </p>
-            <p className="text-black">Block: {session.block}</p>
+            <p className="text-black">Time of Day: {session.block}</p>
             {/* Show time range only if present */}
             {session.startTime && session.endTime && (
               <p className="text-black">

@@ -53,7 +53,7 @@ function SessionsList({ sortedSessions, subjectColours }) {
             >
               <div className="font-bold">{session.subject}</div>
               <div className="text-[10px]">
-                {session.block} ({getSessionTime(session)})
+                Time of Day: {session.block} ({getSessionTime(session)})
               </div>
             </div>
           ) : (
