@@ -1,60 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import * as Sentry from '@sentry/react';
+import React from 'react';
 import ExamFormFields from './ExamFormFields';
-import { saveExam } from '../services/examService';
+import useExamForm from '../hooks/useExamForm';
 
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
-  const [formData, setFormData] = useState({
-    subject: '',
-    examDate: '',
-    timeOfDay: 'Morning',
-    board: '',
-    teacher: '',
-  });
-
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (editExam) {
-      setFormData({
-        subject: editExam.subject,
-        examDate: editExam.examDate,
-        timeOfDay: editExam.timeOfDay || 'Morning',
-        board: editExam.board || '',
-        teacher: editExam.teacher || '',
-      });
-    } else {
-      setFormData({
-        subject: '',
-        examDate: '',
-        timeOfDay: 'Morning',
-        board: '',
-        teacher: '',
-      });
-    }
-  }, [editExam]);
-
-  const handleSubmit = async () => {
-    if (submitting) return;
-    setSubmitting(true);
-
-    try {
-      await saveExam(formData, editExam);
-      onExamSaved();
-    } catch (error) {
-      console.error('Error saving exam:', error);
-      Sentry.captureException(error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const { formData, submitting, handleSubmit, handleChange } = useExamForm(editExam, onExamSaved);
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
@@ -63,12 +12,12 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         onChange={handleChange}
         editExam={editExam}
       />
-      <div className="flex justify-end space-x-2">
+      <div className="flex justify-end space-x-4 mt-4">
         {editExam && (
           <button
             type="button"
             onClick={onCancelEdit}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded cursor-pointer"
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-semibold transition-colors duration-200 text-black cursor-pointer"
           >
             Cancel
           </button>
@@ -77,9 +26,11 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           type="submit"
           onClick={handleSubmit}
           disabled={submitting}
-          className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${
-            submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-          }`}
+          className={`px-4 py-2 rounded-md font-semibold transition-transform duration-300 transform hover:scale-[1.02] text-white ${
+            editExam
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-green-600 hover:bg-green-700'
+          } ${submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
         </button>

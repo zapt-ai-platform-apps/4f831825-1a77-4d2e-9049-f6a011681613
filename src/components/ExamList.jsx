@@ -39,7 +39,7 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
       ) : (
         <ul className="space-y-2">
           {exams.map((exam) => (
-            <li key={exam.id} className="flex justify-between items-center p-2 bg-gray-100 rounded box-border">
+            <li key={exam.id} className="flex justify-between items-center p-2 bg-gray-100 rounded-md box-border">
               <div>
                 <p className="font-medium">{exam.subject}</p>
                 <p className="text-sm text-gray-600">{exam.examDate}</p>
@@ -47,13 +47,13 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
               <div className="space-x-2">
                 <button
                   onClick={() => onEditExam(exam)}
-                  className="px-3 py-1 bg-yellow-500 text-white rounded cursor-pointer"
+                  className="px-3 py-1 rounded-md font-semibold bg-yellow-500 hover:bg-yellow-600 transition-colors duration-200 text-white cursor-pointer"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(exam.id)}
-                  className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+                  className="px-3 py-1 rounded-md font-semibold bg-red-500 hover:bg-red-600 transition-colors duration-200 text-white cursor-pointer"
                 >
                   Delete
                 </button>
