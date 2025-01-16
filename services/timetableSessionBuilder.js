@@ -14,18 +14,33 @@ export function buildBlankSessions(userPreferences, userExams, revisionTimes) {
   const allDays = eachDayOfInterval({ start: startDate, end: lastExamDate });
   const blankSessions = [];
 
+  // Build fast lookup of exams by day/block
+  const examsByDayBlock = userExams.reduce((acc, exam) => {
+    const dateStr = format(parseISO(exam.examDate), "yyyy-MM-dd");
+    if (!acc[dateStr]) {
+      acc[dateStr] = { Morning: [], Afternoon: [], Evening: [] };
+    }
+    acc[dateStr][exam.timeOfDay].push(exam);
+    return acc;
+  }, {});
+
   for (const day of allDays) {
-    // Convert day to e.g. "monday", "tuesday" ...
     const dayOfWeek = day.toLocaleString("en-US", { weekday: "long" }).toLowerCase();
-    // Find blocks for this day
     const blocksForThisDay = revisionTimes
       .filter((rt) => rt.dayOfWeek.toLowerCase() === dayOfWeek)
       .map((rt) => rt.block);
 
-    // For each block, push a blank session
-    for (const block of blocksForThisDay) {
+    const dateStr = format(day, "yyyy-MM-dd");
+    const filteredBlocks = blocksForThisDay.filter((block) => {
+      const anyExamSameBlock = examsByDayBlock[dateStr]
+        && examsByDayBlock[dateStr][block]
+        && examsByDayBlock[dateStr][block].length > 0;
+      return !anyExamSameBlock;
+    });
+
+    for (const block of filteredBlocks) {
       blankSessions.push({
-        date: format(day, "yyyy-MM-dd"),
+        date: dateStr,
         block,
         subject: "",
       });

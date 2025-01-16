@@ -16,42 +16,50 @@ export function generateTimetableImproved(
   revisionTimesResult,
   blankSessions
 ) {
-  // Sort exams by date
   const sortedExams = sortExams(userExams);
-
-  // Convert examDate strings to actual Date objects for comparisons
   const examDatesMap = mapExamDates(sortedExams);
-
-  // Keep track of how many sessions each subject has been assigned
   const assignedCount = initializeAssignedCount(examDatesMap);
-
-  // Sort blank sessions by date (and optionally by block priority: Morning < Afternoon < Evening)
   const sortedBlankSessions = sortBlankSessions(blankSessions);
+
+  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const examMap = sortedExams.reduce((acc, exam) => {
+    const dateStr = exam.examDate;
+    if (!acc[dateStr]) acc[dateStr] = {};
+    acc[dateStr][exam.subject] = exam.timeOfDay;
+    return acc;
+  }, {});
 
   const finalSessions = [];
 
   for (const session of sortedBlankSessions) {
     const sessionDateObj = parseISO(session.date);
-
-    // Filter the subjects that still have an exam date >= session date
     const availableSubjects = getAvailableSubjects(examDatesMap, sessionDateObj);
 
-    // If no subjects are available, skip assigning
     if (!availableSubjects.length) {
       continue;
     }
 
-    // Choose the subject with the fewest assigned sessions
-    const chosenSubject = chooseSubject(availableSubjects, assignedCount);
+    const filteredSubjects = availableSubjects.filter((subj) => {
+      const examTimeOfDay = examMap[session.date]?.[subj];
+      if (!examTimeOfDay) {
+        return true;
+      }
+      const sessionBlockPriority = blockOrder[session.block];
+      const examBlockPriority = blockOrder[examTimeOfDay];
+      return examBlockPriority > sessionBlockPriority;
+    });
 
-    // Assign the chosen subject
+    if (!filteredSubjects.length) {
+      continue;
+    }
+
+    const chosenSubject = chooseSubject(filteredSubjects, assignedCount);
     finalSessions.push({
       date: session.date,
       block: session.block,
       subject: chosenSubject,
     });
 
-    // Increment assigned count
     assignedCount[chosenSubject] = (assignedCount[chosenSubject] || 0) + 1;
   }
 
