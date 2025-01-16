@@ -1,8 +1,21 @@
 import React from 'react';
+import Exams from './Exams';
+import Sessions from './Sessions';
 
 function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }) {
   const isSelected =
     selectedDate && new Date(selectedDate).toDateString() === day.toDateString();
+
+  // Define block order for sorting sessions
+  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+
+  // Sort sessions by block
+  let sortedSessions = [];
+  if (hasData) {
+    sortedSessions = hasData.sessions
+      .slice()
+      .sort((a, b) => blockOrder[a.block] - blockOrder[b.block]);
+  }
 
   return (
     <div
@@ -21,30 +34,9 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
           )}
           <div className="mt-5 sm:mt-10">
             {hasData.exams.length > 0 && (
-              <div className="hidden sm:block mb-2 px-1">
-                {hasData.exams.map((exam) => (
-                  <div
-                    key={exam.id}
-                    className="mb-1 p-2 rounded-lg text-white cursor-pointer"
-                    style={{ backgroundColor: '#FF0000' }}
-                  >
-                    <div className="font-bold text-base">Exam: {exam.subject}</div>
-                    <div className="text-sm">Time of Day: {exam.timeOfDay || 'Morning'}</div>
-                  </div>
-                ))}
-              </div>
+              <Exams exams={hasData.exams} />
             )}
-            <div className="space-y-2">
-              {hasData.sessions.map((session, idx) => (
-                <div
-                  key={idx}
-                  className="p-1 rounded text-xs sm:text-sm cursor-pointer"
-                  style={{ backgroundColor: subjectColours[session.subject] || '#ccc' }}
-                >
-                  {session.subject}
-                </div>
-              ))}
-            </div>
+            <Sessions sortedSessions={sortedSessions} subjectColours={subjectColours} />
           </div>
         </>
       )}
