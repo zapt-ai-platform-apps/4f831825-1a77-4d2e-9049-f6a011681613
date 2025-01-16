@@ -1,16 +1,9 @@
-export function parseChatGPTResponse(rawResponse) {
-  let parsed;
-  try {
-    parsed = JSON.parse(rawResponse);
-  } catch (jsonErr) {
-    throw new Error(`Failed to parse ChatGPT JSON response: ${jsonErr.message}`);
-  }
-
-  if (!Array.isArray(parsed)) {
+export function parseChatGPTResponse(arrayData) {
+  if (!Array.isArray(arrayData)) {
     throw new Error("ChatGPT did not return a JSON array.");
   }
 
-  for (const item of parsed) {
+  for (const item of arrayData) {
     if (
       typeof item.date !== "string" ||
       typeof item.block !== "string" ||
@@ -22,5 +15,5 @@ export function parseChatGPTResponse(rawResponse) {
     }
   }
 
-  return parsed;
+  return arrayData;
 }

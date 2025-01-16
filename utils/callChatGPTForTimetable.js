@@ -33,19 +33,23 @@ export async function callChatGPTForTimetable({
           content: prompt,
         },
       ],
-      response_format:{ "type": "json_object" }
+      response_format: { "type": "json_object" }
     });
 
     console.log(completion);
 
     const content = completion.choices[0].message.content;
-    // The model output is expected to have a top-level key "revision_dates" with an array
-    const rawResponse = JSON.parse(content).revision_dates;
 
-    // parseChatGPTResponse expects a JSON string, so we pass stringified rawResponse
-    const parsed = parseChatGPTResponse(JSON.stringify(rawResponse));
+    // Parse the entire response once:
+    const parsedJSON = JSON.parse(content);
 
-    const timetableData = parsed.map((entry) => ({
+    // CONSOLE LOG the revision_dates array for debugging:
+    console.log("[DEBUG] Raw revision data from ChatGPT:", parsedJSON.revision_dates);
+
+    // Pass the array directly to parseChatGPTResponse:
+    const timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
+
+    const timetableData = timetableItems.map((entry) => ({
       userId: userId,
       date: entry.date,
       block: entry.block,
