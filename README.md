@@ -38,16 +38,18 @@ Please create a file named **.env** at the project root with the following envir
 4. COCKROACH_DB_URL="<Your CockroachDB URL>"
 5. NPM_TOKEN="<Your NPM token if needed>"
 6. VITE_PUBLIC_UMAMI_WEBSITE_ID="<Your Umami website ID>"
+7. OPENAI_API_KEY="<Your OpenAI API Key>"
 
 ---
 
 ## Description of External Services
 
-- **Supabase**: Used for user authentication via ZAPT.
-- **Sentry**: Used for error logging and monitoring.
-- **Progressier**: Used to add PWA support (service worker, manifest, etc.).
-- **Umami**: Used for analytics tracking.
-- **Resend**: Can be used for sending emails if needed.
+- **Supabase**: Used for user authentication via ZAPT.  
+- **Sentry**: Used for error logging and monitoring.  
+- **Progressier**: Used to add PWA support (service worker, manifest, etc.).  
+- **Umami**: Used for analytics tracking.  
+- **Resend**: For sending emails if needed.  
+- **OpenAI**: For ChatGPT-based final review of the locally generated timetable.
 
 ---
 
