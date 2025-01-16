@@ -5,7 +5,9 @@ import {
   getUserRevisionTimes,
 } from "../utils/dataAccess.js";
 import { buildBlankSessions } from "./timetableSessionBuilder.js";
-import { generateTimetableLocally } from "./timetableLocalGenerator.js";
+// Removed old import for generateTimetableLocally
+// import { generateTimetableLocally } from "./timetableLocalGenerator.js";
+import { generateTimetableImproved } from "./timetableGeneratorNew.js";
 import { saveTimetable } from "./timetableSaver.js";
 import * as Sentry from "@sentry/node";
 
@@ -14,7 +16,7 @@ import * as Sentry from "@sentry/node";
  * 1) Deletes non-user-created timetable entries
  * 2) Fetches user data
  * 3) Builds blank sessions
- * 4) Generates timetable locally
+ * 4) Generates timetable using the new improved logic
  * 5) Saves timetable to the database (Skipping ChatGPT review)
  */
 export async function processTimetableGeneration(db, userId) {
@@ -41,8 +43,8 @@ export async function processTimetableGeneration(db, userId) {
   // 3) Build array of blank sessions
   const blankSessions = buildBlankSessions(userPreferences, userExams, revisionTimesResult);
 
-  // 4) Generate a timetable locally (skipping ChatGPT final review)
-  const localTimetable = generateTimetableLocally(userExams, blankSessions);
+  // 4) Generate a timetable with our new improved approach
+  const localTimetable = generateTimetableImproved(userExams, userPreferences, revisionTimesResult);
 
   // 5) Save the final schedule to the database (using localTimetable directly)
   await saveTimetable(db, userId, localTimetable);
