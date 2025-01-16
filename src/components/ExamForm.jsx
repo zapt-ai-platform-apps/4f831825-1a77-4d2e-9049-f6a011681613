@@ -26,7 +26,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           type="submit"
           onClick={handleSubmit}
           disabled={submitting}
-          className={`btn ${
+          className={`btn text-white ${
             editExam ? 'btn-primary' : 'bg-primary hover:bg-primary/90'
           } px-4 py-2 transition-transform duration-300 transform hover:scale-[1.02] ${
             submitting ? 'opacity-50 cursor-not-allowed' : ''
