@@ -12,6 +12,8 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
     teacher: '',
   });
 
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     if (editExam) {
       setFormData({
@@ -33,12 +35,17 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   }, [editExam]);
 
   const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
     try {
       await saveExam(formData, editExam);
       onExamSaved();
     } catch (error) {
       console.error('Error saving exam:', error);
       Sentry.captureException(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -69,7 +76,10 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         <button
           type="submit"
           onClick={handleSubmit}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+          disabled={submitting}
+          className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${
+            submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+          }`}
         >
           {editExam ? 'Update Exam' : 'Add Exam'}
         </button>

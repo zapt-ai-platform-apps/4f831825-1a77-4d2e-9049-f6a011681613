@@ -6,18 +6,8 @@ import { parseChatGPTResponse } from "./helpers/responseParser.js";
 
 /**
  * callChatGPTForTimetable
- * Calls the OpenAI API with the model "o1"
- * to generate a timetable based on user data (exams, preferences).
- * Expects the model to return a JSON array of objects:
- * [
- *   {
- *     "date": "YYYY-MM-DD",
- *     "block": "Morning/Afternoon/Evening",
- *     "subject": "Subject Name",
- *     "startTime": "HH:MM",
- *     "endTime": "HH:MM"
- *   }
- * ]
+ * Calls the OpenAI API to generate a timetable based on user data.
+ * Expects valid JSON in the "revision_dates" property.
  */
 export async function callChatGPTForTimetable({
   userId,
@@ -34,21 +24,25 @@ export async function callChatGPTForTimetable({
 
     console.log("[INFO] Sending prompt to OpenAI:", prompt);
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o",
+    // Using createChatCompletion with a standard model
+    const completion = await client.createChatCompletion({
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "user",
           content: prompt,
         },
       ],
-      response_format: { "type": "json_object" }
     });
 
-    console.log(completion);
+    console.log(completion.data);
 
-    const rawResponse = JSON.parse(completion.choices.[0].message.content).revision_dates;
-    const parsed = parseChatGPTResponse(rawResponse);
+    const content = completion.data.choices[0].message.content;
+    // The model output is expected to have a top-level key "revision_dates" with an array
+    const rawResponse = JSON.parse(content).revision_dates;
+
+    // parseChatGPTResponse expects a JSON string, so we pass stringified rawResponse
+    const parsed = parseChatGPTResponse(JSON.stringify(rawResponse));
 
     const timetableData = parsed.map((entry) => ({
       userId: userId,
