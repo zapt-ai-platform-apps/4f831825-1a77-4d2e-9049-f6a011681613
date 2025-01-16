@@ -36,9 +36,9 @@ export async function callChatGPTForTimetable({
       response_format:{ "type": "json_object" }
     });
 
-    console.log(completion.data);
+    console.log(completion);
 
-    const content = completion.data.choices[0].message.content;
+    const content = completion.choices[0].message.content;
     // The model output is expected to have a top-level key "revision_dates" with an array
     const rawResponse = JSON.parse(content).revision_dates;
 
