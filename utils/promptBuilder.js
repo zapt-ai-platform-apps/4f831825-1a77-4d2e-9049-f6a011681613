@@ -26,6 +26,8 @@ Requirements:
 5. Prioritize subjects with earlier exam dates over those with later ones, but still spread them out to avoid long runs of the same subject.
 6. Avoid scheduling the same subject in consecutive sessions on the same day if possible.
 7. Return a balanced, logical schedule that prevents loads of the same session together.
+8. The final schedule must fill all provided blank session slots with some subject from the user's list.
+9. Do not schedule a subject on or after its exam date. If a session’s date is the same as or after the subject’s exam date, that subject cannot be assigned.
 
 Return exactly the same "blankSessions" array, but with the "subject" field filled, as valid JSON in the format:
 

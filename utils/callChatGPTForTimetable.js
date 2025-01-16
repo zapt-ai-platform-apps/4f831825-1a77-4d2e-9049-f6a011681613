@@ -37,10 +37,18 @@ export async function callChatGPTForTimetable({
     const parsedJSON = JSON.parse(content);
     console.log("[DEBUG] Raw revision data from ChatGPT:", parsedJSON.revision_dates);
 
-    const timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
+    let timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
+
+    // Extra safety: filter out sessions scheduled on or after the exam date
+    const filteredItems = timetableItems.filter((entry) => {
+      const exam = examsData.find((e) => e.subject === entry.subject);
+      if (!exam) return true;
+      // If entry.date >= exam.examDate, exclude it
+      return entry.date < exam.examDate;
+    });
 
     // Return the final data with userId appended
-    const timetableData = timetableItems.map((entry) => ({
+    const timetableData = filteredItems.map((entry) => ({
       userId,
       date: entry.date,
       block: entry.block,

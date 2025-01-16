@@ -6,12 +6,17 @@ import {
   savePreferences,
   generateTimetable,
 } from '../api/preferencesAPI';
-import { fetchPreferencesHelper, savePreferencesHelper } from './usePreferencesHelpers';
+import { fetchPrefs } from './usePreferencesFetch';
+import { handleSavePreferences } from './usePreferencesSave';
 import { fetchTimetable } from '../fetchTimetable';
 import { useTimetable } from '../contexts/TimetableContext';
 
 function usePreferences(navigate) {
   const { setTimetable } = useTimetable();
+
+  const [loadingPrefs, setLoadingPrefs] = useState(false);
+  const [saving, setSaving] = useState(false);
+
   const [preferences, setPreferences] = useState({
     revisionTimes: {
       monday: [],
@@ -29,36 +34,31 @@ function usePreferences(navigate) {
       Evening: { startTime: '19:00', endTime: '21:00' },
     },
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchPreferences = async () => {
-    await fetchPreferencesHelper(
+  useEffect(() => {
+    fetchPrefs(
       supabase,
       getPreferences,
-      setLoading,
+      setLoadingPrefs,
       setPreferences,
       preferences,
       Sentry
     );
-  };
-
-  useEffect(() => {
-    fetchPreferences();
   }, []);
 
   const handleBlockTimesChange = (blockName, times) => {
-    setPreferences({
-      ...preferences,
+    setPreferences((prev) => ({
+      ...prev,
       blockTimes: {
-        ...preferences.blockTimes,
+        ...prev.blockTimes,
         [blockName]: times,
       },
-    });
+    }));
   };
 
-  const handleSavePreferences = async () => {
-    await savePreferencesHelper({
+  const savePreferencesFn = async () => {
+    await handleSavePreferences({
       supabase,
       savePreferences,
       generateTimetable,
@@ -66,7 +66,7 @@ function usePreferences(navigate) {
       setTimetable,
       preferences,
       setError,
-      setLoading,
+      setLoading: setSaving,
       navigate,
       Sentry,
     });
@@ -75,9 +75,10 @@ function usePreferences(navigate) {
   return {
     preferences,
     setPreferences,
-    loading,
+    loadingPrefs,
+    saving,
     error,
-    handleSavePreferences,
+    handleSavePreferences: savePreferencesFn,
     handleBlockTimesChange,
   };
 }
