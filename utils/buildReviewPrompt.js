@@ -30,6 +30,8 @@ export function buildReviewPrompt(localTimetable) {
     }
   */
 
+  console.log("initial Timetable: ", localTimetable)
+
   const payload = localTimetable.map((item) => ({
     id: item.id,
     date: item.date,
