@@ -2,12 +2,9 @@ import * as Sentry from "@sentry/node";
 import client from "./openaiClient.js";
 import { buildTimetablePrompt } from "./promptBuilder.js";
 import { parseChatGPTResponse } from "./helpers/responseParser.js";
-import { isBlockSameOrLater } from "./helpers/timetableHelper.js";
-
 /**
- * callChatGPTForTimetable
- * Takes an array of blank sessions + array of exams, builds a prompt,
- * calls ChatGPT, and returns the filled timetable data.
+ * We are removing the filtering that discards exam-day or post-exam sessions.
+ * Now all sessions ChatGPT returns will remain in the timetable.
  */
 export async function callChatGPTForTimetable({
   userId,
@@ -40,28 +37,11 @@ export async function callChatGPTForTimetable({
 
     let timetableItems = parseChatGPTResponse(parsedJSON.revision_dates);
 
-    // Adjust filter logic to allow same-day revision if it's earlier than the exam block
-    const filteredItems = timetableItems.filter((entry) => {
-      const exam = examsData.find((e) => e.subject === entry.subject);
-      if (!exam) return true; // If we don't even have an exam for this subject, keep it.
-
-      // If entry is on the same calendar date as the exam
-      if (entry.date === exam.examDate) {
-        // Exclude only if the entry block is the same or later than the exam block
-        return !isBlockSameOrLater(entry.block, exam.timeOfDay);
-      }
-
-      // If entry date is after exam date, exclude it
-      if (entry.date > exam.examDate) {
-        return false;
-      }
-
-      // Otherwise, keep it
-      return true;
-    });
+    // Remove the filter so that no sessions are dropped
+    const finalItems = timetableItems;
 
     // Return the final data with userId appended
-    const timetableData = filteredItems.map((entry) => ({
+    const timetableData = finalItems.map((entry) => ({
       userId,
       date: entry.date,
       block: entry.block,
