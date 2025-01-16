@@ -15,7 +15,7 @@ Each item of the array should look like:
   "startTime": "HH:MM",
   "endTime": "HH:MM"
 }
-No extra keys, no additional text. Return valid JSON only.
+No extra keys, no additional text. Return valid JSON only, stored in the property 'revision_dates'.
 Make sure that the schedule does not conflict with exam times, 
 and includes final revision sessions just before each exam. 
 Balance the sessions among the subjects leading up to exam days.
