@@ -2,50 +2,45 @@
 
 ## Step-by-Step Guide
 
-1. **Navigate to Generate Timetable**
-   - After adding your exams and setting your revision preferences, you can generate your personalized timetable.
+1. **Navigate to Generate Timetable**  
+   - After adding your exams and setting your revision preferences, you can generate your personalized timetable.  
    - Click on the **Generate Timetable** button, which is available on the **Exams** page after you have added your exams.
 
-2. **Timetable Generation Process**
-   - The app will process your exams, preferences, and availability to create a personalized revision schedule.
+2. **Timetable Generation Process**  
+   - The app will process your exams, preferences, and availability to create a personalized study schedule.  
    - This process may take a few moments; a loading indicator will display during this time.
 
-3. **Timetable Generation Logic**
+3. **Our Backward-Filling Approach**  
 
-   The timetable is generated based on:
+   The timetable is generated based on the following backward-filling strategy:
 
-   - **Exams**: Your upcoming exams and their dates.
-   - **Revision Preferences**:
-     - **Start Date**: When you wish to begin your revision.
-     - **Available Revision Times**: The days and blocks (Morning, Afternoon, Evening) when you are available to study.
-   - **Block Times**: The specific start and end times for each block.
+   1. **Start from the Last Exam Date**  
+      We collect all available revision slots (blank sessions) and sort them from the end of your exam period backward to your start date.
 
-   The app schedules your revision sessions by:
+   2. **Distribute Sessions Fairly**  
+      We fill each blank session with the subject of an upcoming exam (whose exam date is on or after that session’s date).  
+      Subjects are assigned so that none dominates too many slots while others are starved of revision sessions.
 
-   1. **Allocating Revision Sessions**:
-      - Prioritizes subjects with the earliest exams.
-      - Distributes sessions evenly among subjects.
-      - Ensures that you have a revision session immediately before each exam.
+   3. **Immediate Pre-Exam Session**  
+      We ensure the session before each exam slot is assigned to that exam’s subject if possible (or fallback to the previous day’s Evening block for morning exams).
 
-   2. **Avoiding Scheduling Conflicts**:
-      - Does not schedule revision sessions during exam times.
-      - Considers your availability and block times.
+   4. **Handle Consecutive Exams**  
+      If your exams occur on back-to-back days or in multiple blocks on the same day, the algorithm still reserves each subject's last-minute session as needed.
 
-   3. **Creating a Balanced Timetable**:
-      - Aims to prevent overloading any single day with too many sessions.
-      - Provides adequate rest and preparation time.
+   5. **No Sessions After an Exam**  
+      We do not schedule sessions for an exam once its date has passed.
 
-4. **View Your Timetable**
-   - Once generated, you will be redirected to the **Timetable** page.
-   - Your personalized revision timetable will display:
-     - **Revision Sessions**: Color-coded by subject.
-     - **Exams**: Clearly marked with an "Exam" indicator.
+4. **View Your Timetable**  
+   - Once generated, you will be redirected to the **Timetable** page.  
+   - Your personalized revision timetable will display:  
+     - **Revision Sessions**: Color-coded by subject.  
+     - **Exams**: Clearly marked with an "Exam" indicator.  
      - **Session Details**: Start and end times for each revision session.
 
-5. **Regenerate Timetable**
-   - If you make changes to your exams or preferences, you can regenerate your timetable to reflect the updates.
+5. **Regenerate Timetable**  
+   - If you make changes to your exams or preferences, you can regenerate your timetable to reflect the updates.  
    - Simply click the **Generate Timetable** button again after making your changes.
 
 ---
 
-**Note**: The timetable generation logic is designed to maximize your revision efficiency while minimizing scheduling conflicts, ensuring you are well-prepared for each of your exams.
+**Note**: This backward-filling logic ensures that nearer exams don’t lose out on necessary last-minute sessions to exams happening much later. Each exam subject is fairly allocated sessions, balancing study loads for all upcoming tests.

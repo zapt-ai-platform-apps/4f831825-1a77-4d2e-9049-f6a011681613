@@ -1,82 +1,49 @@
-import { blockPriority, getPreviousDateStr } from './utils.js';
-import { groupSessionsByDate, groupExamsByDate, updateSessionSubject, updatePreviousDayEveningSession } from './helpers.js';
-
 /**
- * enforcePreExamSession
- * For each exam, if there is no earlier exam in the same day for the immediately preceding block,
- * and there is a revision session that block, force that session’s subject to this exam’s subject.
- *
- * Extended logic:
- * 1) If exam is in the "Morning" block (or if no suitable same-day block can be found),
- *    look at the previous day's "Evening" block.
- * 2) If that block exists, is not an exam, and is not already forced to a different subject,
- *    then set that block’s subject to the current exam’s subject.
- *
- * Revised requirement:
- *   Process each day's exams in reverse block order (Eve → PM → AM if multiple on the same day).
+ * Enforces that there is at least one revision session immediately before each exam.
+ * If not, it adds a session in the prior Evening block or the previous day’s Evening block.
+ * @param {Array} finalSessions - Array of scheduled session objects.
+ * @param {Array} userExams - Array of exam objects.
  */
 export function enforcePreExamSession(finalSessions, userExams) {
-  const sessionsByDate = groupSessionsByDate(finalSessions);
-  const examsByDate = groupExamsByDate(userExams);
+  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const sessionMap = finalSessions.reduce((acc, session) => {
+    if (!acc[session.date]) acc[session.date] = {};
+    acc[session.date][session.block] = session.subject;
+    return acc;
+  }, {});
 
-  // Sort each day’s exams by block (Morning=0, Afternoon=1, Evening=2)
-  for (const dateStr in examsByDate) {
-    examsByDate[dateStr].sort((a, b) => {
-      return blockPriority[a.timeOfDay] - blockPriority[b.timeOfDay];
-    });
-  }
+  userExams.forEach(exam => {
+    const examDate = exam.examDate;
+    const examBlock = exam.timeOfDay;
 
-  // For each date, enforce the rule in reverse order of exams
-  for (const dateStr in examsByDate) {
-    const dailyExams = examsByDate[dateStr];
-    const dailySessions = sessionsByDate[dateStr] || [];
-
-    // Sort daily sessions by block
-    dailySessions.sort((a, b) => blockPriority[a.block] - blockPriority[b.block]);
-
-    // Reverse iteration for daily exams
-    for (let i = dailyExams.length - 1; i >= 0; i--) {
-      const exam = dailyExams[i];
-      const examBlockIndex = blockPriority[exam.timeOfDay];
-      let foundPrecedingBlock = false;
-
-      // Try to find a preceding block in the same day
-      let candidateBlockIndex = examBlockIndex - 1;
-      while (candidateBlockIndex >= 0) {
-        // Check if there is another exam in candidateBlockIndex
-        const hasExamInCandidate = dailyExams.some(
-          (otherExam) =>
-            blockPriority[otherExam.timeOfDay] === candidateBlockIndex
-        );
-
-        if (!hasExamInCandidate) {
-          // We found a revision block. Force that session to the exam’s subject
-          const sessionToUpdate = dailySessions.find(
-            (sesh) => blockPriority[sesh.block] === candidateBlockIndex
-          );
-          if (sessionToUpdate) {
-            updateSessionSubject(sessionToUpdate, exam.subject);
-            foundPrecedingBlock = true;
-            break;
-          }
-        }
-        candidateBlockIndex -= 1;
+    // Determine the required pre-exam block
+    let requiredPreBlockPriority = blockOrder[examBlock] - 1;
+    let requiredPreBlock = Object.keys(blockOrder).find(key => blockOrder[key] === requiredPreBlockPriority);
+    
+    if (!requiredPreBlock) {
+      // If no earlier block on the same day, fallback to Evening block of the previous day
+      const examDateObj = new Date(examDate);
+      examDateObj.setDate(examDateObj.getDate() - 1);
+      const previousDay = examDateObj.toISOString().split('T')[0];
+      requiredPreBlock = 'Evening';
+      // Check if a session already exists
+      if (!sessionMap[previousDay] || !sessionMap[previousDay][requiredPreBlock]) {
+        finalSessions.push({
+          date: previousDay,
+          block: requiredPreBlock,
+          subject: exam.subject
+        });
       }
-
-      // Fallback to previous day’s Evening block if:
-      // 1) The exam is in the Morning block (examBlockIndex === 0), OR
-      // 2) We didn't find a suitable block on the same day
-      if ((examBlockIndex === 0 || !foundPrecedingBlock) && dateStr) {
-        updatePreviousDayEveningSession(
-          sessionsByDate,
-          examsByDate,
-          finalSessions,
-          exam,
-          dateStr
-        );
-      }
+      return;
     }
-  }
 
-  return finalSessions;
+    // Check if the required pre-exam session exists
+    if (!sessionMap[examDate] || !sessionMap[examDate][requiredPreBlock]) {
+      finalSessions.push({
+        date: examDate,
+        block: requiredPreBlock,
+        subject: exam.subject
+      });
+    }
+  });
 }

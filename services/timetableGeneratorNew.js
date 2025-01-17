@@ -1,16 +1,19 @@
-import { sortExams, mapExamDates, initializeAssignedCount } from "./examUtils.js";
-import { sortBlankSessions, getAvailableSubjects, chooseSubject } from "./sessionUtils.js";
 import { parseISO } from "date-fns";
+import { sortExams, mapExamDates, initializeAssignedCount } from "./examUtils.js";
 import { enforcePreExamSession } from "./enforcePreExamSession.js";
 
 /**
  * generateTimetableImproved
- * Fills all blank sessions with subjects according to a balanced distribution:
- * 1) Sorts blank sessions in chronological order.
- * 2) For each blank session, picks a subject among those whose exam date is >= that day.
- * 3) Chooses the subject with the fewest assigned sessions so far, to distribute study time evenly.
- * 4) After finalSessions is built, we enforce the "pre-exam session" rule by calling enforcePreExamSession.
- * 5) Returns an array of session objects: { date, block, subject }.
+ * Implements a backward-filling approach:
+ *
+ * 1) Sort blank sessions from the latest date to the earliest date.
+ * 2) Keep track of how many sessions each exam subject has been allocated.
+ *    - We ensure exams occurring sooner do not lose out on revision slots to exams far in the future.
+ * 3) Assign revision sessions by choosing from exams whose exam date >= session date.
+ *    - Distribute sessions fairly, so no exam hogs too many sessions.
+ * 4) Respect the immediate pre-exam slot requirement (handled by enforcePreExamSession).
+ * 5) Handle consecutive exams by ensuring each exam can have a preceding session or fallback to the prior day’s Evening block.
+ * 6) Return the final array of session objects: { date, block, subject }.
  */
 export function generateTimetableImproved(
   userExams,
@@ -18,12 +21,15 @@ export function generateTimetableImproved(
   revisionTimesResult,
   blankSessions
 ) {
+  // Prep exam data
   const sortedExams = sortExams(userExams);
   const examDatesMap = mapExamDates(sortedExams);
   const assignedCount = initializeAssignedCount(examDatesMap);
-  const sortedBlankSessions = sortBlankSessions(blankSessions);
 
+  // Block priority needed for ensuring we only place a subject if the session's block precedes the exam's block on the same day
   const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+
+  // Build a quick mapping of exam date → subject → timeOfDay
   const examMap = sortedExams.reduce((acc, exam) => {
     const dateStr = exam.examDate;
     if (!acc[dateStr]) acc[dateStr] = {};
@@ -31,20 +37,37 @@ export function generateTimetableImproved(
     return acc;
   }, {});
 
+  // 1) Sort blank sessions from latest to earliest date (and also by block descending within the same date)
+  const sortedBlankSessions = [...blankSessions].sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    if (dateB - dateA !== 0) {
+      return dateB - dateA; // descending by date
+    }
+    return blockOrder[b.block] - blockOrder[a.block]; // descending by block
+  });
+
   const finalSessions = [];
 
+  // 2) Distribute sessions in descending date order
   for (const session of sortedBlankSessions) {
     const sessionDateObj = parseISO(session.date);
-    const availableSubjects = getAvailableSubjects(examDatesMap, sessionDateObj);
+
+    // Filter available exam subjects that have examDate >= session date
+    const availableSubjects = examDatesMap.filter((exam) => {
+      return exam.examDateObj >= sessionDateObj;
+    }).map((exam) => exam.subject);
 
     if (!availableSubjects.length) {
       continue;
     }
 
-    const filteredSubjects = availableSubjects.filter((subj) => {
-      const examTimeOfDay = examMap[session.date]?.[subj];
+    // We only assign if the session block is strictly before the exam block on the same day
+    // If there's an exam on session.date with a block earlier or equal, skip that subject
+    const filteredSubjects = availableSubjects.filter((subject) => {
+      const examTimeOfDay = examMap[session.date]?.[subject];
       if (!examTimeOfDay) {
-        return true;
+        return true; // no same-day exam or examTimeOfDay unknown
       }
       const sessionBlockPriority = blockOrder[session.block];
       const examBlockPriority = blockOrder[examTimeOfDay];
@@ -55,7 +78,17 @@ export function generateTimetableImproved(
       continue;
     }
 
-    const chosenSubject = chooseSubject(filteredSubjects, assignedCount);
+    // Among valid subjects, pick the one with the fewest assigned sessions so far
+    let chosenSubject = null;
+    let minCount = Infinity;
+    for (const subj of filteredSubjects) {
+      const count = assignedCount[subj] || 0;
+      if (count < minCount) {
+        minCount = count;
+        chosenSubject = subj;
+      }
+    }
+
     finalSessions.push({
       date: session.date,
       block: session.block,
@@ -65,7 +98,7 @@ export function generateTimetableImproved(
     assignedCount[chosenSubject] = (assignedCount[chosenSubject] || 0) + 1;
   }
 
-  // Enforce the "pre-exam session" rule before returning
+  // 3) Enforce the "pre-exam session" rule
   enforcePreExamSession(finalSessions, userExams);
 
   return finalSessions;

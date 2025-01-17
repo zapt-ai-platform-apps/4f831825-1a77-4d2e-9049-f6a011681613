@@ -1,24 +1,33 @@
-import { parseISO } from "date-fns";
-
+/**
+ * Sorts the exams by examDate in ascending order.
+ * @param {Array} userExams - Array of exam objects.
+ * @returns {Array} - Sorted array of exam objects.
+ */
 export function sortExams(userExams) {
-  return [...userExams].sort(
-    (a, b) => new Date(a.examDate) - new Date(b.examDate)
-  );
+  return userExams.slice().sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
 }
 
+/**
+ * Maps exam dates to their corresponding exam details.
+ * @param {Array} sortedExams - Sorted array of exam objects.
+ * @returns {Array} - Array of mapped exam objects with Date objects.
+ */
 export function mapExamDates(sortedExams) {
-  return sortedExams.map((exam) => ({
+  return sortedExams.map(exam => ({
     ...exam,
-    examDateObj: parseISO(exam.examDate),
+    examDateObj: new Date(exam.examDate)
   }));
 }
 
+/**
+ * Initializes the assigned count for each subject to zero.
+ * @param {Array} examDatesMap - Array of mapped exam objects.
+ * @returns {Object} - Object with subjects as keys and counts as values.
+ */
 export function initializeAssignedCount(examDatesMap) {
-  const assignedCount = {};
-  examDatesMap.forEach((exam) => {
-    if (!assignedCount[exam.subject]) {
-      assignedCount[exam.subject] = 0;
-    }
+  const count = {};
+  examDatesMap.forEach(exam => {
+    count[exam.subject] = 0;
   });
-  return assignedCount;
+  return count;
 }
