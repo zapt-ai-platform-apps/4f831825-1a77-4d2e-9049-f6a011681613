@@ -17,7 +17,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           <button
             type="button"
             onClick={onCancelEdit}
-            className="btn bg-input text-black hover:bg-gray-300"
+            className="btn px-4 py-2 bg-input text-black hover:bg-gray-300"
           >
             Cancel
           </button>
