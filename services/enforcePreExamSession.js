@@ -1,5 +1,7 @@
-import { blockPriority } from './constants';
-import { getPreviousDateStr } from './dateUtils';
+import { blockPriority } from './constants.js';
+import { getPreviousDateStr } from './dateUtils.js';
+import { groupSessionsByDate, groupExamsByDate } from './helpers/grouping.js';
+import { updateSessionSubject, updatePreviousDayEveningSession } from './helpers/updating.js';
 
 /**
  * enforcePreExamSession
@@ -13,19 +15,8 @@ import { getPreviousDateStr } from './dateUtils';
  *    then set that block’s subject to the current exam’s subject.
  */
 export function enforcePreExamSession(finalSessions, userExams) {
-  // Group sessions by date, also group exams by date
-  const sessionsByDate = {};
-  for (const session of finalSessions) {
-    if (!sessionsByDate[session.date]) sessionsByDate[session.date] = [];
-    sessionsByDate[session.date].push(session);
-  }
-
-  const examsByDate = {};
-  for (const exam of userExams) {
-    const dateStr = exam.examDate;
-    if (!examsByDate[dateStr]) examsByDate[dateStr] = [];
-    examsByDate[dateStr].push(exam);
-  }
+  const sessionsByDate = groupSessionsByDate(finalSessions);
+  const examsByDate = groupExamsByDate(userExams);
 
   // Sort each day’s exams by block (Morning=0, Afternoon=1, Evening=2)
   for (const dateStr in examsByDate) {
@@ -60,7 +51,7 @@ export function enforcePreExamSession(finalSessions, userExams) {
             (sesh) => blockPriority[sesh.block] === candidateBlockIndex
           );
           if (sessionToUpdate) {
-            sessionToUpdate.subject = exam.subject;
+            updateSessionSubject(sessionToUpdate, exam.subject);
             foundPrecedingBlock = true;
             break;
           }
@@ -72,31 +63,7 @@ export function enforcePreExamSession(finalSessions, userExams) {
       // 1) The exam is in the Morning block (examBlockIndex === 0), OR
       // 2) We didn't find a suitable block on the same day
       if ((examBlockIndex === 0 || !foundPrecedingBlock) && dateStr) {
-        const prevDateStr = getPreviousDateStr(dateStr);
-        const previousDayExams = examsByDate[prevDateStr] || [];
-        const previousDaySessions = sessionsByDate[prevDateStr] || [];
-
-        // Sort them by block as well
-        previousDaySessions.sort(
-          (a, b) => blockPriority[a.block] - blockPriority[b.block]
-        );
-
-        // Look specifically for the "Evening" block (blockPriority === 2)
-        const eveningSession = previousDaySessions.find(
-          (sesh) => blockPriority[sesh.block] === 2
-        );
-
-        if (eveningSession) {
-          // Check if there's an exam in that block
-          const hasExamInEvening = previousDayExams.some(
-            (otherExam) => blockPriority[otherExam.timeOfDay] === 2
-          );
-
-          // If there's no exam in that block, enforce the subject
-          if (!hasExamInEvening) {
-            eveningSession.subject = exam.subject;
-          }
-        }
+        updatePreviousDayEveningSession(sessionsByDate, examsByDate, finalSessions, exam, dateStr);
       }
     }
   }
