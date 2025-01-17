@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
-import { startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
+import { startOfMonth, endOfMonth, eachDayOfInterval, getDay, format } from 'date-fns';
 import CalendarHeader from './CalendarHeader';
 import CalendarDay from './CalendarDay';
 
@@ -36,11 +36,11 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
           <div key={`empty-${index}`}></div>
         ))}
         {monthDays.map((day) => {
-          const dateStr = day.toISOString().split('T')[0];
+          const dateStr = format(day, 'yyyy-MM-dd');
           const hasData = datesWithData[dateStr];
           return (
             <CalendarDay
-              key={day.toISOString()}
+              key={dateStr}
               day={day}
               hasData={hasData}
               selectedDate={selectedDate}

@@ -1,9 +1,10 @@
 import React from 'react';
-import { isSameDay, format } from 'date-fns';
+import { format } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import SessionsList from './SessionsList';
 
 function DayCell({ day, datesWithData, isSelected, onDateClick, subjectColours }) {
-  const dateKey = day.toISOString().split('T')[0];
+  const dateKey = format(day, 'yyyy-MM-dd');
   const dataForDay = datesWithData[dateKey] || { sessions: [], exams: [] };
 
   return (

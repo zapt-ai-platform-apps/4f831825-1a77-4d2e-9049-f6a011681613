@@ -4,7 +4,7 @@ import ExamSection from './ExamSection';
 import SessionSection from './SessionSection';
 
 function DayDetails({ date, datesWithData, subjectColours, refreshTimetableData }) {
-  const dateKey = date.toISOString().split('T')[0];
+  const dateKey = format(date, 'yyyy-MM-dd');
   const dataForDay = datesWithData[dateKey] || { sessions: [], exams: [] };
 
   const sortedSessions = dataForDay.sessions.slice().sort((a, b) => {

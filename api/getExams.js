@@ -3,6 +3,7 @@ import { authenticateUser } from "./_apiUtils.js";
 import { db } from "../utils/dbClient.js";
 import { exams } from "../drizzle/schema.js";
 import { eq, gte, and } from "drizzle-orm";
+import { format } from "date-fns";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = format(new Date(), 'yyyy-MM-dd');
 
     const result = await db
       .select()

@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 /**
  * Enforces that each exam has a pre-exam revision session.
  * @param {Array} sessions - Array of session objects.
@@ -34,7 +36,8 @@ export function enforcePreExamSession(sessions, exams) {
     const examDateObj = new Date(examDate);
     const previousDay = new Date(examDateObj);
     previousDay.setDate(examDateObj.getDate() - 1);
-    const previousDayStr = previousDay.toISOString().split("T")[0];
+    const previousDayStr = format(previousDay, 'yyyy-MM-dd');
+
     if (
       sessionMap[previousDayStr] &&
       sessionMap[previousDayStr]["Evening"] === exam.subject
