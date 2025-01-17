@@ -18,7 +18,7 @@ function Preferences() {
 
   return (
     <div className="min-h-screen flex flex-col text-white">
-      {saving && <LoadingOverlay message="Generating your new timetable..." />}
+      {saving && <LoadingOverlay message="Saving Preferences..." />}
       {loadingPrefs && !saving && <LoadingOverlay message="Loading your preferences..." />}
 
       <div className="flex-grow p-4 flex items-center justify-center">
