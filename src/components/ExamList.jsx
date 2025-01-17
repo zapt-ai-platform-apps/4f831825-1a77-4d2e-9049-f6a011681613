@@ -46,17 +46,18 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
               <div>
                 <p className="font-medium">{exam.subject}</p>
                 <p className="text-sm text-muted-foreground">{exam.examDate}</p>
+                <p className="text-sm text-muted-foreground">Time of Day: {exam.timeOfDay}</p>
               </div>
               <div className="space-x-2">
                 <button
                   onClick={() => onEditExam(exam)}
-                  className="btn px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white"
+                  className="btn px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(exam.id)}
-                  className="btn btn-destructive px-3 py-1"
+                  className="btn btn-destructive px-3 py-1 cursor-pointer"
                 >
                   Delete
                 </button>

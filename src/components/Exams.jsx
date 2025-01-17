@@ -19,9 +19,8 @@ function Exams() {
   return (
     <div className="h-full flex flex-col text-white">
       {loading && <LoadingOverlay message="Generating your new timetable..." />}
-      <div className="flex-grow p-4 flex items-center justify-center">
-        {/* Unified card styles */}
-        <div className="card p-8 max-w-full md:max-w-7xl">
+      <div className="flex-grow p-4">
+        <div className="card p-8 w-full md:max-w-screen-xl mx-auto">
           <h2 className="text-2xl font-semibold mb-4 text-center">Manage Your Exams</h2>
           <div className="space-y-6">
             <ExamForm
