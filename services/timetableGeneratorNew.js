@@ -53,6 +53,14 @@ export function generateTimetableImproved(
   for (const session of sortedBlankSessions) {
     const sessionDateObj = parseISO(session.date);
 
+    // ADD check to skip session if an exam exists in the same block
+    const examFoundInSameBlock = userExams.some(
+      (exam) => exam.examDate === session.date && exam.timeOfDay === session.block
+    );
+    if (examFoundInSameBlock) {
+      continue; // Skip this block entirely (go to next session)
+    }
+
     // Filter available exam subjects that have examDate >= session date
     const availableSubjects = examDatesMap.filter((exam) => {
       return exam.examDateObj >= sessionDateObj;
