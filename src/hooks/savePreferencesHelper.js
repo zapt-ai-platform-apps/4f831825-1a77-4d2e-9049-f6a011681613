@@ -1,9 +1,6 @@
 export const savePreferencesHelper = async ({
   supabase,
   savePreferences,
-  generateTimetable,
-  fetchTimetable,
-  setTimetable,
   preferences,
   setError,
   setLoading,
@@ -69,17 +66,7 @@ export const savePreferencesHelper = async ({
       throw new Error(errorText);
     }
 
-    const generateResponse = await generateTimetable(session);
-    if (!generateResponse.ok) {
-      const errorText = await generateResponse.text();
-      throw new Error(errorText || 'Error generating timetable');
-    }
-
-    // Fetch the new timetable before navigating
-    const newTimetableData = await fetchTimetable(session);
-    setTimetable(newTimetableData);
-
-    navigate('/timetable');
+    navigate('/exams');
   } catch (error) {
     console.error('Error saving preferences:', error);
     Sentry.captureException(error);

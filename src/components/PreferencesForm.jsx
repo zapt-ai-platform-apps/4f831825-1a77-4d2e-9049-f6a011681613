@@ -24,9 +24,6 @@ function PreferencesForm({ preferences, setPreferences, loading, error, handleSa
         setPreferences={setPreferences}
       />
       {error && <p className="text-destructive text-center">{error}</p>}
-      <p className="text-destructive text-center">
-        Note: Saving new preferences will clear your existing preferences and timetable. Your exams will remain unchanged.
-      </p>
       <button
         className={`btn w-full px-6 py-3 mt-4 ${
           loading ? 'bg-primary/50 cursor-not-allowed' : 'btn-primary'
