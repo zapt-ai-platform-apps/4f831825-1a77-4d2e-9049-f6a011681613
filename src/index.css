@@ -9,7 +9,7 @@
 @tailwind utilities;
 
 html, body, #root {
-  @apply h-full font-handwriting;
+  @apply h-full font-sans;
 }
 
 /* Button base class for a shadcn/ui-like style */
