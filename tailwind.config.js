@@ -33,7 +33,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        handwriting: ['Shadows Into Light', 'cursive'],
+        handwriting: ['Sweet Apricot', 'cursive'],
       },
     },
   },

@@ -46,7 +46,7 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
               <div>
                 <p className="font-medium">{exam.subject}</p>
                 <p className="text-sm text-muted-foreground">{exam.examDate}</p>
-                <p className="text-sm text-muted-foreground">Time of Day: {exam.timeOfDay}</p>
+                {/* Removed the line showing "Time of Day: ..." */}
               </div>
               <div className="space-x-2">
                 <button

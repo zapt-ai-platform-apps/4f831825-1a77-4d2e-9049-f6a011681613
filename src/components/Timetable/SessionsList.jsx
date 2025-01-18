@@ -6,6 +6,7 @@ function SessionsList({ sortedSessions, subjectColours }) {
   };
 
   const getSessionTime = (session) => {
+    if (!session.startTime || !session.endTime) return '';
     return `${session.startTime.substring(0, 5)} - ${session.endTime.substring(0, 5)}`;
   };
 
@@ -52,8 +53,9 @@ function SessionsList({ sortedSessions, subjectColours }) {
               style={{ backgroundColor: subjectColours[session.subject] }}
             >
               <div className="font-bold">{session.subject}</div>
+              {/* Removed "Time of Day:" prefix */}
               <div className="text-[10px]">
-                Time of Day: {session.block} ({getSessionTime(session)})
+                {session.block} {getSessionTime(session) && `(${getSessionTime(session)})`}
               </div>
             </div>
           ) : (

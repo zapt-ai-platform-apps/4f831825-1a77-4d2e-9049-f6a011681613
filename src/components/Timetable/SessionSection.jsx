@@ -27,9 +27,10 @@ function SessionSection({ sessions, subjectColours }) {
                 className="w-4 h-4 rounded-full mr-2"
                 style={{ backgroundColor: subjectColours[session.subject] }}
               ></span>
-              Subject: {capitalizeFirstLetter(session.subject)}
+              {capitalizeFirstLetter(session.subject)}
             </p>
-            <p className="text-black">Time of Day: {session.block}</p>
+            {/* Removed "Time of Day: {session.block}" label; just show the block */}
+            <p className="text-black">{session.block}</p>
             {/* Show time range only if present */}
             {session.startTime && session.endTime && (
               <p className="text-black">

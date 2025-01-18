@@ -26,7 +26,7 @@ function Timetable() {
   return (
     <div className="flex flex-col text-white h-full">
       <div className="w-screen h-full">
-        <h2 className="text-2xl font-bold mb-4 text-center">Your Revision Timetable</h2>
+        {/* Removed "Your Revision Timetable" heading */}
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-center">Loading...</p>

@@ -1,10 +1,10 @@
 import React from 'react';
+import { blockPriority } from '../../services/constants.js';
 
-function ExamSection({ exams }) {
-  const capitalizeFirstLetter = (string) => {
-    if (!string) return '';
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  };
+function ExamSection({ exams, subjectColours }) {
+  if (!exams) return null;
+
+  exams.sort((a, b) => blockPriority[a.timeOfDay] - blockPriority[b.timeOfDay]);
 
   return (
     <div>
@@ -13,11 +13,10 @@ function ExamSection({ exams }) {
         {exams.map((exam) => (
           <div
             key={exam.id}
-            className="p-4 rounded-lg text-white cursor-pointer"
-            style={{ backgroundColor: '#FF0000' }} // Bright red color for exams
+            className="p-1 rounded text-xs sm:text-sm cursor-pointer"
+            style={{ backgroundColor: subjectColours?.[exam.subject] || '#ccc' }}
           >
-            <p className="font-semibold text-2xl">Exam: {capitalizeFirstLetter(exam.subject)}</p>
-            <p>Time of Day: {exam.timeOfDay || 'Morning'}</p>
+            <span className="font-semibold">{exam.subject}</span>
           </div>
         ))}
       </div>
