@@ -1,7 +1,7 @@
 import React from 'react';
 import { blockPriority } from '../../../services/constants.js';
 
-function ExamSection({ exams, subjectColours }) {
+function ExamSection({ exams }) {
   if (!exams) return null;
 
   exams.sort((a, b) => blockPriority[a.timeOfDay] - blockPriority[b.timeOfDay]);
@@ -14,7 +14,7 @@ function ExamSection({ exams, subjectColours }) {
           <div
             key={exam.id}
             className="p-1 rounded text-xs sm:text-sm cursor-pointer"
-            style={{ backgroundColor: subjectColours?.[exam.subject] || '#ccc' }}
+            style={{ backgroundColor: 'red' }}
           >
             <span className="font-semibold">{exam.subject}</span>
           </div>
