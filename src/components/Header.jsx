@@ -12,11 +12,8 @@ function Header({ menuOpen, setMenuOpen }) {
         <img
           src="https://supabase.zapt.ai/storage/v1/render/image/public/icons/4f831825-1a77-4d2e-9049-f6a011681613/20adff86-31d6-400f-b97e-0d0edfd9a2d0.png?width=512&height=512"
           alt="UpGrade Logo"
-          className="w-8 h-8 mr-2"
+          className="w-12 h-12"
         />
-        <h1 className="text-4xl font-handwriting font-bold">
-          <span className="text-yellow-500">UpGrade</span>
-        </h1>
       </div>
       <div className="sm:hidden">
         <button
