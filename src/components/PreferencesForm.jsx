@@ -5,7 +5,7 @@ import StartDatePicker from './StartDatePicker';
 
 function PreferencesForm({ preferences, setPreferences, loading, error, handleSavePreferences, handleBlockTimesChange }) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <AvailableRevisionTimes
         preferences={preferences}
         setPreferences={setPreferences}
