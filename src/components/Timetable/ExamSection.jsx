@@ -1,5 +1,5 @@
 import React from 'react';
-import { blockPriority } from '../../services/constants.js';
+import { blockPriority } from '../../../services/constants.js';
 
 function ExamSection({ exams, subjectColours }) {
   if (!exams) return null;
