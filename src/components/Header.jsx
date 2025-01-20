@@ -10,7 +10,7 @@ function Header({ menuOpen, setMenuOpen }) {
     <header className="flex items-center justify-between mb-8 p-4">
       <div className="flex items-center">
         <img
-          src="https://supabase.zapt.ai/storage/v1/render/image/public/icons/4f831825-1a77-4d2e-9049-f6a011681613/20adff86-31d6-400f-b97e-0d0edfd9a2d0.png?width=512&height=512"
+          src="https://supabase.zapt.ai/storage/v1/render/image/public/icons/4f831825-1a77-4d2e-9049-f6a011681613/599b08f5-e3d4-498e-a2a5-687a781d184a.png?width=512&height=512"
           alt="UpGrade Logo"
           className="w-20 h-20 rounded-full"
         />
