@@ -29,7 +29,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   const dayOffset = startDayOfWeek();
 
   return (
-    <div className="w-screen px-2 md:px-10 lg:px-20 xl:px-40 box-border">
+    <div className="w-screen px-1 md:px-5 lg:px-10 xl:px-20 box-border">
       <CalendarHeader />
       <div className="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(150px,auto)] gap-0 sm:gap-2">
         {Array.from({ length: dayOffset }).map((_, index) => (
