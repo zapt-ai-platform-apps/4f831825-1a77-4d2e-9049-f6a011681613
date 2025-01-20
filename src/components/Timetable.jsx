@@ -24,9 +24,8 @@ function Timetable() {
   const { preferences } = useTimetable();
 
   return (
-    <div className="flex flex-col text-white h-full">
+    <div className="flex flex-col text-white h-full font-handwriting">
       <div className="w-screen h-full">
-        {/* Removed "Your Revision Timetable" heading */}
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-center">Loading...</p>

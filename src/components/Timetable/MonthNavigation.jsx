@@ -13,9 +13,9 @@ function MonthNavigation({ currentMonth, handlePrevMonth, handleNextMonth, maxDa
 
   return (
     <div className="mt-4 mb-4 w-full mx-auto">
-      <div className="flex flex-col sm:flex-row items-center justify-between">
+      <div className="flex items-center justify-center space-x-4">
         <button
-          className={`flex items-center px-4 py-2 mb-2 sm:mb-0 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 ${
+          className={`flex items-center px-4 py-2 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 ${
             disabledPrev
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
@@ -26,7 +26,7 @@ function MonthNavigation({ currentMonth, handlePrevMonth, handleNextMonth, maxDa
           <FaChevronLeft className="w-6 h-6 inline-block" />
           <span className="ml-1">{prevMonthName}</span>
         </button>
-        <div className="text-lg font-semibold mx-4 my-2 sm:my-0 text-center text-white">
+        <div className="text-lg font-semibold text-white">
           {monthYear}
         </div>
         <button

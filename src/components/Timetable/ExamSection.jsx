@@ -16,7 +16,7 @@ function ExamSection({ exams }) {
             className="p-1 rounded text-xs sm:text-sm cursor-pointer"
             style={{ backgroundColor: 'red' }}
           >
-            <span className="font-semibold">{exam.subject}</span>
+            <span className="font-semibold">{exam.subject} ({exam.timeOfDay})</span>
           </div>
         ))}
       </div>

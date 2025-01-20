@@ -36,7 +36,7 @@ function ProtectedRoute({
         {menuOpen && (
           <MobileMenu setMenuOpen={setMenuOpen} location={location} />
         )}
-        <main className="flex-grow p-4 flex items-center justify-center h-full">
+        <main className="flex-grow flex items-center justify-center h-full">
           {children}
         </main>
       </div>

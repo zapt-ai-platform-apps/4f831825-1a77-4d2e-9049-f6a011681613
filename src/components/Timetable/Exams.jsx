@@ -8,14 +8,14 @@ function Exams({ exams }) {
   exams.sort((a, b) => blockPriority[a.timeOfDay] - blockPriority[b.timeOfDay]);
 
   return (
-    <div className="hidden sm:block mb-2 px-1">
+    <div className="hidden sm:block mb-2 px-1 space-y-1">
       {exams.map((exam) => (
         <div
           key={exam.id}
           className="p-1 rounded text-xs sm:text-sm cursor-pointer"
           style={{ backgroundColor: 'red' }}
         >
-          <span className="font-semibold">{exam.subject}</span>
+          <span className="font-semibold">{exam.subject} ({exam.timeOfDay})</span>
         </div>
       ))}
     </div>
