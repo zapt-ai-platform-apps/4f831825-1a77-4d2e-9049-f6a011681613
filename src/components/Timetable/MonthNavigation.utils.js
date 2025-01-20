@@ -1,6 +1,8 @@
 export const isPrevDisabled = (currentMonth, minDate) => {
-  // Always allow going back to previous months
-  return false;
+  if (!minDate || !currentMonth) return false;
+  const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+  const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  return prevMonth < minMonth;
 };
 
 export const isNextDisabled = (currentMonth, maxDate) => {
