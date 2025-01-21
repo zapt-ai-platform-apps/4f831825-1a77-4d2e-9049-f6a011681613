@@ -16,7 +16,7 @@ function LandingPage() {
         </h1>
         
         <p className="text-lg sm:text-xl max-w-2xl mx-auto text-muted-foreground">
-          Turn exam stress into success with our smart planner! Get personalized schedules, cool reminders, and achievement badges 🏆
+          Turn exam stress into success with our smart planner! Get personalized schedules
         </p>
 
         <Link
@@ -37,11 +37,6 @@ function LandingPage() {
             emoji="📅"
             title="Exam Tracker"
             description="Never miss a test date 🚨"
-          />
-          <FeatureCard 
-            emoji="🎮"
-            title="Study Gamified"
-            description="Earn points and level up! 🏅"
           />
         </div>
       </div>
