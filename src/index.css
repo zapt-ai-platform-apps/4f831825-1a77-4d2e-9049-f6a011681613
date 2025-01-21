@@ -1,44 +1,43 @@
-/* Existing Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-/* Replace old font import with Sweet Apricot */
-@import url('https://fonts.googleapis.com/css2?family=Sweet+Apricot&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
-  @apply h-full font-sans;
+/* Smooth scroll behavior */
+html {
+  @apply scroll-smooth;
 }
 
-/* Button base class for a shadcn/ui-like style */
-.btn {
-  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors
-           focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 cursor-pointer;
+/* Custom base styles */
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
 }
 
-/* Button variants */
-.btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+/* Custom components */
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+  
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl;
+  }
+  
+  .hover-scale {
+    @apply transform transition-transform duration-300 hover:scale-105;
+  }
 }
 
-.btn-destructive {
-  @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
-}
-
-/* Card styling */
-.card {
-  @apply rounded-lg border bg-card text-card-foreground shadow-sm;
-}
-
-/* Input styling (shadcn/ui-like) */
-.input {
-  @apply block w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background
-           focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 box-border;
-}
-
-/* We keep a utility class for partial transparency if needed */
-.bg-card-90 {
-  @apply bg-card/90;
+/* Custom animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

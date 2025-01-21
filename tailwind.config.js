@@ -6,36 +6,51 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand or legacy colors (kept for references, but recommended to unify usage below)
-        deepBlue: '#004AAD',
-        lightBlue: '#5DE0E6',
-
-        // New standardized tokens
         primary: {
-          DEFAULT: '#004AAD',
-          foreground: '#FFFFFF',
+          DEFAULT: '#06b6d4',
+          foreground: '#ffffff',
+        },
+        secondary: {
+          DEFAULT: '#3b82f6',
+          foreground: '#ffffff',
+        },
+        accent: {
+          DEFAULT: '#8b5cf6',
+          foreground: '#ffffff',
         },
         destructive: {
-          DEFAULT: '#DC2626',
-          foreground: '#FFFFFF',
+          DEFAULT: '#ef4444',
+          foreground: '#ffffff',
         },
-        card: {
-          DEFAULT: '#FFFFFF',
-          foreground: '#000000',
+        background: '#0f172a',
+        foreground: '#ffffff',
+        muted: {
+          DEFAULT: '#1e293b',
+          foreground: '#94a3b8',
         },
-        // We can define a basic "foreground" and "background" if needed:
-        foreground: '#000000',
-        background: '#F8F9FA',
-        input: '#F1F3F5',
-        border: '#E2E8F0',
-        ring: '#C9D1D9',
-        'muted-foreground': '#6B7280',
+        border: '#334155',
+        ring: '#475569',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        handwriting: ['Sweet Apricot', 'cursive'],
+        display: ['Poppins', 'sans-serif'],
+        handwriting: ['Dancing Script', 'cursive'],
       },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'float': 'float 3s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      }
     },
   },
   plugins: [],
-};
+}
