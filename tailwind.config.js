@@ -7,37 +7,39 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#06b6d4',
+          DEFAULT: '#FF6B6B',
           foreground: '#ffffff',
         },
         secondary: {
-          DEFAULT: '#3b82f6',
+          DEFAULT: '#4ECDC4',
           foreground: '#ffffff',
         },
         accent: {
-          DEFAULT: '#8b5cf6',
-          foreground: '#ffffff',
+          DEFAULT: '#FFE66D',
+          foreground: '#2d3436',
         },
         destructive: {
-          DEFAULT: '#ef4444',
+          DEFAULT: '#FF4757',
           foreground: '#ffffff',
         },
-        background: '#0f172a',
+        background: '#2d3436',
         foreground: '#ffffff',
         muted: {
-          DEFAULT: '#1e293b',
-          foreground: '#94a3b8',
+          DEFAULT: '#636e72',
+          foreground: '#dfe6e9',
         },
-        border: '#334155',
-        ring: '#475569',
+        border: '#b2bec3',
+        ring: '#81ecec',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Poppins', 'sans-serif'],
+        sans: ['Comic Neue', 'Inter', 'sans-serif'],
+        display: ['Luckiest Guy', 'Poppins', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
         'float': 'float 3s ease-in-out infinite',
+        'bounce': 'bounce 1s infinite',
+        'spin': 'spin 1s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -46,8 +48,16 @@ export default {
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+          '50%': { transform: 'translateY(-20px)' },
         },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(-25%)', animationTimingFunction: 'cubic-bezier(0.8,0,1,1)' },
+          '50%': { transform: 'none', animationTimingFunction: 'cubic-bezier(0,0,0.2,1)' },
+        },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        }
       }
     },
   },

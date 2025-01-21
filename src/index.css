@@ -1,43 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Luckiest+Guy&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll behavior */
 html {
   @apply scroll-smooth;
 }
 
-/* Custom base styles */
 @layer base {
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
   
   h1, h2, h3, h4 {
-    @apply font-display;
+    @apply font-display tracking-wide;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
   }
 }
 
-/* Custom components */
 @layer components {
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
   
-  .glass-panel {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl;
+  .fun-shadow {
+    @apply shadow-[0_10px_20px_rgba(255,107,107,0.3)];
   }
   
   .hover-scale {
-    @apply transform transition-transform duration-300 hover:scale-105;
+    @apply transform transition-transform duration-300 hover:scale-110;
+  }
+  
+  .emoji-button {
+    @apply text-2xl transform transition duration-300 hover:rotate-12 hover:scale-125;
   }
 }
 
-/* Custom animations */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+.loading-dots:after {
+  content: '.';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60% { content: '...'; }
+  80%, 100% { content: ''; }
 }

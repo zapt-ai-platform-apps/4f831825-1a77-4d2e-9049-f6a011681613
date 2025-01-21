@@ -5,18 +5,11 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 function Login() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="w-full max-w-md p-8 space-y-6 bg-foreground/5 rounded-xl backdrop-blur-lg border border-border">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
+      <div className="w-full max-w-md p-8 space-y-6 bg-foreground/5 rounded-2xl backdrop-blur-lg border-2 border-primary/30 fun-shadow">
         <div className="space-y-2 text-center">
-          <h2 className="text-3xl font-bold text-foreground">Sign in with ZAPT</h2>
-          <a
-            href="https://www.zapt.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block text-muted-foreground hover:text-foreground transition-colors text-sm"
-          >
-            Secure authentication powered by ZAPT
-          </a>
+          <h2 className="text-3xl font-bold text-primary">Welcome to UpGrade! 🎉</h2>
+          <p className="text-muted-foreground">Let's get you signed in</p>
         </div>
         
         <Auth
@@ -26,14 +19,19 @@ function Login() {
             variables: {
               default: {
                 colors: {
-                  brand: '#06b6d4',
-                  brandAccent: '#0891b2',
+                  brand: '#FF6B6B',
+                  brandAccent: '#FF4757',
                   inputText: '#ffffff',
-                  inputBackground: '#1e293b',
-                  inputBorder: '#334155',
-                  inputLabelText: '#94a3b8',
-                  messageText: '#e2e8f0',
+                  inputBackground: '#2d3436',
+                  inputBorder: '#4ECDC4',
+                  inputLabelText: '#dfe6e9',
+                  messageText: '#FFE66D',
                 },
+                radii: {
+                  borderRadiusButton: '12px',
+                  buttonBorderRadius: '12px',
+                  inputBorderRadius: '12px',
+                }
               },
             },
           }}
@@ -42,6 +40,18 @@ function Login() {
           showLinks={false}
           view="magic_link"
         />
+        
+        <div className="text-center text-muted-foreground">
+          <span className="mr-2">Powered by</span>
+          <a
+            href="https://www.zapt.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:text-secondary font-medium"
+          >
+            ZAPT ⚡
+          </a>
+        </div>
       </div>
     </div>
   );

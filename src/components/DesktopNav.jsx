@@ -11,40 +11,40 @@ function DesktopNav() {
       <nav className="flex space-x-6">
         <Link
           to="/preferences"
-          className={`px-3 py-2 rounded-lg transition-colors ${
+          className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/preferences' 
-              ? 'bg-cyan-500/20 text-cyan-400' 
-              : 'hover:bg-white/5 text-gray-300 hover:text-white'
+              ? 'bg-primary text-white shadow-lg' 
+              : 'hover:bg-primary/20 text-gray-300 hover:text-white'
           }`}
         >
-          Preferences
+          ⚙️ Preferences
         </Link>
         <Link
           to="/exams"
-          className={`px-3 py-2 rounded-lg transition-colors ${
+          className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/exams' 
-              ? 'bg-cyan-500/20 text-cyan-400' 
-              : 'hover:bg-white/5 text-gray-300 hover:text-white'
+              ? 'bg-secondary text-white shadow-lg' 
+              : 'hover:bg-secondary/20 text-gray-300 hover:text-white'
           }`}
         >
-          Exams
+          📝 Exams
         </Link>
         <Link
           to="/timetable"
-          className={`px-3 py-2 rounded-lg transition-colors ${
+          className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/timetable' 
-              ? 'bg-cyan-500/20 text-cyan-400' 
-              : 'hover:bg-white/5 text-gray-300 hover:text-white'
+              ? 'bg-accent text-black shadow-lg' 
+              : 'hover:bg-accent/20 text-gray-300 hover:text-white'
           }`}
         >
-          Timetable
+          🗓️ Timetable
         </Link>
       </nav>
       <button
         onClick={signOut}
-        className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+        className="px-4 py-2 bg-gradient-to-r from-primary to-secondary rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
       >
-        Sign Out
+        👋 Sign Out
       </button>
     </div>
   );
