@@ -27,17 +27,19 @@ function LandingPage() {
           Let's Get Started! 🎯
         </Link>
 
-        <div className="grid md:grid-cols-3 gap-8 mt-12">
-          <FeatureCard 
-            emoji="🤖"
-            title="AI-Powered Magic"
-            description="Smart schedules that adapt to your life ⚡"
-          />
-          <FeatureCard 
-            emoji="📅"
-            title="Exam Tracker"
-            description="Never miss a test date 🚨"
-          />
+        <div className="flex justify-center">
+          <div className="grid md:grid-cols-2 gap-8 mt-12 max-w-4xl">
+            <FeatureCard 
+              emoji="🤖"
+              title="AI-Powered Magic"
+              description="Smart schedules that adapt to your life ⚡"
+            />
+            <FeatureCard 
+              emoji="📅"
+              title="Exam Tracker"
+              description="Never miss a test date 🚨"
+            />
+          </div>
         </div>
       </div>
     </div>
