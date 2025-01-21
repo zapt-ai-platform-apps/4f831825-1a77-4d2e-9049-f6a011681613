@@ -31,12 +31,12 @@ function ProtectedRoute({
         setCurrentMonth
       }}
     >
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#004AAD] to-[#5DE0E6] text-white">
+      <div className="flex flex-col min-h-screen bg-background text-white pt-16"> {/* Added pt-16 for header spacing */}
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} location={location} />
         {menuOpen && (
           <MobileMenu setMenuOpen={setMenuOpen} location={location} />
         )}
-        <main className="flex-grow flex items-center justify-center h-full">
+        <main className="flex-grow flex items-center justify-center h-full pt-4"> {/* Added pt-4 for additional spacing */}
           {children}
         </main>
       </div>

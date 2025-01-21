@@ -6,10 +6,8 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
   const isSelected =
     selectedDate && new Date(selectedDate).toDateString() === day.toDateString();
 
-  // Define block order for sorting sessions
   const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
 
-  // Sort sessions by block
   let sortedSessions = [];
   if (hasData) {
     sortedSessions = hasData.sessions
@@ -19,26 +17,21 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
 
   return (
     <div
-      className={`relative border border-white cursor-pointer hover:bg-gray-700 hover:bg-opacity-25 transition duration-200 ease-in-out ${
-        isSelected ? 'border-2 border-yellow-500' : ''
-      } min-h-[60px] sm:min-h-[150px]`}
+      className={`relative border border-white/20 cursor-pointer bg-background hover:bg-white/5 transition duration-200 ${
+        isSelected ? 'border-2 border-primary ring-2 ring-primary/20' : ''
+      } min-h-[80px] sm:min-h-[150px]`}
       onClick={() => onDateClick(day)}
     >
-      <div className="absolute top-1 left-1 font-bold text-xs sm:text-base text-white">
+      <div className="absolute top-1 left-1 font-sans font-semibold text-sm text-white/80">
         {day.getDate()}
       </div>
       {hasData && (
-        <>
+        <div className="mt-6 sm:mt-8 px-1">
           {hasData.exams.length > 0 && (
-            <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 sm:hidden"></div>
+            <Exams exams={hasData.exams} />
           )}
-          <div className="mt-5 sm:mt-10">
-            {hasData.exams.length > 0 && (
-              <Exams exams={hasData.exams} />
-            )}
-            <Sessions sortedSessions={sortedSessions} subjectColours={subjectColours} />
-          </div>
-        </>
+          <Sessions sortedSessions={sortedSessions} subjectColours={subjectColours} />
+        </div>
       )}
     </div>
   );

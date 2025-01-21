@@ -34,7 +34,6 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         display: ['Poppins', 'sans-serif'],
-        handwriting: ['Dancing Script', 'cursive'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
