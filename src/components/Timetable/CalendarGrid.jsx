@@ -13,14 +13,18 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
     }
     const start = startOfMonth(parsedMonth);
     const end = endOfMonth(parsedMonth);
+    if (start > end) {
+      console.error('startOfMonth is after endOfMonth:', start, end);
+      return [];
+    }
     return eachDayOfInterval({ start, end });
   };
 
   const startDayOfWeek = () => {
     const parsedMonth = new Date(currentMonth);
     if (isNaN(parsedMonth)) {
-      Sentry.captureException(`Invalid currentMonth: ${currentMonth}`);
-      return 0;
+      console.warn('currentMonth is invalid. Defaulting start day to Sunday.');
+      return 0; // Sunday
     }
     return getDay(startOfMonth(parsedMonth));
   };
@@ -31,7 +35,7 @@ function CalendarGrid({ currentMonth, datesWithData, selectedDate, onDateClick, 
   return (
     <div className="w-screen px-1 md:px-5 lg:px-10 xl:px-20 box-border">
       <CalendarHeader />
-      <div className="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(150px,auto)] gap-0 sm:gap-2">
+      <div className="grid grid-cols-7 auto-rows-[minmax(60px,auto)] sm:auto-rows-[minmax(100px,auto)] gap-0 sm:gap-1">
         {Array.from({ length: dayOffset }).map((_, index) => (
           <div key={`empty-${index}`}></div>
         ))}

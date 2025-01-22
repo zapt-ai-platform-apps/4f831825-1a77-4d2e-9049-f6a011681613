@@ -2,7 +2,7 @@ import React from 'react';
 
 function SessionsList({ sortedSessions, subjectColours }) {
   const getSubjectCode = (subject) => {
-    return subject ? subject.substring(0, 4).toUpperCase() : '';
+    return subject ? subject.substring(0, 3).toUpperCase() : '';
   };
 
   const getSessionTime = (session) => {
@@ -28,7 +28,7 @@ function SessionsList({ sortedSessions, subjectColours }) {
   return (
     <>
       {/* Mobile view */}
-      <div className="mt-5 flex flex-col gap-1 px-1 sm:hidden">
+      <div className="mt-3 flex flex-col gap-0.5 px-1 sm:hidden">
         {sessionsToDisplay().map((session, index) => (
           session.subject ? (
             <div
@@ -44,7 +44,7 @@ function SessionsList({ sortedSessions, subjectColours }) {
         ))}
       </div>
       {/* Desktop view */}
-      <div className="hidden sm:block mt-5 px-1">
+      <div className="hidden sm:block mt-4 px-1">
         {sessionsToDisplay().map((session, index) => (
           session.subject ? (
             <div
@@ -52,10 +52,9 @@ function SessionsList({ sortedSessions, subjectColours }) {
               className="mb-1 p-1 rounded text-white text-xs cursor-pointer"
               style={{ backgroundColor: subjectColours[session.subject] }}
             >
-              <div className="font-bold">{session.subject}</div>
-              {/* Removed "Time of Day:" prefix */}
-              <div className="text-[10px]">
-                {session.block} {getSessionTime(session) && `(${getSessionTime(session)})`}
+              <div className="font-bold truncate">{session.subject}</div>
+              <div className="text-[10px] opacity-75">
+                {session.block} {getSessionTime(session)}
               </div>
             </div>
           ) : (

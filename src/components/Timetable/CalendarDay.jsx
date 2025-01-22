@@ -19,14 +19,14 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
     <div
       className={`relative border border-white/20 cursor-pointer bg-background hover:bg-white/5 transition duration-200 ${
         isSelected ? 'border-2 border-primary ring-2 ring-primary/20' : ''
-      } min-h-[80px] sm:min-h-[150px]`}
+      } min-h-[80px] sm:min-h-[100px]`}
       onClick={() => onDateClick(day)}
     >
-      <div className="absolute top-1 left-1 font-sans font-semibold text-sm text-white/80">
+      <div className="absolute top-1 left-1 font-sans font-semibold text-xs sm:text-sm text-white/80">
         {day.getDate()}
       </div>
       {hasData && (
-        <div className="mt-6 sm:mt-8 px-1">
+        <div className="mt-4 sm:mt-6 px-1">
           {hasData.exams.length > 0 && (
             <Exams exams={hasData.exams} />
           )}

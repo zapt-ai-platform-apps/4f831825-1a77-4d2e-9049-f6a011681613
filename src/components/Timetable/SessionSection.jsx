@@ -14,27 +14,25 @@ function SessionSection({ sessions, subjectColours }) {
 
   return (
     <div>
-      <h4 className="text-lg font-semibold mb-2">Revision Sessions</h4>
-      <div className="space-y-4">
+      <h4 className="text-base sm:text-lg font-semibold mb-2">Revision Sessions</h4>
+      <div className="space-y-3">
         {sessions.map((session, index) => (
           <div
             key={index}
-            className="p-4 rounded-lg border-l-4 relative"
+            className="p-3 rounded-lg border-l-4 relative"
             style={{ borderColor: subjectColours[session.subject] }}
           >
-            <p className="font-semibold text-black flex items-center">
+            <p className="font-semibold text-black flex items-center text-sm sm:text-base">
               <span
-                className="w-4 h-4 rounded-full mr-2"
+                className="w-3 h-3 rounded-full mr-2"
                 style={{ backgroundColor: subjectColours[session.subject] }}
               ></span>
               {capitalizeFirstLetter(session.subject)}
             </p>
-            {/* Removed "Time of Day: {session.block}" label; just show the block */}
-            <p className="text-black">{session.block}</p>
-            {/* Show time range only if present */}
+            <p className="text-black text-xs sm:text-sm">{session.block}</p>
             {session.startTime && session.endTime && (
-              <p className="text-black">
-                Time: {formatTime(session.startTime)} - {formatTime(session.endTime)}
+              <p className="text-black text-xs sm:text-sm">
+                {formatTime(session.startTime)} - {formatTime(session.endTime)}
               </p>
             )}
           </div>
