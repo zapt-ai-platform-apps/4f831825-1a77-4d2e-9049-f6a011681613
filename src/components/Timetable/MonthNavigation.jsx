@@ -19,12 +19,12 @@ function MonthNavigation({ currentMonth, handlePrevMonth, handleNextMonth, maxDa
             disabledPrev
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
-          }`}
+          } text-sm sm:text-base`}
           onClick={handlePrevMonth}
           disabled={disabledPrev}
         >
           <FaChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 inline-block" />
-          <span className="ml-1 text-sm sm:text-base">{prevMonthName}</span>
+          <span className="ml-1 hidden sm:inline">{prevMonthName}</span>
         </button>
         <div className="text-sm sm:text-lg font-semibold text-white">
           {monthYear}
@@ -34,11 +34,11 @@ function MonthNavigation({ currentMonth, handlePrevMonth, handleNextMonth, maxDa
             disabledNext
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
-          }`}
+          } text-sm sm:text-base`}
           onClick={handleNextMonth}
           disabled={disabledNext}
         >
-          <span className="mr-1 text-sm sm:text-base">{nextMonthName}</span>
+          <span className="mr-1 hidden sm:inline">{nextMonthName}</span>
           <FaChevronRight className="w-4 h-4 sm:w-6 sm:h-6 inline-block" />
         </button>
       </div>

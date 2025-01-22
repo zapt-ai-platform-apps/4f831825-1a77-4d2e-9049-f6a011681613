@@ -3,10 +3,10 @@ import React from 'react';
 function ExamListItem({ exam, onEdit, onDelete }) {
   return (
     <div className="bg-input p-4 rounded-lg border border-border transition-all hover:border-primary">
-      <div className="flex justify-between items-start">
-        <div>
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex-1">
           <h4 className="text-lg font-semibold text-white">{exam.subject}</h4>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-1">
             {new Date(exam.examDate).toLocaleDateString('en-GB', {
               day: 'numeric', month: 'short', year: 'numeric'
             })}
@@ -17,16 +17,16 @@ function ExamListItem({ exam, onEdit, onDelete }) {
             </span>
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => onEdit(exam)}
-            className="px-3 py-1 bg-primary/20 text-primary rounded-md hover:bg-primary/30 transition-colors"
+            className="px-3 py-1.5 bg-primary/20 text-primary rounded-md hover:bg-primary/30 transition-colors text-sm"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(exam.id)}
-            className="px-3 py-1 bg-destructive/20 text-destructive rounded-md hover:bg-destructive/30 transition-colors"
+            className="px-3 py-1.5 bg-destructive/20 text-destructive rounded-md hover:bg-destructive/30 transition-colors text-sm"
           >
             Delete
           </button>
