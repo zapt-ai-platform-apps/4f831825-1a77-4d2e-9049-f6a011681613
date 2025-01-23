@@ -8,7 +8,7 @@ function Exams({ exams }) {
   exams.sort((a, b) => blockPriority[a.timeOfDay] - blockPriority[b.timeOfDay]);
 
   return (
-    <div className="hidden sm:block mb-2 px-1 space-y-1">
+    <div className="mb-2 px-1 space-y-1">
       {exams.map((exam) => (
         <div
           key={exam.id}
