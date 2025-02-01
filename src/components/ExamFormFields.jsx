@@ -10,7 +10,7 @@ function ExamFormFields({ formData, onChange }) {
           value={formData.subject}
           onChange={(e) => onChange('subject', e.target.value)}
           required
-          className="input mt-1"
+          className="input mt-1 text-black"
         />
       </div>
       <div>
@@ -20,7 +20,7 @@ function ExamFormFields({ formData, onChange }) {
           value={formData.examDate}
           onChange={(e) => onChange('examDate', e.target.value)}
           required
-          className="input mt-1"
+          className="input mt-1 text-black"
         />
       </div>
       <div>
@@ -28,7 +28,7 @@ function ExamFormFields({ formData, onChange }) {
         <select
           value={formData.timeOfDay}
           onChange={(e) => onChange('timeOfDay', e.target.value)}
-          className="input mt-1"
+          className="input mt-1 text-black"
         >
           <option value="Morning">Morning</option>
           <option value="Afternoon">Afternoon</option>
@@ -42,7 +42,7 @@ function ExamFormFields({ formData, onChange }) {
           value={formData.board}
           onChange={(e) => onChange('board', e.target.value)}
           required
-          className="input mt-1"
+          className="input mt-1 text-black"
         />
       </div>
       <div>
@@ -52,7 +52,7 @@ function ExamFormFields({ formData, onChange }) {
           value={formData.teacher}
           onChange={(e) => onChange('teacher', e.target.value)}
           required
-          className="input mt-1"
+          className="input mt-1 text-black"
         />
       </div>
     </>
