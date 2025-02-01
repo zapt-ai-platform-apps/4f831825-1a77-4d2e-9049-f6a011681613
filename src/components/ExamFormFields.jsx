@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ExamFormFields({ formData, onChange }) {
+function ExamFormFields({ formData, onChange, editExam }) {
   return (
     <>
       <div>
@@ -41,16 +41,6 @@ function ExamFormFields({ formData, onChange }) {
           type="text"
           value={formData.board}
           onChange={(e) => onChange('board', e.target.value)}
-          required
-          className="input mt-1 text-black"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium">Teacher's Name</label>
-        <input
-          type="text"
-          value={formData.teacher}
-          onChange={(e) => onChange('teacher', e.target.value)}
           required
           className="input mt-1 text-black"
         />

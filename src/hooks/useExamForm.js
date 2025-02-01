@@ -8,7 +8,6 @@ function useExamForm(editExam, onExamSaved) {
     examDate: '',
     timeOfDay: 'Morning',
     board: '',
-    teacher: '',
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +19,6 @@ function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate,
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
-        teacher: editExam.teacher || '',
       });
     } else {
       setFormData({
@@ -28,7 +26,6 @@ function useExamForm(editExam, onExamSaved) {
         examDate: '',
         timeOfDay: 'Morning',
         board: '',
-        teacher: '',
       });
     }
   }, [editExam]);

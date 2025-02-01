@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
     const body = req.body;
-    const { id, subject, examDate, timeOfDay, board, teacher } = body.data;
+    const { id, subject, examDate, timeOfDay, board } = body.data;
 
     if (!id || !subject || !examDate) {
       return res
@@ -44,7 +44,6 @@ export default async function handler(req, res) {
         examDate: examDate,
         timeOfDay: examTimeOfDay,
         board: board,
-        teacher: teacher,
       })
       .where(and(eq(exams.id, id), eq(exams.userId, user.id)));
 

@@ -11,8 +11,7 @@
      - **Exam Date**: Select the exam date using the date picker.
      - **Time of Day**: Choose the time of day of your exam (Morning, Afternoon, or Evening). Defaults to Morning if not specified.
      - **Examination Board**: Specify the examination board.
-     - **Teacher's Name**: Enter your teacher's name.
-     - **Note**: All fields are required. You cannot add an exam unless all pieces of information are provided.
+     - **Note**: All fields are required.
    - **Add Exam**:
      - Click the **Add Exam** button to save the exam to your list.
 
@@ -36,5 +35,3 @@
 6. **Generate Timetable**
    - After adding or editing your exams, click the **Generate Timetable** button to create your personalized revision schedule.
    - **Note**: Past exams are automatically excluded from the list and timetable generation.
-
----
