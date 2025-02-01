@@ -21,14 +21,14 @@ function BlockTimeForm({ blockTimes, onChange }) {
               type="time"
               value={blockTimes[block]?.startTime || ''}
               onChange={(e) => handleTimeChange(block, 'startTime', e.target.value)}
-              className="input w-full"
+              className="input w-full text-black"
             />
             <span className="self-center">to</span>
             <input
               type="time"
               value={blockTimes[block]?.endTime || ''}
               onChange={(e) => handleTimeChange(block, 'endTime', e.target.value)}
-              className="input w-full"
+              className="input w-full text-black"
             />
           </div>
         </div>
