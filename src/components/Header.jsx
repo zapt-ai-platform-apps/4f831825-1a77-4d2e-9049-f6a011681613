@@ -4,12 +4,13 @@ import useAuth from '../hooks/useAuth';
 import Logo from './Logo';
 import DesktopNav from './DesktopNav';
 
-function Header({ menuOpen, setMenuOpen }) {
+function Header({ menuOpen, setMenuOpen, location }) {
+  const isTimetable = location && location.pathname === '/timetable';
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-md border-b border-white/10 fixed w-full top-0 z-50">
+    <header className={`flex items-center justify-between px-6 ${isTimetable ? 'py-2' : 'py-4'} bg-background/80 backdrop-blur-md border-b border-white/10 fixed w-full top-0 z-50`}>
       <Logo />
       <DesktopNav />
-      <button 
+      <button
         className="md:hidden text-white"
         onClick={() => setMenuOpen(!menuOpen)}
       >

@@ -7,6 +7,7 @@ import { TimetableProvider } from '../contexts/TimetableContext';
 function ProtectedRoute({
   children,
   user,
+  setUser,
   timetable,
   setTimetable,
   exams,
@@ -17,6 +18,7 @@ function ProtectedRoute({
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(null);
   const location = useLocation();
+  const isTimetable = location && location.pathname === '/timetable';
 
   return (
     <TimetableProvider
@@ -31,12 +33,12 @@ function ProtectedRoute({
         setCurrentMonth
       }}
     >
-      <div className="flex flex-col min-h-screen bg-background text-white pt-16"> {/* Added pt-16 for header spacing */}
+      <div className={`flex flex-col min-h-screen bg-background text-white ${isTimetable ? 'pt-8' : 'pt-16'}`}>
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} location={location} />
         {menuOpen && (
           <MobileMenu setMenuOpen={setMenuOpen} location={location} />
         )}
-        <main className="flex-grow flex items-center justify-center h-full pt-4"> {/* Added pt-4 for additional spacing */}
+        <main className="flex-grow flex items-center justify-center h-full pt-4">
           {children}
         </main>
       </div>
