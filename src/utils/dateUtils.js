@@ -51,9 +51,9 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
   let colorIndex = 0;
   for (const subject of subjectsSet) {
     // Check if any exam for this subject has a non-empty exam colour.
-    const examForSubject = exams.find((exam) => exam.subject === subject && exam.exam_colour);
-    if (examForSubject && examForSubject.exam_colour) {
-      subjectColours[subject] = examForSubject.exam_colour;
+    const examForSubject = exams.find((exam) => exam.subject === subject && exam.examColour);
+    if (examForSubject && examForSubject.examColour) {
+      subjectColours[subject] = examForSubject.examColour;
     } else {
       subjectColours[subject] = defaultColors[colorIndex % defaultColors.length];
       colorIndex++;
