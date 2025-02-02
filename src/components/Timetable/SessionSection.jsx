@@ -24,6 +24,8 @@ function SessionSection({ sessions, subjectColours }) {
             session.startTime || preferences.blockTimes[session.block]?.startTime || '';
           const endTime =
             session.endTime || preferences.blockTimes[session.block]?.endTime || '';
+          const blockTimeDisplay =
+            startTime && endTime ? ` (${formatTime(startTime)} - ${formatTime(endTime)})` : '';
           return (
             <div
               key={index}
@@ -35,14 +37,11 @@ function SessionSection({ sessions, subjectColours }) {
                   className="w-3 h-3 rounded-full mr-2"
                   style={{ backgroundColor: subjectColours[session.subject] }}
                 ></span>
+                {session.block}{blockTimeDisplay}
+              </p>
+              <p className="text-black text-xs sm:text-sm">
                 {capitalizeFirstLetter(session.subject)}
               </p>
-              <p className="text-black text-xs sm:text-sm">{session.block}</p>
-              {(startTime && endTime) && (
-                <p className="text-black text-xs sm:text-sm">
-                  {formatTime(startTime)} - {formatTime(endTime)}
-                </p>
-              )}
             </div>
           );
         })}
