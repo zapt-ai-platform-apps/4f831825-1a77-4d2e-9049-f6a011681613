@@ -8,7 +8,7 @@ function ExamListItem({ exam, onEdit, onDelete }) {
           <h4 className="text-lg font-semibold text-white flex items-center">
             <span
               className="w-3 h-3 rounded-full mr-2"
-              style={{ backgroundColor: exam.exam_colour || '#ffffff' }}
+              style={{ backgroundColor: exam.examColour || '#ffffff' }}
             ></span>
             {exam.subject}
           </h4>
