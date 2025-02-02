@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Exam data is required" });
     }
 
-    const { subject, examDate, timeOfDay, board } = examData;
+    const { subject, examDate, timeOfDay, board, examColour } = examData;
 
     if (!subject || !examDate) {
       return res.status(400).json({ error: "Subject and Exam Date are required" });
@@ -45,6 +45,7 @@ export default async function handler(req, res) {
       examDate: examDate,
       timeOfDay: examTimeOfDay,
       board: board,
+      examColour: examColour,
     });
 
     res.status(200).json({ message: "Exam saved" });

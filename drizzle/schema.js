@@ -36,6 +36,7 @@ export const exams = pgTable("exams", {
   timeOfDay: text("time_of_day").default('Morning'),
   board: text("board"),
   teacher: text("teacher"),
+  examColour: text("exam_colour"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

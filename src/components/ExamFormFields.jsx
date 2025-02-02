@@ -45,6 +45,15 @@ function ExamFormFields({ formData, onChange, editExam }) {
           className="input mt-1 text-black"
         />
       </div>
+      <div>
+        <label className="block text-sm font-medium">Exam Colour</label>
+        <input
+          type="color"
+          value={formData.examColour || '#ffffff'}
+          onChange={(e) => onChange('examColour', e.target.value)}
+          className="input mt-1 w-16 h-10 p-0 border-none cursor-pointer"
+        />
+      </div>
     </>
   );
 }

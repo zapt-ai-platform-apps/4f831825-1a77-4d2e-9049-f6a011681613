@@ -8,6 +8,7 @@ function useExamForm(editExam, onExamSaved) {
     examDate: '',
     timeOfDay: 'Morning',
     board: '',
+    examColour: '#ffffff',
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -19,6 +20,7 @@ function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate,
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
+        examColour: editExam.exam_colour || '#ffffff',
       });
     } else {
       setFormData({
@@ -26,6 +28,7 @@ function useExamForm(editExam, onExamSaved) {
         examDate: '',
         timeOfDay: 'Morning',
         board: '',
+        examColour: '#ffffff',
       });
     }
   }, [editExam]);

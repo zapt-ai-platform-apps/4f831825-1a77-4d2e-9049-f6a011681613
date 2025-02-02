@@ -5,7 +5,13 @@ function ExamListItem({ exam, onEdit, onDelete }) {
     <div className="bg-input p-4 rounded-lg border border-border transition-all hover:border-primary">
       <div className="flex justify-between items-start gap-2">
         <div className="flex-1">
-          <h4 className="text-lg font-semibold text-white">{exam.subject}</h4>
+          <h4 className="text-lg font-semibold text-white flex items-center">
+            <span
+              className="w-3 h-3 rounded-full mr-2"
+              style={{ backgroundColor: exam.exam_colour || '#ffffff' }}
+            ></span>
+            {exam.subject}
+          </h4>
           <p className="text-sm text-muted-foreground mt-1">
             {new Date(exam.examDate).toLocaleDateString('en-GB', {
               day: 'numeric', month: 'short', year: 'numeric'
