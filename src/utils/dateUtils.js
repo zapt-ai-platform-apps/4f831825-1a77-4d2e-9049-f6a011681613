@@ -1,10 +1,11 @@
+import { startOfMonth, endOfMonth, eachDayOfInterval, getDay, isValid } from 'date-fns';
+
 export const computeMaxDate = (exams, setMaxDate, currentMonth, setCurrentMonth) => {
   if (exams.length > 0) {
     const examDates = exams.map((exam) => new Date(exam.examDate));
     const lastExamDate = new Date(Math.max.apply(null, examDates));
     setMaxDate(lastExamDate);
 
-    // Fix: currentMonth is a date, not a function
     if (currentMonth > new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1)) {
       setCurrentMonth(new Date(lastExamDate.getFullYear(), lastExamDate.getMonth(), 1));
     }
@@ -17,6 +18,7 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
   const datesWithData = {};
   const subjectsSet = new Set();
 
+  // Process timetable sessions
   for (const dateStr in timetable) {
     const sessions = timetable[dateStr];
     datesWithData[dateStr] = datesWithData[dateStr] || { sessions: [], exams: [] };
@@ -26,6 +28,7 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
     }
   }
 
+  // Process exams and add exam data to datesWithData, while collecting subjects.
   for (const exam of exams) {
     const dateStr = exam.examDate;
     datesWithData[dateStr] = datesWithData[dateStr] || { sessions: [], exams: [] };
@@ -33,8 +36,9 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
     subjectsSet.add(exam.subject);
   }
 
+  // Build subject colour mapping.
   const subjectColours = {};
-  const colors = [
+  const defaultColors = [
     '#00d2ff', // Light Blue
     '#0083b0', // Dark Blue
     '#8e44ad', // Purple
@@ -46,8 +50,14 @@ export const prepareDatesWithData = (timetable, exams, setDatesWithData, setSubj
 
   let colorIndex = 0;
   for (const subject of subjectsSet) {
-    subjectColours[subject] = colors[colorIndex % colors.length];
-    colorIndex++;
+    // Check if any exam for this subject has a non-empty exam colour.
+    const examForSubject = exams.find((exam) => exam.subject === subject && exam.exam_colour);
+    if (examForSubject && examForSubject.exam_colour) {
+      subjectColours[subject] = examForSubject.exam_colour;
+    } else {
+      subjectColours[subject] = defaultColors[colorIndex % defaultColors.length];
+      colorIndex++;
+    }
   }
 
   setDatesWithData(datesWithData);
