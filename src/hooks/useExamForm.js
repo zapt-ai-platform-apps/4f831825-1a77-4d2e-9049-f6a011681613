@@ -20,7 +20,7 @@ function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate,
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
-        examColour: editExam.exam_colour || '#ffffff',
+        examColour: editExam.examColour || '#ffffff',
       });
     } else {
       setFormData({
