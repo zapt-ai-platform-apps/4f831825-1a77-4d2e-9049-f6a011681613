@@ -3,9 +3,10 @@ import { useLocation } from 'react-router-dom';
 
 function Logo() {
   const location = useLocation();
-  const isTimetable = location && location.pathname === '/timetable';
-  const styleWidth = isTimetable ? 'calc(3rem + 0.5cm)' : 'calc(6rem + 1cm)';
-  const heightClass = isTimetable ? 'h-12' : 'h-24';
+  const smallPaths = ['/timetable', '/exams', '/preferences'];
+  const isSmall = location && smallPaths.includes(location.pathname);
+  const styleWidth = isSmall ? 'calc(3rem + 0.5cm)' : 'calc(6rem + 1cm)';
+  const heightClass = isSmall ? 'h-12' : 'h-24';
   return (
     <div className="flex items-center space-x-4">
       <img
