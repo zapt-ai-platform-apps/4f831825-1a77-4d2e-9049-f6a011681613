@@ -66,8 +66,8 @@ export default async function handler(req, res) {
 
     for (const row of blockTimesResult) {
       blockTimesData[row.blockName] = {
-        startTime: row.startTime,
-        endTime: row.endTime,
+        startTime: row.startTime ? row.startTime.slice(0, 5) : '',
+        endTime: row.endTime ? row.endTime.slice(0, 5) : '',
       };
     }
 
