@@ -1,51 +1,26 @@
 import React from 'react';
+import { getSessionTime, getSessionsToDisplay } from './sessionHelpers';
 
 function SessionsList({ sortedSessions, subjectColours }) {
-  const getSubjectCode = (subject) => {
-    return subject ? subject.substring(0, 3).toUpperCase() : '';
-  };
-
-  const getSessionTime = (session) => {
-    if (!session.startTime || !session.endTime) return '';
-    return `${session.startTime.substring(0, 5)} - ${session.endTime.substring(0, 5)}`;
-  };
-
-  const desiredOrder = ['Morning', 'Afternoon', 'Evening'];
-
-  const sessionsByBlock = () => {
-    const map = {};
-    sortedSessions.forEach((session) => {
-      map[session.block] = session;
-    });
-    return map;
-  };
-
-  const sessionsToDisplay = () => {
-    const map = sessionsByBlock();
-    return desiredOrder.map((block) => map[block] || { block });
-  };
-
   return (
     <>
-      {/* Mobile view */}
       <div className="mt-3 flex flex-col gap-0.5 px-1 sm:hidden">
-        {sessionsToDisplay().map((session, index) => (
+        {getSessionsToDisplay(sortedSessions).map((session, index) =>
           session.subject ? (
             <div
               key={index}
               className="flex items-center justify-center h-4 text-[8px] font-bold text-white rounded cursor-pointer"
               style={{ backgroundColor: subjectColours[session.subject] }}
             >
-              {getSubjectCode(session.subject)}
+              {session.subject.substring(0, 3).toUpperCase()}
             </div>
           ) : (
             <div key={index} className="flex-1 h-4"></div>
           )
-        ))}
+        )}
       </div>
-      {/* Desktop view */}
       <div className="hidden sm:block mt-4 px-1">
-        {sessionsToDisplay().map((session, index) => (
+        {getSessionsToDisplay(sortedSessions).map((session, index) =>
           session.subject ? (
             <div
               key={index}
@@ -63,7 +38,7 @@ function SessionsList({ sortedSessions, subjectColours }) {
               <div className="text-[10px]">&nbsp;</div>
             </div>
           )
-        ))}
+        )}
       </div>
     </>
   );
