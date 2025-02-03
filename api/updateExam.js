@@ -27,25 +27,27 @@ export default async function handler(req, res) {
     const { id, subject, examDate, timeOfDay, board, examColour } = body.data;
 
     if (!id || !subject || !examDate) {
-      return res
-        .status(400)
-        .json({ error: "ID, Subject, and Exam Date are required" });
+      return res.status(400).json({ error: "ID, Subject, and Exam Date are required" });
     }
 
     const validTimeOfDay = ["Morning", "Afternoon", "Evening"];
-    const examTimeOfDay = validTimeOfDay.includes(timeOfDay)
-      ? timeOfDay
-      : "Morning";
+    const examTimeOfDay = validTimeOfDay.includes(timeOfDay) ? timeOfDay : "Morning";
+
+    const updateData = {
+      subject: subject,
+      examDate: examDate,
+      timeOfDay: examTimeOfDay,
+      board: board,
+    };
+
+    // Only update examColour if it is provided and non-empty, otherwise retain the existing colour
+    if (examColour && examColour !== "") {
+      updateData.examColour = examColour;
+    }
 
     const result = await db
       .update(exams)
-      .set({
-        subject: subject,
-        examDate: examDate,
-        timeOfDay: examTimeOfDay,
-        board: board,
-        examColour: examColour,
-      })
+      .set(updateData)
       .where(and(eq(exams.id, id), eq(exams.userId, user.id)));
 
     if (result.rowCount === 0) {
