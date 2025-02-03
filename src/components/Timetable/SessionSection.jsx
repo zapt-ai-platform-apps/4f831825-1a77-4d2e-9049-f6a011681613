@@ -11,11 +11,11 @@ function SessionSection({ sessions, subjectColours }) {
 
   const formatTime = (timeString) => {
     if (!timeString) return '';
-    // Convert timeString (e.g., "14:00") to a Date object on an arbitrary day and format it in AM/PM format.
+    // Convert timeString (e.g., "14:00") to a Date object and format in 24-hour format.
     const [hour, minute] = timeString.split(':');
     const date = new Date();
     date.setHours(parseInt(hour, 10), parseInt(minute, 10));
-    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
   };
 
   return (
