@@ -38,12 +38,8 @@ export default async function handler(req, res) {
       examDate: examDate,
       timeOfDay: examTimeOfDay,
       board: board,
+      examColour: examColour,
     };
-
-    // Only update examColour if it is provided and non-empty, otherwise retain the existing colour
-    if (examColour && examColour !== "") {
-      updateData.examColour = examColour;
-    }
 
     const result = await db
       .update(exams)
