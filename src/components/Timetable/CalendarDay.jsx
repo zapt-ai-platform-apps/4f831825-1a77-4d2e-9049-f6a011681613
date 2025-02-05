@@ -26,10 +26,8 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
         {day.getDate()}
       </div>
       {hasData && (
-        <div className="mt-4 sm:mt-6 px-1">
-          {hasData.exams.length > 0 && (
-            <Exams exams={hasData.exams} />
-          )}
+        <div className="mt-4 sm:mt-6 px-1 pb-2">
+          {hasData.exams.length > 0 && <Exams exams={hasData.exams} />}
           <Sessions sortedSessions={sortedSessions} subjectColours={subjectColours} />
         </div>
       )}
