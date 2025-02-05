@@ -25,7 +25,7 @@ function Timetable() {
 
   return (
     <div className="flex flex-col text-white h-full font-handwriting">
-      <div className="w-screen h-full">
+      <div className="w-screen h-full mb-4">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-center">Loading...</p>
