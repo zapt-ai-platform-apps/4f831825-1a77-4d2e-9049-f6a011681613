@@ -23,10 +23,10 @@ function Sessions({ sortedSessions, subjectColours }) {
             style={{ backgroundColor: subjectColours[session.subject] || '#ccc' }}
             title={`${session.block} Block${timeDisplay}`}
           >
-            <span className="hidden sm:inline font-semibold">
-              {session.block}{timeDisplay}
-            </span>
-            <span> {session.subject}</span>
+            <p className="font-semibold">
+              {session.block}{timeDisplay}:
+            </p>
+            <p>{session.subject}</p>
           </div>
         );
       })}
