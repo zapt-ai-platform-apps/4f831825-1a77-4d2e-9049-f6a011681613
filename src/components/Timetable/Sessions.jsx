@@ -26,7 +26,7 @@ function Sessions({ sortedSessions, subjectColours }) {
             <p className="font-semibold">
               {session.block}{timeDisplay}:
             </p>
-            <p>{session.subject}</p>
+            <p className="truncate">{session.subject}</p>
           </div>
         );
       })}

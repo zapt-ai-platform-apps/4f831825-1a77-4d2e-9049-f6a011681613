@@ -11,7 +11,6 @@ function SessionSection({ sessions, subjectColours }) {
 
   const formatTime = (timeString) => {
     if (!timeString) return '';
-    // Convert timeString (e.g., "14:00") to a Date object and format in 24-hour format.
     const [hour, minute] = timeString.split(':');
     const date = new Date();
     date.setHours(parseInt(hour, 10), parseInt(minute, 10));
@@ -42,7 +41,7 @@ function SessionSection({ sessions, subjectColours }) {
                 ></span>
                 {session.block}{blockTimeDisplay}
               </p>
-              <p className="text-black text-xs sm:text-sm">
+              <p className="text-black text-xs sm:text-sm truncate">
                 {capitalizeFirstLetter(session.subject)}
               </p>
             </div>
