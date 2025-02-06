@@ -6,7 +6,6 @@ import useData from './hooks/useData';
 
 function App() {
   const { user } = useAuth();
-  // Include refetchExams in the destructuring so we can pass it down
   const { timetable, setTimetable, exams, setExams, preferences, refetchExams } = useData(user);
 
   return (
@@ -21,6 +20,9 @@ function App() {
         refetchExams={refetchExams}
       />
       <Footer />
+      <div className="fixed bottom-2 right-2 text-xs text-gray-400 select-none z-50">
+        Made on <a href="https://www.zapt.ai" target="_blank" rel="noopener noreferrer" className="underline">ZAPT</a>
+      </div>
     </div>
   );
 }

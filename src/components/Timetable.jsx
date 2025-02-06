@@ -1,6 +1,5 @@
 import React from 'react';
 import useTimetableData from './Timetable/useTimetableData';
-import MonthNavigation from './Timetable/MonthNavigation';
 import CalendarGrid from './Timetable/CalendarGrid';
 import DayDetails from './Timetable/DayDetails';
 import { useTimetable } from '../contexts/TimetableContext';
@@ -8,10 +7,7 @@ import { useTimetable } from '../contexts/TimetableContext';
 function Timetable() {
   const {
     currentMonth,
-    setCurrentMonth,
     selectedDate,
-    handlePrevMonth,
-    handleNextMonth,
     handleDateClick,
     loading,
     error,
@@ -34,15 +30,6 @@ function Timetable() {
           <p className="text-red-500">{error}</p>
         ) : (
           <>
-            {currentMonth && (
-              <MonthNavigation
-                currentMonth={currentMonth}
-                handlePrevMonth={handlePrevMonth}
-                handleNextMonth={handleNextMonth}
-                maxDate={maxDate}
-                minDate={preferences && preferences.startDate ? new Date(preferences.startDate) : null}
-              />
-            )}
             <div className="mt-4">
               <CalendarGrid
                 currentMonth={currentMonth}
