@@ -10,9 +10,10 @@ function ExamListItem({ exam, onEdit, onDelete }) {
               className="w-3 h-3 rounded-full mr-2"
               style={{ backgroundColor: exam.examColour || '#ffffff' }}
             ></span>
-            <span className="whitespace-nowrap overflow-hidden">
-              <span className="font-semibold">{exam.timeOfDay}</span> – <span>{exam.subject}</span>
-            </span>
+            <div className="whitespace-normal">
+              <span className="font-semibold block">{exam.timeOfDay}</span>
+              <span className="block">{exam.subject}</span>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {new Date(exam.examDate).toLocaleDateString('en-GB', {
