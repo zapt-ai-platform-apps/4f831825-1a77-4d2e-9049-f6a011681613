@@ -10,14 +10,15 @@ function ExamListItem({ exam, onEdit, onDelete }) {
               className="w-3 h-3 rounded-full mr-2"
               style={{ backgroundColor: exam.examColour || '#ffffff' }}
             ></span>
-            <div>
-              <div>{exam.timeOfDay}</div>
-              <div>{exam.subject}</div>
-            </div>
+            <span className="whitespace-nowrap overflow-hidden">
+              <span className="font-semibold">{exam.timeOfDay}</span> – <span>{exam.subject}</span>
+            </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {new Date(exam.examDate).toLocaleDateString('en-GB', {
-              day: 'numeric', month: 'short', year: 'numeric'
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
             })}
           </p>
         </div>

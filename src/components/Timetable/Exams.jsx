@@ -12,11 +12,10 @@ function Exams({ exams }) {
       {exams.map((exam) => (
         <div
           key={exam.id}
-          className="p-1 rounded text-xs sm:text-sm cursor-pointer"
+          className="p-1 rounded text-xs sm:text-sm cursor-pointer whitespace-nowrap overflow-hidden"
           style={{ backgroundColor: 'red' }}
         >
-          <div className="font-semibold">{exam.timeOfDay}</div>
-          <div>{exam.subject}</div>
+          <span className="font-semibold">{exam.timeOfDay}</span> – <span>{exam.subject}</span>
         </div>
       ))}
     </div>
