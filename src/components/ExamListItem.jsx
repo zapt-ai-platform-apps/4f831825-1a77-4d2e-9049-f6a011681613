@@ -11,8 +11,7 @@ function ExamListItem({ exam, onEdit, onDelete }) {
               style={{ backgroundColor: exam.examColour || '#ffffff' }}
             ></span>
             <div className="whitespace-normal">
-              <span className="font-semibold block">{exam.timeOfDay}</span>
-              <span className="block">{exam.subject}</span>
+              <span className="font-semibold block">{exam.subject}</span>
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
@@ -20,7 +19,7 @@ function ExamListItem({ exam, onEdit, onDelete }) {
               day: 'numeric',
               month: 'short',
               year: 'numeric'
-            })}
+            })} – {exam.timeOfDay}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
