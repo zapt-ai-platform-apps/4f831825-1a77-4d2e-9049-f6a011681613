@@ -16,7 +16,13 @@ function useTimetableState() {
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
       const newMonth = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
-      // Removed the check against preferences.startDate to allow navigation to any previous month
+      if (preferences && preferences.startDate) {
+        const startDate = new Date(preferences.startDate);
+        const minMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        if (newMonth < minMonth) {
+          return prev;
+        }
+      }
       return newMonth;
     });
     setSelectedDate(null);

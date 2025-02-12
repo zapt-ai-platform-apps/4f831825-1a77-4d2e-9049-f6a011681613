@@ -7,18 +7,36 @@ import { useTimetable } from '../contexts/TimetableContext';
 
 function Header({ menuOpen, setMenuOpen }) {
   const location = useLocation();
-  const { currentMonth, setCurrentMonth } = useTimetable();
+  const { currentMonth, setCurrentMonth, preferences } = useTimetable();
+
+  const minDate =
+    preferences && preferences.startDate
+      ? new Date(
+          new Date(preferences.startDate).getFullYear(),
+          new Date(preferences.startDate).getMonth(),
+          1
+        )
+      : null;
 
   const handlePrevMonth = () => {
     if (currentMonth) {
-      const newMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+      const newMonth = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() - 1,
+        1
+      );
+      if (minDate && newMonth < minDate) return;
       setCurrentMonth(newMonth);
     }
   };
 
   const handleNextMonth = () => {
     if (currentMonth) {
-      const newMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+      const newMonth = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        1
+      );
       setCurrentMonth(newMonth);
     }
   };
@@ -32,6 +50,7 @@ function Header({ menuOpen, setMenuOpen }) {
             currentMonth={currentMonth}
             handlePrevMonth={handlePrevMonth}
             handleNextMonth={handleNextMonth}
+            minDate={minDate}
           />
         )}
       </div>
