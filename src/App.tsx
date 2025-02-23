@@ -4,7 +4,9 @@ import Footer from './components/Footer';
 import useAuth from './hooks/useAuth';
 import useData from './hooks/useData';
 
-function App() {
+interface AppProps {}
+
+const App: React.FC<AppProps> = () => {
   const { user } = useAuth();
   const { timetable, setTimetable, exams, setExams, preferences, refetchExams } = useData(user);
 
@@ -25,6 +27,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
