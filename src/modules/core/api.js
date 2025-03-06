@@ -1,10 +1,31 @@
 import { initializeZapt } from '@zapt/zapt-js';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 /**
  * Supabase client initialized with ZAPT
  * This is the main integration point with Supabase services
  */
 export const { supabase, recordLogin } = initializeZapt(import.meta.env.VITE_PUBLIC_APP_ID);
+
+/**
+ * Gets a database client instance
+ * @returns {Object} Drizzle ORM database client
+ */
+export function getDbClient() {
+  const connectionString = process.env.COCKROACH_DB_URL;
+  if (!connectionString) {
+    throw new Error("Database connection string not found in environment variables");
+  }
+  
+  const client = postgres(connectionString);
+  return drizzle(client);
+}
+
+/**
+ * Singleton database client instance
+ */
+export const db = getDbClient();
 
 /**
  * Makes an authenticated request to a backend API endpoint

@@ -1,6 +1,6 @@
-import { supabase, recordLogin } from '../core/api';
+import { supabase, recordLogin } from '@/modules/core/api';
 import { validateUser } from './validators';
-import { eventBus, events } from '../core/events';
+import { eventBus, events } from '@/modules/core/events';
 
 /**
  * Authentication module public API
@@ -44,6 +44,22 @@ export const api = {
       moduleFrom: 'auth',
       moduleTo: 'client'
     });
+  },
+  
+  /**
+   * Get a user by token
+   * @param {string} token - Auth token
+   * @returns {Promise<Object|null>} User object or null
+   */
+  async getUserByToken(token) {
+    const { data, error } = await supabase.auth.getUser(token);
+    
+    if (error) {
+      console.error('Error getting user by token:', error);
+      throw error;
+    }
+    
+    return data.user;
   },
   
   /**

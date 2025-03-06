@@ -11,8 +11,7 @@
   ],
   "functions": {
     "api/generateTimetable.js": {
-      "maxDuration": 300,
-      "includeFiles": "services/**,../drizzle/schema.js"
+      "maxDuration": 300
     }
   }
 }

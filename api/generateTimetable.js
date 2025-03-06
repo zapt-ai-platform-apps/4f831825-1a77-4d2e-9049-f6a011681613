@@ -1,10 +1,5 @@
 import { authenticateUser, Sentry } from "./_apiUtils.js";
-import { db } from "./dbClient.js";
-import { deleteGeneratedTimetableEntries } from "../src/modules/timetable/internal/dataAccess.js";
-import { getUserPreferences, getUserExams, getUserRevisionTimes, getUserBlockTimes } from "../src/modules/timetable/internal/dataAccess.js";
-import { generateTimetable } from "../src/modules/timetable/internal/timetableGenerator.js";
-import { reviewTimetable } from "../src/modules/timetable/internal/timetableReviewer.js";
-import { saveTimetable } from "../src/modules/timetable/internal/timetableSaver.js";
+import { api as timetableApi } from "@/modules/timetable/api.js";
 
 export default async function handler(req, res) {
   try {
@@ -14,11 +9,14 @@ export default async function handler(req, res) {
     
     console.log(`Generating timetable for user ${userId}`);
     
+    // Delete existing timetable entries (preserving user-created ones)
+    await timetableApi.deleteGeneratedTimetableEntries(userId);
+    
     // Get user preferences and exams
-    const preferences = await getUserPreferences(db, userId);
-    const exams = await getUserExams(db, userId);
-    const revisionTimesRows = await getUserRevisionTimes(db, userId);
-    const blockTimes = await getUserBlockTimes(db, userId);
+    const preferences = await timetableApi.getUserPreferences(userId);
+    const exams = await timetableApi.getUserExams(userId);
+    const revisionTimesRows = await timetableApi.getUserRevisionTimes(userId);
+    const blockTimes = await timetableApi.getUserBlockTimes(userId);
     
     // Process revision times into format needed by the generator
     const revisionTimes = revisionTimesRows.reduce((acc, row) => {
@@ -42,22 +40,14 @@ export default async function handler(req, res) {
       });
     }
     
-    // Delete existing timetable entries (preserving user-created ones)
-    await deleteGeneratedTimetableEntries(db, userId);
-    
     // Generate the timetable
-    const generatedTimetable = await generateTimetable(
+    const reviewedTimetable = await timetableApi.generateTimetable(
+      userId,
       exams, 
       preferences.startDate, 
       revisionTimes,
       blockTimes
     );
-    
-    // Get AI review of timetable (optional enhancement)
-    const reviewedTimetable = await reviewTimetable(userId, generatedTimetable);
-    
-    // Save the timetable to the database
-    await saveTimetable(userId, reviewedTimetable);
     
     return res.status(200).json({
       message: "Timetable generated successfully",

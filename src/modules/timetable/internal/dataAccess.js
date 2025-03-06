@@ -6,7 +6,6 @@ import {
   blockTimes,
 } from "../../../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
-import { db } from "../../../api/dbClient.js";
 
 /**
  * Deletes all timetable entries for a user
