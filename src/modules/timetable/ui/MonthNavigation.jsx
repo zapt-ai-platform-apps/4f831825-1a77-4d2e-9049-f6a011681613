@@ -57,29 +57,31 @@ function MonthNavigation({ currentMonth, onPrevMonth, onNextMonth, minDate, maxD
   const { prevMonthName, nextMonthName } = getPrevNextMonthNames();
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center justify-between w-full max-w-xs px-2">
       <button
-        className={`flex items-center px-2 py-1 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-          disabledPrev ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-        } text-xs sm:text-sm`}
+        className={`flex items-center justify-center w-9 h-9 rounded-full transition cursor-pointer ${
+          disabledPrev ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+        }`}
         onClick={onPrevMonth}
         disabled={disabledPrev}
+        aria-label={`Previous month (${prevMonthName})`}
       >
-        <FaChevronLeft className="w-4 h-4 inline-block" />
-        <span className="ml-1 hidden sm:inline">{prevMonthName}</span>
+        <FaChevronLeft className="w-4 h-4" />
       </button>
-      <div className="text-xs sm:text-sm font-semibold text-white">
+      
+      <div className="text-sm sm:text-base font-semibold text-white">
         {monthYear}
       </div>
+      
       <button
-        className={`flex items-center px-2 py-1 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 cursor-pointer ${
-          disabledNext ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-        } text-xs sm:text-sm`}
+        className={`flex items-center justify-center w-9 h-9 rounded-full transition cursor-pointer ${
+          disabledNext ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+        }`}
         onClick={onNextMonth}
         disabled={disabledNext}
+        aria-label={`Next month (${nextMonthName})`}
       >
-        <span className="mr-1 hidden sm:inline">{nextMonthName}</span>
-        <FaChevronRight className="w-4 h-4 inline-block" />
+        <FaChevronRight className="w-4 h-4" />
       </button>
     </div>
   );

@@ -34,8 +34,8 @@ function TimetableScreen() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-full">
-      <div className="flex justify-center mb-4">
+    <div className="container mx-auto px-1 sm:px-4 py-4 sm:py-8 max-w-full">
+      <div className="flex justify-center mb-3 sm:mb-4">
         <MonthNavigation
           currentMonth={currentMonth}
           onPrevMonth={handlePrevMonth}
@@ -45,7 +45,7 @@ function TimetableScreen() {
         />
       </div>
       
-      <TimetableProvider value={{ datesWithData, subjectColours }}>
+      <TimetableProvider value={{ datesWithData, subjectColours, preferences: {}  }}>
         <CalendarGrid
           currentMonth={currentMonth}
           selectedDate={selectedDate}
