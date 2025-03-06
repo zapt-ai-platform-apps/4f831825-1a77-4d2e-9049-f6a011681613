@@ -93,6 +93,7 @@ export async function deleteExam(id) {
  */
 export async function generateTimetable() {
   try {
+    console.log("Generating timetable...");
     const response = await fetch('/api/generateTimetable', {
       method: 'POST',
       headers: {
@@ -101,10 +102,12 @@ export async function generateTimetable() {
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorData = await response.json().catch(() => null);
+      const errorText = errorData?.error || await response.text();
       throw new Error(errorText || 'Error generating timetable');
     }
     
+    console.log("Timetable generated successfully");
     return { success: true };
   } catch (error) {
     console.error('Error generating timetable:', error);

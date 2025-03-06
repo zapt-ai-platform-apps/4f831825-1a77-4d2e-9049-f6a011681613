@@ -1,19 +1,11 @@
 /**
- * Timetable-specific events
+ * Timetable module events
  */
 export const events = {
-  GENERATED: 'timetable/generated',
+  CREATED: 'timetable/created',
   UPDATED: 'timetable/updated',
+  DELETED: 'timetable/deleted',
   LOADED: 'timetable/loaded',
-  ERROR: 'timetable/error'
-};
-
-/**
- * Map of event names to human-readable descriptions
- */
-export const eventDescriptions = {
-  [events.GENERATED]: 'Timetable generated',
-  [events.UPDATED]: 'Timetable updated',
-  [events.LOADED]: 'Timetable loaded',
-  [events.ERROR]: 'Timetable error occurred'
+  ERROR: 'timetable/error',
+  TIMETABLE_UPDATED: 'timetable/updated' // Duplicate for backward compatibility
 };

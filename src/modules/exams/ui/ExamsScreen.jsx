@@ -4,6 +4,8 @@ import { useExams } from './useExams';
 import ExamForm from './ExamForm';
 import ExamList from './ExamList';
 import LoadingOverlay from '../../../shared/components/LoadingOverlay';
+import { api as timetableApi } from '../../timetable/api';
+import * as Sentry from '@sentry/browser';
 
 /**
  * Exams management screen component
@@ -23,10 +25,28 @@ function ExamsScreen() {
     handleGenerateTimetable
   } = useExams();
 
+  /**
+   * Handle generate timetable button click
+   * This ensures timetable data is available before navigation
+   */
   const onGenerateTimetable = async () => {
-    const result = await handleGenerateTimetable();
-    if (result.success) {
-      navigate('/timetable');
+    try {
+      // Generate the timetable
+      const result = await handleGenerateTimetable();
+      
+      if (result.success) {
+        console.log("Timetable generation successful, fetching timetable data...");
+        
+        // Fetch the timetable data to ensure it's in the cache
+        await timetableApi.getTimetable();
+        console.log("Timetable data fetched successfully, navigating...");
+        
+        // Navigate to the timetable screen
+        navigate('/timetable');
+      }
+    } catch (error) {
+      console.error("Error during timetable generation workflow:", error);
+      Sentry.captureException(error);
     }
   };
 

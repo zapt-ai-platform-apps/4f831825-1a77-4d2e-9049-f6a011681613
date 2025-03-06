@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTimetable } from './useTimetable';
 import { TimetableProvider } from './TimetableContext';
 import CalendarGrid from './CalendarGrid';
@@ -22,8 +22,15 @@ function TimetableScreen() {
     handleNextMonth,
     handleDateClick,
     minDate,
-    maxDate
+    maxDate,
+    refreshTimetable
   } = useTimetable();
+
+  // Refresh timetable data when the component mounts to ensure we have the latest data
+  useEffect(() => {
+    console.log("TimetableScreen mounted, refreshing timetable data...");
+    refreshTimetable();
+  }, [refreshTimetable]);
 
   if (loading) {
     return <LoadingOverlay message="Loading your timetable..." />;
