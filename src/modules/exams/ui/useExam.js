@@ -75,7 +75,8 @@ export function useExamForm(editExam, onExamSaved) {
       
       if (result.success) {
         if (typeof onExamSaved === 'function') {
-          onExamSaved();
+          // Pass the exam data to the callback - this was missing before
+          onExamSaved(examToSave);
         }
       } else {
         // Handle error from service

@@ -48,9 +48,15 @@ export function useExams() {
     }
   };
 
-  // Handle save exam
+  // Handle save exam - updated to ensure exam parameter is used
   const handleExamSaved = async (exam) => {
     try {
+      if (!exam) {
+        console.error('No exam data provided to handleExamSaved');
+        return { success: false, error: 'No exam data provided' };
+      }
+      
+      console.log('handleExamSaved received exam:', exam);
       await saveOrUpdateExam(exam, editExam);
       setEditExam(null);
       return { success: true };
