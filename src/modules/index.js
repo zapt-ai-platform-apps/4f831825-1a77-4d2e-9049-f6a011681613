@@ -1,27 +1,23 @@
-import { initializeAuth } from './auth/internal/initialize';
 import { initializeCore } from './core/internal/initialize';
-import { initializeExams } from './exams/internal/initialize';
+import { initializeAuth } from './auth/internal/initialize';
 import { initializePreferences } from './preferences/internal/initialize';
+import { initializeExams } from './exams/internal/initialize';
 import { initializeTimetable } from './timetable/internal/initialize';
 
 /**
  * Initialize all application modules
- * This ensures dependencies are properly loaded before the app starts
+ * @returns {Promise<void>}
  */
 export async function initializeModules() {
-  console.log('Initializing application modules...');
+  console.log('Initializing all modules...');
   
   try {
-    // Core must be initialized first as other modules depend on it
+    // Order matters! Initialize core first, followed by auth, then feature modules
     await initializeCore();
-    
-    // Initialize feature modules in parallel
-    await Promise.all([
-      initializeAuth(),
-      initializeExams(),
-      initializePreferences(),
-      initializeTimetable()
-    ]);
+    await initializeAuth();
+    await initializePreferences(); 
+    await initializeExams();
+    await initializeTimetable();
     
     console.log('All modules initialized successfully');
   } catch (error) {
