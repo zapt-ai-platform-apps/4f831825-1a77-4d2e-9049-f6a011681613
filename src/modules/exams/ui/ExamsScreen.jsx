@@ -18,6 +18,7 @@ function ExamsScreen() {
     editExam,
     loading,
     generating,
+    error,
     handleExamSaved,
     handleExamDeleted,
     handleEditExam,
@@ -43,10 +44,15 @@ function ExamsScreen() {
         
         // Navigate to the timetable screen
         navigate('/timetable');
+      } else if (result.error) {
+        // Display error message
+        alert(`Failed to generate timetable: ${result.error}`);
+        console.error("Timetable generation failed:", result.error);
       }
     } catch (error) {
       console.error("Error during timetable generation workflow:", error);
       Sentry.captureException(error);
+      alert(`An error occurred: ${error.message}`);
     }
   };
 
@@ -59,6 +65,12 @@ function ExamsScreen() {
       <div className="flex-grow p-4">
         <div className="card p-4 md:p-8 w-full md:max-w-screen-xl mx-auto">
           <h2 className="text-2xl font-semibold mb-4 text-center">Manage Your Exams</h2>
+          
+          {error && (
+            <div className="bg-red-500/20 border border-red-500 text-white p-3 rounded-md mb-4">
+              <p className="font-medium">Error: {error}</p>
+            </div>
+          )}
           
           <div className="space-y-6">
             <ExamForm

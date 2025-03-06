@@ -36,9 +36,9 @@ export function useExams() {
   const fetchExams = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await examsApi.getExams();
       setExams(data);
-      setError(null);
     } catch (error) {
       console.error('Error fetching exams:', error);
       Sentry.captureException(error);
@@ -51,18 +51,25 @@ export function useExams() {
   // Handle save exam - updated to ensure exam parameter is used
   const handleExamSaved = async (exam) => {
     try {
+      setError(null);
       if (!exam) {
         console.error('No exam data provided to handleExamSaved');
         return { success: false, error: 'No exam data provided' };
       }
       
       console.log('handleExamSaved received exam:', exam);
-      await saveOrUpdateExam(exam, editExam);
+      const result = await saveOrUpdateExam(exam, editExam);
       setEditExam(null);
-      return { success: true };
+      
+      if (!result.success) {
+        setError(result.error);
+      }
+      
+      return result;
     } catch (error) {
       console.error('Error saving exam:', error);
       Sentry.captureException(error);
+      setError(error.message);
       return { success: false, error: error.message };
     }
   };
@@ -70,11 +77,13 @@ export function useExams() {
   // Handle delete exam
   const handleExamDeleted = async (id) => {
     try {
+      setError(null);
       await deleteExam(id);
       return { success: true };
     } catch (error) {
       console.error('Error deleting exam:', error);
       Sentry.captureException(error);
+      setError(error.message);
       return { success: false, error: error.message };
     }
   };
@@ -93,7 +102,21 @@ export function useExams() {
   const handleGenerateTimetable = async () => {
     try {
       setGenerating(true);
-      await generateTimetable();
+      setError(null);
+      
+      if (exams.length === 0) {
+        setError('You need to add at least one exam before generating a timetable.');
+        return { success: false, error: 'You need to add at least one exam before generating a timetable.' };
+      }
+      
+      console.log("Initiating timetable generation...");
+      const result = await generateTimetable();
+      
+      if (!result.success) {
+        setError(result.error || 'Failed to generate timetable');
+        console.error('Failed to generate timetable:', result.error);
+        return { success: false, error: result.error };
+      }
       
       // Wait a moment for the backend to finish processing
       await new Promise(resolve => setTimeout(resolve, 500));

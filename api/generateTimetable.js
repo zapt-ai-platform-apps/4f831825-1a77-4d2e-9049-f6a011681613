@@ -54,6 +54,13 @@ export default async function handler(req, res) {
       .from(revisionTimes)
       .where(eq(revisionTimes.userId, userId));
     
+    // Check if there are any revision times
+    if (revisionTimesRows.length === 0) {
+      return res.status(400).json({
+        error: "No revision times found. Please set your available revision times in preferences."
+      });
+    }
+    
     // Get user block times
     const blockTimesRows = await db
       .select()
@@ -108,6 +115,10 @@ export default async function handler(req, res) {
     // Save the timetable entries
     if (timetableEntriesToInsert.length > 0) {
       await db.insert(timetableEntries).values(timetableEntriesToInsert);
+    } else {
+      return res.status(400).json({
+        error: "Could not generate a viable timetable. Please check your exams and revision preferences."
+      });
     }
     
     return res.status(200).json({
@@ -117,6 +128,6 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error("Error generating timetable:", error);
     Sentry.captureException(error);
-    return res.status(500).json({ error: "Error generating timetable" });
+    return res.status(500).json({ error: error.message || "Error generating timetable" });
   }
 }

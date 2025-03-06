@@ -125,9 +125,45 @@ export async function generateTimetable() {
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      const errorText = errorData?.error || await response.text();
-      throw new Error(errorText || 'Error generating timetable');
+      const errorData = await response.json().catch(() => {
+        console.error("Failed to parse error response as JSON");
+        return null;
+      });
+      
+      let errorMessage = 'Error generating timetable';
+      
+      if (errorData && errorData.error) {
+        errorMessage = errorData.error;
+        console.error("Timetable generation error:", errorMessage);
+      } else {
+        // Try to get text response if JSON parsing failed
+        const errorText = await response.text().catch(e => {
+          console.error("Failed to get error response as text:", e);
+          return null;
+        });
+        
+        if (errorText) {
+          errorMessage = errorText;
+          console.error("Timetable generation error (text):", errorText);
+        }
+      }
+      
+      // Log detailed error information
+      console.error("Failed to generate timetable:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorMessage: errorMessage
+      });
+      
+      // Report to Sentry with details
+      Sentry.captureException(new Error(errorMessage), {
+        extra: {
+          status: response.status,
+          statusText: response.statusText
+        }
+      });
+      
+      throw new Error(errorMessage);
     }
     
     console.log("Timetable generated successfully");
@@ -135,6 +171,6 @@ export async function generateTimetable() {
   } catch (error) {
     console.error('Error generating timetable:', error);
     Sentry.captureException(error);
-    throw error;
+    return { success: false, error: error.message || 'Error generating timetable' };
   }
 }

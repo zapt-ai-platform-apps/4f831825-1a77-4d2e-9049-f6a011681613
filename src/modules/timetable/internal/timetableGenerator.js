@@ -5,6 +5,7 @@ import { enforcePreExamSession } from './enforcePreExamSession';
 import { createSession } from './sessionUtils';
 import { sortSessionsByBlock } from './utils/sessionSorter';
 import { generateId } from '../../core/internal/helpers';
+import * as Sentry from '@sentry/browser';
 
 /**
  * Generates a complete timetable for a user
@@ -15,36 +16,75 @@ import { generateId } from '../../core/internal/helpers';
  * @returns {Array} Array of timetable entry objects
  */
 export async function generateTimetable(exams, startDate, revisionTimes, blockTimes) {
-  // Filter and sort exams
-  const upcomingExams = filterUpcomingExams(exams);
-  const sortedExams = sortExamsByDate(upcomingExams);
-  
-  if (sortedExams.length === 0) {
-    return [];
+  try {
+    // Validate input parameters
+    if (!exams || !Array.isArray(exams)) {
+      console.error("Invalid exams parameter:", exams);
+      throw new Error("Exams data is invalid or missing");
+    }
+    
+    if (!startDate) {
+      console.error("Missing startDate parameter");
+      throw new Error("Start date is required");
+    }
+    
+    if (!revisionTimes || typeof revisionTimes !== 'object') {
+      console.error("Invalid revisionTimes parameter:", revisionTimes);
+      throw new Error("Revision times are invalid or missing");
+    }
+    
+    // Check if any revision times are selected
+    const hasRevisionTimes = Object.values(revisionTimes).some(
+      blocks => Array.isArray(blocks) && blocks.length > 0
+    );
+    
+    if (!hasRevisionTimes) {
+      console.error("No revision times selected");
+      throw new Error("No revision times selected. Please select at least one time slot.");
+    }
+    
+    // Filter and sort exams
+    const upcomingExams = filterUpcomingExams(exams);
+    const sortedExams = sortExamsByDate(upcomingExams);
+    
+    if (sortedExams.length === 0) {
+      console.warn("No upcoming exams found");
+      return [];
+    }
+    
+    // Determine the end date (latest exam date)
+    const endDate = sortedExams[sortedExams.length - 1].examDate;
+    
+    // Create date range between start date and end date
+    const dateRange = createDateRange(startDate, endDate);
+    
+    // Generate available sessions
+    const availableSessions = generateAvailableSessions(dateRange, revisionTimes);
+    
+    if (availableSessions.length === 0) {
+      console.error("No available sessions found. Check revision times and date range.");
+      throw new Error("No available sessions found with your current preferences.");
+    }
+    
+    // Distribute subjects to create initial timetable
+    let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes);
+    
+    // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
+    timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate);
+    
+    // Add unique IDs to each session for tracking and future updates
+    timetable = timetable.map(session => ({
+      ...session,
+      id: generateId()
+    }));
+    
+    console.log(`Generated timetable with ${timetable.length} sessions`);
+    return timetable;
+  } catch (error) {
+    console.error("Error in generateTimetable:", error);
+    Sentry.captureException(error);
+    throw error;
   }
-  
-  // Determine the end date (latest exam date)
-  const endDate = sortedExams[sortedExams.length - 1].examDate;
-  
-  // Create date range between start date and end date
-  const dateRange = createDateRange(startDate, endDate);
-  
-  // Generate available sessions
-  const availableSessions = generateAvailableSessions(dateRange, revisionTimes);
-  
-  // Distribute subjects to create initial timetable
-  let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes);
-  
-  // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
-  timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate);
-  
-  // Add unique IDs to each session for tracking and future updates
-  timetable = timetable.map(session => ({
-    ...session,
-    id: generateId()
-  }));
-  
-  return timetable;
 }
 
 /**
