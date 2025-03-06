@@ -21,6 +21,12 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         editExam={editExam}
         errors={errors}
       />
+      
+      {/* Display general error if it exists */}
+      {errors.general && (
+        <div className="text-red-500 text-sm mt-2">{errors.general}</div>
+      )}
+      
       <div className="flex justify-end space-x-4 mt-4">
         {editExam && (
           <button
@@ -41,7 +47,14 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
             submitting ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
-          {editExam ? 'Update Exam' : 'Add Exam'}
+          {submitting ? (
+            <span>
+              {editExam ? 'Updating...' : 'Adding...'} 
+              <span className="loading-dots"></span>
+            </span>
+          ) : (
+            editExam ? 'Update Exam' : 'Add Exam'
+          )}
         </button>
       </div>
     </form>

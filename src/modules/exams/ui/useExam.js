@@ -71,11 +71,18 @@ export function useExamForm(editExam, onExamSaved) {
       // Create a copy of form data to prevent any reference issues
       const examToSave = { ...formData };
       
-      await saveOrUpdateExam(examToSave, editExam);
-      onExamSaved();
+      const result = await saveOrUpdateExam(examToSave, editExam);
+      
+      if (result.success) {
+        onExamSaved();
+      } else {
+        // Handle error from service
+        setErrors({ general: result.error });
+      }
     } catch (error) {
       console.error('Error saving exam:', error);
       Sentry.captureException(error);
+      setErrors({ general: error.message });
     } finally {
       setSubmitting(false);
     }

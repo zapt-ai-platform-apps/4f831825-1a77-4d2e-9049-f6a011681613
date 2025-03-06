@@ -38,10 +38,10 @@ export async function saveOrUpdateExam(exam, editExam = null) {
   try {
     console.log('saveOrUpdateExam called with:', { exam, editExam });
     
-    // Ensure exam data exists before validation
+    // Safely handle potential undefined or null exam input
     if (!exam) {
       console.error('Exam data is missing in saveOrUpdateExam');
-      throw new Error('Exam data is missing');
+      return { success: false, error: 'Exam data is missing' };
     }
     
     // Make a deep copy of exam data to prevent reference issues
@@ -81,7 +81,8 @@ export async function saveOrUpdateExam(exam, editExam = null) {
     // Publish error event
     eventBus.publish(events.ERROR, { error: error.message });
     
-    throw error;
+    // Return error information instead of throwing
+    return { success: false, error: error.message };
   }
 }
 
