@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/browser';
-import { saveOrUpdateExam } from '../internal/service';
 
 /**
  * Hook for managing exam form state
@@ -79,29 +78,22 @@ export function useExamForm(editExam, onExamSaved) {
       // Create a copy of form data to prevent any reference issues
       const examToSave = { ...formData };
       
-      const result = await saveOrUpdateExam(examToSave, editExam);
+      // Instead of calling saveOrUpdateExam directly here, we just pass the data
+      // to the parent component through the callback
+      if (typeof onExamSaved === 'function') {
+        // Pass the exam data to the callback
+        await onExamSaved(examToSave);
+      }
       
-      if (result.success) {
-        if (typeof onExamSaved === 'function') {
-          // Pass the exam data to the callback
-          onExamSaved(examToSave);
-        }
-        
-        // Only for new exams, reset the form after successful submission
-        if (!editExam) {
-          setFormData({
-            subject: '',
-            examDate: '',
-            timeOfDay: 'Morning',
-            board: '',
-            examColour: '#ffffff',
-          });
-        }
-      } else {
-        // Handle error from service
-        setErrors({ general: result.error });
-        // Reset submitted state on error to allow retrying
-        setHasSubmitted(false);
+      // Only for new exams, reset the form after successful submission
+      if (!editExam) {
+        setFormData({
+          subject: '',
+          examDate: '',
+          timeOfDay: 'Morning',
+          board: '',
+          examColour: '#ffffff',
+        });
       }
     } catch (error) {
       console.error('Error saving exam:', error);

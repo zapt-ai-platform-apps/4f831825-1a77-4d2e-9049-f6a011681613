@@ -48,7 +48,7 @@ export function useExams() {
     }
   };
 
-  // Handle save exam - updated to ensure exam parameter is used
+  // Handle save exam - This is now the only place where saveOrUpdateExam is called
   const handleExamSaved = async (exam) => {
     try {
       setError(null);
