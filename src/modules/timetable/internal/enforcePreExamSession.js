@@ -1,0 +1,82 @@
+import { formatDateToString, getDayOfWeek } from './dateUtils';
+import { addDays, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
+
+/**
+ * Ensures that the session right before an exam is for that exam's subject
+ * @param {Array} exams - Array of exam objects
+ * @param {Array} timetableEntries - Array of timetable entry objects
+ * @param {Object} revisionTimes - Available revision times by day of week
+ * @param {string} startDate - Start date string in YYYY-MM-DD format
+ * @returns {Array} Updated timetable entries
+ */
+export function enforcePreExamSession(exams, timetableEntries, revisionTimes, startDate) {
+  if (!exams.length) return timetableEntries;
+
+  // Clone the timetable entries to avoid modifying the original
+  const updatedEntries = [...timetableEntries];
+  
+  // Process each exam to ensure it has a pre-exam session
+  exams.forEach(exam => {
+    const examDate = parseISO(exam.examDate);
+    const examTimeOfDay = exam.timeOfDay || 'Morning';
+    
+    // Determine what session should be reserved for this exam
+    let targetDate = examDate;
+    let targetBlock = getPreExamBlock(examTimeOfDay);
+    
+    // If the exam is in the morning, try to reserve evening session from day before
+    if (examTimeOfDay === 'Morning') {
+      const prevDay = addDays(examDate, -1);
+      const prevDayOfWeek = getDayOfWeek(prevDay);
+      
+      // Check if the previous day has an evening session available
+      if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes('Evening')) {
+        targetDate = prevDay;
+        targetBlock = 'Evening';
+      }
+    }
+    
+    const targetDateStr = formatDateToString(targetDate);
+    
+    // Find if this session already exists
+    const existingEntryIndex = updatedEntries.findIndex(
+      entry => entry.date === targetDateStr && entry.block === targetBlock
+    );
+    
+    if (existingEntryIndex >= 0) {
+      // Update the existing entry to this exam's subject
+      updatedEntries[existingEntryIndex].subject = exam.subject;
+    } else {
+      // Only add a new entry if this timeslot is available in the user's preferences
+      const dayOfWeek = getDayOfWeek(targetDate);
+      if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes(targetBlock)) {
+        updatedEntries.push({
+          date: targetDateStr,
+          block: targetBlock,
+          subject: exam.subject,
+          isUserCreated: false
+        });
+      }
+    }
+  });
+  
+  return updatedEntries;
+}
+
+/**
+ * Gets the appropriate block for a pre-exam session based on exam time
+ * @param {string} examTimeOfDay - Time of day for the exam (Morning, Afternoon, Evening)
+ * @returns {string} Block name for pre-exam session
+ */
+function getPreExamBlock(examTimeOfDay) {
+  switch (examTimeOfDay) {
+    case 'Morning':
+      return 'Morning'; // Will try Evening the day before first
+    case 'Afternoon':
+      return 'Morning';
+    case 'Evening':
+      return 'Afternoon';
+    default:
+      return 'Morning';
+  }
+}
