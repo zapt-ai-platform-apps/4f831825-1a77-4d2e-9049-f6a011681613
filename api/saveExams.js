@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import { db } from "./dbClient.js";
+import { db } from "./_dbClient.js";
 import { exams } from "../drizzle/schema.js";
 
 Sentry.init({

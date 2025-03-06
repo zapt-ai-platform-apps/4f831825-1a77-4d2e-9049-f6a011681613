@@ -1,4 +1,4 @@
-import { db } from "./dbClient.js";
+import { db } from "./_dbClient.js";
 import { preferences, revisionTimes, timetableEntries, blockTimes } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 

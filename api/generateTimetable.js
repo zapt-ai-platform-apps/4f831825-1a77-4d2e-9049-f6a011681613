@@ -1,5 +1,5 @@
 import { authenticateUser, Sentry } from "./_apiUtils.js";
-import { db } from "./dbClient.js";
+import { db } from "./_dbClient.js";
 import { timetableEntries, exams, preferences, revisionTimes, blockTimes } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
 
