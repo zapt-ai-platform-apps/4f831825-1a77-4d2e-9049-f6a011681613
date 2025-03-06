@@ -4,27 +4,40 @@ Welcome to **UpGrade**, a personalized revision timetable app designed to help y
 
 ---
 
-## User Journeys in Recommended Order
+## Features
 
-1. [Get Started](docs/journeys/get-started.md) - Land on the main page and begin.  
-2. [Sign In with ZAPT](docs/journeys/sign-in-with-zapt.md) - Enter the app securely.  
-3. [Set Revision Preferences](docs/journeys/set-revision-preferences.md) - Set your available days, blocks, and start date.  
-4. [Manage Exams](docs/journeys/manage-exams.md) - Add and edit exam information.  
-5. [Generate Timetable](docs/journeys/generate-timetable.md) - Create a personalized study schedule.  
-6. [View Timetable](docs/journeys/view-timetable.md) - See your schedule in a useful calendar.  
-7. [Use Navigation Menu](docs/journeys/use-navigation-menu.md) - Explore app sections (Preferences, Exams, Timetable).  
-8. [Manage Account](docs/journeys/manage-account.md) - Sign out and account management details.  
-9. [Manage Revision Sessions](docs/journeys/manage-revision-sessions.md) - Fine-tune your study sessions on specific days.
+- **Personalized Revision Timetable**: Create a study schedule tailored to your needs
+- **Exam Management**: Add and edit exam information
+- **Preference Settings**: Set your available days, blocks, and start date
+- **Interactive Calendar**: View your schedule in an easy-to-use calendar
+- **Session Management**: Fine-tune your study sessions on specific days
 
 ---
 
-For a detailed explanation of each journey, click on the links above or see the [docs/journeys/](docs/journeys/) folder.
+## How to Use
+
+1. **Get Started**: Land on the main page and begin
+2. **Sign In with ZAPT**: Enter the app securely
+3. **Set Revision Preferences**: Set your available days, blocks, and start date
+4. **Manage Exams**: Add and edit exam information
+5. **Generate Timetable**: Create a personalized study schedule
+6. **View Timetable**: See your schedule in a useful calendar
+7. **Use Navigation Menu**: Explore app sections (Preferences, Exams, Timetable)
+8. **Manage Account**: Sign out and account management
+9. **Manage Revision Sessions**: Fine-tune your study sessions on specific days
 
 ---
 
 ## External API Services
 
-See [docs/external_services.md](docs/external_services.md) for a summary of the services used in this app.
+This app uses the following external services:
+
+- **Supabase**: Used for user authentication via ZAPT
+- **Sentry**: Used for error logging and monitoring
+- **Progressier**: Used to add PWA support (service worker, manifest, etc.)
+- **Umami**: Used for analytics tracking
+- **Resend**: For sending emails if needed
+- **OpenAI**: For ChatGPT-based final review of the locally generated timetable
 
 ---
 
@@ -39,17 +52,6 @@ Please create a file named **.env** at the project root with the following envir
 5. NPM_TOKEN="<Your NPM token if needed>"
 6. VITE_PUBLIC_UMAMI_WEBSITE_ID="<Your Umami website ID>"
 7. OPENAI_API_KEY="<Your OpenAI API Key>"
-
----
-
-## Description of External Services
-
-- **Supabase**: Used for user authentication via ZAPT.  
-- **Sentry**: Used for error logging and monitoring.  
-- **Progressier**: Used to add PWA support (service worker, manifest, etc.).  
-- **Umami**: Used for analytics tracking.  
-- **Resend**: For sending emails if needed.  
-- **OpenAI**: For ChatGPT-based final review of the locally generated timetable.
 
 ---
 
