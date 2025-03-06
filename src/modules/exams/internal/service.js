@@ -9,6 +9,11 @@ import * as Sentry from '@sentry/browser';
  * @returns {boolean} - True if valid, throws error if not
  */
 export function validateExamInput(exam) {
+  // Check if exam object exists
+  if (!exam) {
+    throw new Error('Exam data is missing');
+  }
+  
   // Check required fields
   if (!exam.subject) {
     throw new Error('Subject is required');
