@@ -21,6 +21,9 @@ export default async function handler(req, res) {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
+    // Log request to help debug duplicate calls
+    console.log(`[saveExams] Processing request: ${new Date().toISOString()}`);
+
     const user = await authenticateUser(req);
 
     const body = req.body;
@@ -39,6 +42,8 @@ export default async function handler(req, res) {
     const validTimeOfDay = ["Morning", "Afternoon", "Evening"];
     const examTimeOfDay = validTimeOfDay.includes(timeOfDay) ? timeOfDay : 'Morning';
 
+    console.log(`[saveExams] Inserting exam: ${subject}, ${examDate}, ${examTimeOfDay}`);
+
     await db.insert(exams).values({
       userId: user.id,
       subject: subject,
@@ -48,6 +53,7 @@ export default async function handler(req, res) {
       examColour: examColour,
     });
 
+    console.log(`[saveExams] Exam saved successfully: ${subject}`);
     res.status(200).json({ message: "Exam saved" });
   } catch (error) {
     Sentry.captureException(error);

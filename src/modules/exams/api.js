@@ -40,6 +40,8 @@ export const api = {
         moduleTo: 'exams'
       });
       
+      console.log('[Exams API] Saving exam:', validatedExam);
+      
       const response = await makeAuthenticatedRequest('/api/saveExams', {
         method: 'POST',
         body: JSON.stringify({ data: validatedExam })
@@ -47,8 +49,7 @@ export const api = {
       
       const result = await handleApiResponse(response, 'Saving exam');
       
-      // Publish exam created event
-      eventBus.publish(events.EXAM_CREATED, { exam: validatedExam });
+      // Note: Event publishing moved to service layer to prevent duplication
       
       return result;
     } catch (error) {
@@ -84,8 +85,7 @@ export const api = {
       
       const result = await handleApiResponse(response, 'Updating exam');
       
-      // Publish exam updated event
-      eventBus.publish(events.EXAM_UPDATED, { exam: validatedExam });
+      // Note: Event publishing moved to service layer to prevent duplication
       
       return result;
     } catch (error) {
@@ -108,8 +108,7 @@ export const api = {
       
       const result = await handleApiResponse(response, 'Deleting exam');
       
-      // Publish exam deleted event
-      eventBus.publish(events.EXAM_DELETED, { id });
+      // Note: Event publishing moved to service layer to prevent duplication
       
       return result;
     } catch (error) {

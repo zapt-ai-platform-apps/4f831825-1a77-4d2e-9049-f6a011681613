@@ -53,6 +53,8 @@ export async function saveOrUpdateExam(exam, editExam = null) {
     // Validate input
     validateExamInput(examData);
     
+    let result;
+    
     if (editExam) {
       // Update existing exam
       const examWithId = {
@@ -61,22 +63,22 @@ export async function saveOrUpdateExam(exam, editExam = null) {
       };
       
       console.log('Updating exam:', examWithId);
-      await examsApi.updateExam(examWithId);
+      result = await examsApi.updateExam(examWithId);
       
-      // Publish exam updated event
+      // Publish exam updated event after successful API call
       eventBus.publish(events.UPDATED, { exam: examWithId });
       console.log('Exam updated:', examWithId);
     } else {
       // Create new exam
       console.log('Creating new exam:', examData);
-      await examsApi.saveExam(examData);
+      result = await examsApi.saveExam(examData);
       
-      // Publish exam created event
+      // Publish exam created event after successful API call
       eventBus.publish(events.CREATED, { exam: examData });
       console.log('Exam created:', examData);
     }
     
-    return { success: true };
+    return { success: true, ...result };
   } catch (error) {
     console.error('Error in exams service:', error);
     Sentry.captureException(error);
@@ -96,12 +98,12 @@ export async function saveOrUpdateExam(exam, editExam = null) {
  */
 export async function deleteExam(id) {
   try {
-    await examsApi.deleteExam(id);
+    const result = await examsApi.deleteExam(id);
     
-    // Publish exam deleted event
+    // Publish exam deleted event after successful API call
     eventBus.publish(events.DELETED, { id });
     
-    return { success: true };
+    return { success: true, ...result };
   } catch (error) {
     console.error('Error deleting exam:', error);
     Sentry.captureException(error);

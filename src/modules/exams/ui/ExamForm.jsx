@@ -13,11 +13,14 @@ import { useExamForm } from './useExam';
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   const { formData, submitting, errors, handleSubmit, handleChange } = useExamForm(editExam, onExamSaved);
 
+  // Explicitly prevent default form submission to avoid potential duplicate submissions
+  const onFormSubmit = (e) => {
+    e.preventDefault();
+    // Form submission is handled via the button click only
+  };
+
   return (
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      // Don't call handleSubmit here - only call it from the button
-    }} className="space-y-4">
+    <form onSubmit={onFormSubmit} className="space-y-4">
       <ExamFormFields
         formData={formData}
         onChange={handleChange}
@@ -41,7 +44,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           </button>
         )}
         <button
-          type="button" // Changed from submit to button to avoid form submission
+          type="button"
           onClick={handleSubmit}
           disabled={submitting}
           className={`btn text-white cursor-pointer ${
