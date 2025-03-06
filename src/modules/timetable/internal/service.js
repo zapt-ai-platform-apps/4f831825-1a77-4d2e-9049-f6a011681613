@@ -61,10 +61,10 @@ export function buildSubjectColorMapping(subjectsSet, exams) {
     }
   });
   
-  // For any remaining subjects without assigned colors, generate random colors
+  // For any remaining subjects without assigned colors, generate deterministic colors
   subjects.forEach(subject => {
     if (!subjectColours[subject]) {
-      subjectColours[subject] = getRandomColor();
+      subjectColours[subject] = getConsistentColor(subject);
     }
   });
   
@@ -133,14 +133,26 @@ export function getOrCreateCurrentMonth(currentMonth, preferences) {
 }
 
 /**
- * Generates a random color
- * @returns {string} Random hex color
+ * Generates a consistent color based on subject name
+ * @param {string} subject - Subject name
+ * @returns {string} Hex color
  */
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+function getConsistentColor(subject) {
+  // Generate a consistent hash from the subject name
+  let hash = 0;
+  for (let i = 0; i < subject.length; i++) {
+    hash = subject.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return color;
+  
+  // Convert hash to RGB color
+  const r = (hash & 0xFF0000) >> 16;
+  const g = (hash & 0x00FF00) >> 8;
+  const b = hash & 0x0000FF;
+  
+  // Ensure colors are vibrant enough (minimum brightness)
+  const minBrightness = 60; // Adjust as needed
+  const clamp = (value) => Math.max(minBrightness, value);
+  
+  // Convert to hex and ensure each component has 2 digits
+  return `#${clamp(r).toString(16).padStart(2, '0')}${clamp(g).toString(16).padStart(2, '0')}${clamp(b).toString(16).padStart(2, '0')}`;
 }
