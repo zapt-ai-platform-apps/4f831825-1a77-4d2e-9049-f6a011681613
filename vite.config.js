@@ -24,6 +24,6 @@ export default defineConfig({
     conditions: ['development', 'browser'],
   },
   optimizeDeps: {
-    exclude: ['drizzle-orm']
+    exclude: ['drizzle-orm', 'postgres']
   }
 });

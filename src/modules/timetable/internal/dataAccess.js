@@ -4,7 +4,7 @@ import {
   revisionTimes,
   timetableEntries,
   blockTimes,
-} from "../../../drizzle/schema.js";
+} from "../../../../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
 
 /**

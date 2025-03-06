@@ -1,5 +1,5 @@
 import { db } from "@/modules/core/api.js";
-import { timetableEntries } from "../../../drizzle/schema.js";
+import { timetableEntries } from "../../../../drizzle/schema.js";
 import * as Sentry from "@sentry/node";
 
 /**
