@@ -14,7 +14,10 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   const { formData, submitting, errors, handleSubmit, handleChange } = useExamForm(editExam, onExamSaved);
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      // Don't call handleSubmit here - only call it from the button
+    }} className="space-y-4">
       <ExamFormFields
         formData={formData}
         onChange={handleChange}
@@ -38,7 +41,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           </button>
         )}
         <button
-          type="submit"
+          type="button" // Changed from submit to button to avoid form submission
           onClick={handleSubmit}
           disabled={submitting}
           className={`btn text-white cursor-pointer ${

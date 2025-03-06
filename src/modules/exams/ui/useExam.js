@@ -74,7 +74,9 @@ export function useExamForm(editExam, onExamSaved) {
       const result = await saveOrUpdateExam(examToSave, editExam);
       
       if (result.success) {
-        onExamSaved();
+        if (typeof onExamSaved === 'function') {
+          onExamSaved();
+        }
       } else {
         // Handle error from service
         setErrors({ general: result.error });
