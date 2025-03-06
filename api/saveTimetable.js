@@ -1,18 +1,7 @@
-import * as Sentry from "@sentry/node";
-import { authenticateUser } from "./_apiUtils.js";
+import { authenticateUser, Sentry } from "./_apiUtils.js";
 import { db } from "./_dbClient.js";
-import { timetables } from "../drizzle/schema.js";
-
-Sentry.init({
-  dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
-  environment: process.env.VITE_PUBLIC_APP_ENV,
-  initialScope: {
-    tags: {
-      type: "backend",
-      projectId: process.env.VITE_PUBLIC_APP_ID,
-    },
-  },
-});
+import { timetableEntries } from "../drizzle/schema.js";
+import { eq, and } from "drizzle-orm";
 
 export default async function handler(req, res) {
   try {
@@ -21,32 +10,47 @@ export default async function handler(req, res) {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
+    // Authenticate user
     const user = await authenticateUser(req);
+    const userId = user.id;
 
-    const body = req.body;
-    const { data: timetableData } = body;
+    // Get timetable data from request body
+    const { data: timetableData } = req.body;
 
-    if (!timetableData) {
-      return res.status(400).json({ error: "Timetable data is required" });
+    if (!timetableData || !Array.isArray(timetableData) || timetableData.length === 0) {
+      return res.status(400).json({ error: "Valid timetable data is required" });
     }
 
-    await db
-      .insert(timetables)
-      .values({
-        userId: user.id,
-        data: timetableData,
-      })
-      .onConflictDoUpdate({
-        target: timetables.userId,
-        set: {
-          data: timetableData,
-        },
-      });
+    console.log(`Saving timetable with ${timetableData.length} entries for user ${userId}`);
 
-    res.status(200).json({ message: "Timetable saved" });
+    // Delete existing system-generated entries (preserve user-created ones)
+    await db
+      .delete(timetableEntries)
+      .where(
+        and(
+          eq(timetableEntries.userId, userId),
+          eq(timetableEntries.isUserCreated, false)
+        )
+      );
+
+    // Prepare entries for database insertion
+    const entriesToInsert = timetableData.map(entry => ({
+      userId: userId,
+      date: entry.date,
+      block: entry.block,
+      subject: entry.subject,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      isUserCreated: entry.isUserCreated || false
+    }));
+
+    // Insert new entries
+    await db.insert(timetableEntries).values(entriesToInsert);
+
+    return res.status(200).json({ message: "Timetable saved successfully", count: entriesToInsert.length });
   } catch (error) {
-    Sentry.captureException(error);
     console.error("Error saving timetable:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
+    Sentry.captureException(error);
+    return res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 }

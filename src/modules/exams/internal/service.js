@@ -4,6 +4,8 @@ import { events } from '../events';
 import * as Sentry from '@sentry/browser';
 import { validateExam } from '../validators';
 import { supabase } from '../../core/api';
+import { generateTimetableClient } from '../../timetable/internal/clientTimetableGenerator';
+import { api as preferencesApi } from '../../preferences/api';
 
 /**
  * Validates exam data before saving
@@ -126,12 +128,40 @@ export async function generateTimetable() {
       throw new Error("No active session found. Please log in again.");
     }
     
-    const response = await fetch('/api/generateTimetable', {
+    // Get user exams
+    const exams = await examsApi.getExams();
+    if (!exams || exams.length === 0) {
+      throw new Error("No exams found. Please add exams first.");
+    }
+    
+    // Get user preferences
+    const preferences = await preferencesApi.getPreferences();
+    if (!preferences) {
+      throw new Error("No preferences found. Please set your revision preferences first.");
+    }
+    
+    // Generate timetable on the client side
+    const timetable = await generateTimetableClient(
+      exams,
+      preferences.startDate,
+      preferences.revisionTimes,
+      preferences.blockTimes
+    );
+    
+    if (timetable.length === 0) {
+      throw new Error("Could not generate a viable timetable. Please check your exams and revision preferences.");
+    }
+    
+    // Save the generated timetable using the API
+    const response = await fetch('/api/saveTimetable', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        data: timetable
+      })
     });
     
     if (!response.ok) {
@@ -140,11 +170,11 @@ export async function generateTimetable() {
         return null;
       });
       
-      let errorMessage = 'Error generating timetable';
+      let errorMessage = 'Error saving timetable';
       
       if (errorData && errorData.error) {
         errorMessage = errorData.error;
-        console.error("Timetable generation error:", errorMessage);
+        console.error("Timetable save error:", errorMessage);
       } else {
         // Try to get text response if JSON parsing failed
         const errorText = await response.text().catch(e => {
@@ -154,12 +184,12 @@ export async function generateTimetable() {
         
         if (errorText) {
           errorMessage = errorText;
-          console.error("Timetable generation error (text):", errorText);
+          console.error("Timetable save error (text):", errorText);
         }
       }
       
       // Log detailed error information
-      console.error("Failed to generate timetable:", {
+      console.error("Failed to save timetable:", {
         status: response.status,
         statusText: response.statusText,
         errorMessage: errorMessage
@@ -176,7 +206,7 @@ export async function generateTimetable() {
       throw new Error(errorMessage);
     }
     
-    console.log("Timetable generated successfully");
+    console.log("Timetable generated and saved successfully");
     return { success: true };
   } catch (error) {
     console.error('Error generating timetable:', error);
