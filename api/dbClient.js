@@ -2,14 +2,15 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as Sentry from "@sentry/node";
 
-let db;
+// Single db client instance
+let dbInstance = null;
 
 /**
  * Gets a database client instance, creating one if it doesn't exist
  * @returns {Object} Drizzle ORM database client
  */
 export function getDbClient() {
-  if (!db) {
+  if (!dbInstance) {
     const connectionString = process.env.COCKROACH_DB_URL;
     if (!connectionString) {
       throw new Error("Database connection string not found in environment variables");
@@ -17,7 +18,7 @@ export function getDbClient() {
     
     try {
       const client = postgres(connectionString);
-      db = drizzle(client);
+      dbInstance = drizzle(client);
       console.log("Database connection established");
     } catch (error) {
       console.error("Error connecting to database:", error);
@@ -26,7 +27,7 @@ export function getDbClient() {
     }
   }
   
-  return db;
+  return dbInstance;
 }
 
 // Export a singleton instance for direct use
