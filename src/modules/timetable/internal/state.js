@@ -157,8 +157,13 @@ export function useTimetableState() {
       
       const newMonth = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
       
-      if (minDate && newMonth < minDate) {
-        return prev;
+      if (minDate) {
+        // Compare by year and month, not by exact date
+        // This allows navigation to the month of the start date
+        const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        if (newMonth < minMonth) {
+          return prev;
+        }
       }
       
       return newMonth;
