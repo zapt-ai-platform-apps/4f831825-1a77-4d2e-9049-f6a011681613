@@ -21,7 +21,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           value={formData.subject || ''}
           onChange={(e) => onChange('subject', e.target.value)}
           placeholder="e.g., Mathematics"
-          className={`w-full px-3 py-2 rounded bg-input box-border ${
+          className={`w-full px-3 py-2 rounded bg-input text-black box-border ${
             errors.subject ? 'border border-red-500' : ''
           }`}
           required
@@ -39,7 +39,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           type="date"
           value={formData.examDate || ''}
           onChange={(e) => onChange('examDate', e.target.value)}
-          className={`w-full px-3 py-2 rounded bg-input box-border ${
+          className={`w-full px-3 py-2 rounded bg-input text-black box-border ${
             errors.examDate ? 'border border-red-500' : ''
           }`}
           required
@@ -54,7 +54,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
         <select
           value={formData.timeOfDay || 'Morning'}
           onChange={(e) => onChange('timeOfDay', e.target.value)}
-          className="w-full px-3 py-2 rounded bg-input box-border"
+          className="w-full px-3 py-2 rounded bg-input text-black box-border"
         >
           <option value="Morning">Morning</option>
           <option value="Afternoon">Afternoon</option>
@@ -69,7 +69,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           value={formData.board || ''}
           onChange={(e) => onChange('board', e.target.value)}
           placeholder="e.g., AQA, OCR"
-          className="w-full px-3 py-2 rounded bg-input box-border"
+          className="w-full px-3 py-2 rounded bg-input text-black box-border"
         />
       </div>
 
@@ -79,7 +79,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           type="color"
           value={formData.examColour || '#ffffff'}
           onChange={(e) => onChange('examColour', e.target.value)}
-          className="w-full h-10 px-1 py-1 rounded bg-input box-border"
+          className="w-full h-10 px-1 py-1 rounded bg-input text-black box-border"
         />
       </div>
     </div>

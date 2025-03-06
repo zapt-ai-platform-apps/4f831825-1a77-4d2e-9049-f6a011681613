@@ -40,7 +40,7 @@ function Login() {
                   inputBackground: '#2d3436',
                   inputBorder: '#4ECDC4',
                   inputLabelText: '#dfe6e9',
-                  messageText: '#FFE66D',
+                  messageText: '#4a5568', // Changed from '#FFE66D' to a darker gray color
                 },
                 radii: {
                   borderRadiusButton: '12px',
