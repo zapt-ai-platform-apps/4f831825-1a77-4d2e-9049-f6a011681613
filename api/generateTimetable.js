@@ -1,5 +1,5 @@
 import { authenticateUser, Sentry } from "./_apiUtils.js";
-import { db } from "../src/modules/core/internal/dbClient.js";
+import { db } from "./dbClient.js";
 import { deleteGeneratedTimetableEntries } from "../src/modules/timetable/internal/dataAccess.js";
 import { getUserPreferences, getUserExams, getUserRevisionTimes, getUserBlockTimes } from "../src/modules/timetable/internal/dataAccess.js";
 import { generateTimetable } from "../src/modules/timetable/internal/timetableGenerator.js";

@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { timetableEntries } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
-import { db } from "../src/modules/core/internal/dbClient.js";
+import { db } from "./dbClient.js";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
