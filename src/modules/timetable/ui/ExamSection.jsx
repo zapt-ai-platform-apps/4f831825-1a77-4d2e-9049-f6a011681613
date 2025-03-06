@@ -19,13 +19,13 @@ function ExamSection({ exams }) {
         {exams.map((exam) => (
           <div
             key={exam.id}
-            className="p-3 rounded-lg border-l-4"
-            style={{ borderColor: exam.examColour || 'red' }}
+            className="p-3 rounded-lg border-l-4 bg-red-100"
+            style={{ borderColor: 'red' }}
           >
             <p className="font-semibold flex items-center text-sm sm:text-base">
               <span
                 className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: exam.examColour || 'red' }}
+                style={{ backgroundColor: 'red' }}
               ></span>
               {exam.timeOfDay} Exam
             </p>

@@ -18,8 +18,8 @@ function ExamItems({ exams }) {
       {exams.map((exam) => (
         <div
           key={exam.id}
-          className="p-1 rounded text-[10px] xs:text-xs sm:text-sm cursor-pointer"
-          style={{ backgroundColor: exam.examColour || 'red' }}
+          className="p-1 rounded text-[10px] xs:text-xs sm:text-sm cursor-pointer font-bold border border-red-700 shadow-md"
+          style={{ backgroundColor: 'red', color: 'white' }}
         >
           <span className="font-semibold block truncate">
             <span className="inline xs:hidden">{exam.timeOfDay.charAt(0)}</span>

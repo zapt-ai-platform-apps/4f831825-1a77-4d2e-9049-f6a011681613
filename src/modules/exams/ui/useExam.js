@@ -13,7 +13,7 @@ export function useExamForm(editExam, onExamSaved) {
     examDate: '',
     timeOfDay: 'Morning',
     board: '',
-    examColour: '#ffffff',
+    examColour: '#ff0000', // Default to red color
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -27,7 +27,7 @@ export function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate || '',
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
-        examColour: editExam.examColour || '#ffffff',
+        examColour: '#ff0000', // Always use red color regardless of existing value
       });
     } else {
       setFormData({
@@ -35,7 +35,7 @@ export function useExamForm(editExam, onExamSaved) {
         examDate: '',
         timeOfDay: 'Morning',
         board: '',
-        examColour: '#ffffff',
+        examColour: '#ff0000', // Default to red color for new exams
       });
     }
     // Reset submission state when exam changes
@@ -92,7 +92,7 @@ export function useExamForm(editExam, onExamSaved) {
           examDate: '',
           timeOfDay: 'Morning',
           board: '',
-          examColour: '#ffffff',
+          examColour: '#ff0000', // Maintain red color
         });
         // Also reset hasSubmitted flag to allow new submissions
         setHasSubmitted(false);

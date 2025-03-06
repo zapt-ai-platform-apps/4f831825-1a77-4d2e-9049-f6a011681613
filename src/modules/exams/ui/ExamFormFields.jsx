@@ -72,16 +72,6 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           className="w-full px-3 py-2 rounded bg-input text-black box-border"
         />
       </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium">Exam Color</label>
-        <input
-          type="color"
-          value={formData.examColour || '#ffffff'}
-          onChange={(e) => onChange('examColour', e.target.value)}
-          className="w-full h-10 px-1 py-1 rounded bg-input text-black box-border"
-        />
-      </div>
     </div>
   );
 }
