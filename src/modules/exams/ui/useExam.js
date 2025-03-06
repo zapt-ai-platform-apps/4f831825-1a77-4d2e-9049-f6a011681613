@@ -18,12 +18,13 @@ export function useExamForm(editExam, onExamSaved) {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (editExam) {
       setFormData({
-        subject: editExam.subject,
-        examDate: editExam.examDate,
+        subject: editExam.subject || '',
+        examDate: editExam.examDate || '',
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
         examColour: editExam.examColour || '#ffffff',
@@ -39,12 +40,38 @@ export function useExamForm(editExam, onExamSaved) {
     }
   }, [editExam]);
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.subject) {
+      newErrors.subject = 'Subject is required';
+    }
+    
+    if (!formData.examDate) {
+      newErrors.examDate = 'Exam date is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
     if (submitting) return;
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      console.error('Form validation failed:', errors);
+      return;
+    }
+    
+    console.log('Submitting exam form with data:', formData);
     setSubmitting(true);
 
     try {
-      await saveOrUpdateExam(formData, editExam);
+      // Create a copy of form data to prevent any reference issues
+      const examToSave = { ...formData };
+      
+      await saveOrUpdateExam(examToSave, editExam);
       onExamSaved();
     } catch (error) {
       console.error('Error saving exam:', error);
@@ -59,11 +86,20 @@ export function useExamForm(editExam, onExamSaved) {
       ...prev,
       [field]: value,
     }));
+    
+    // Clear error for this field when it changes
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: null
+      }));
+    }
   };
 
   return {
     formData,
     submitting,
+    errors,
     handleSubmit,
     handleChange,
   };

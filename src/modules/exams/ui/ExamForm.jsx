@@ -11,7 +11,7 @@ import { useExamForm } from './useExam';
  * @returns {React.ReactElement} Exam form
  */
 function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
-  const { formData, submitting, handleSubmit, handleChange } = useExamForm(editExam, onExamSaved);
+  const { formData, submitting, errors, handleSubmit, handleChange } = useExamForm(editExam, onExamSaved);
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
@@ -19,6 +19,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
         formData={formData}
         onChange={handleChange}
         editExam={editExam}
+        errors={errors}
       />
       <div className="flex justify-end space-x-4 mt-4">
         {editExam && (

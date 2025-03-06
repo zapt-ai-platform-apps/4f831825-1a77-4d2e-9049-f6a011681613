@@ -2,6 +2,7 @@ import { api as examsApi } from '../api';
 import { eventBus } from '../../core/events';
 import { events } from '../events';
 import * as Sentry from '@sentry/browser';
+import { validateExam } from '../validators';
 
 /**
  * Validates exam data before saving
@@ -11,6 +12,7 @@ import * as Sentry from '@sentry/browser';
 export function validateExamInput(exam) {
   // Check if exam object exists
   if (!exam) {
+    console.error('Validation failed: Exam data is missing', exam);
     throw new Error('Exam data is missing');
   }
   
@@ -34,26 +36,41 @@ export function validateExamInput(exam) {
  */
 export async function saveOrUpdateExam(exam, editExam = null) {
   try {
+    console.log('saveOrUpdateExam called with:', { exam, editExam });
+    
+    // Ensure exam data exists before validation
+    if (!exam) {
+      console.error('Exam data is missing in saveOrUpdateExam');
+      throw new Error('Exam data is missing');
+    }
+    
+    // Make a deep copy of exam data to prevent reference issues
+    const examData = JSON.parse(JSON.stringify(exam));
+    
     // Validate input
-    validateExamInput(exam);
+    validateExamInput(examData);
     
     if (editExam) {
       // Update existing exam
       const examWithId = {
-        ...exam,
+        ...examData,
         id: editExam.id
       };
       
+      console.log('Updating exam:', examWithId);
       await examsApi.updateExam(examWithId);
       
       // Publish exam updated event
       eventBus.publish(events.UPDATED, { exam: examWithId });
+      console.log('Exam updated:', examWithId);
     } else {
       // Create new exam
-      await examsApi.saveExam(exam);
+      console.log('Creating new exam:', examData);
+      await examsApi.saveExam(examData);
       
       // Publish exam created event
-      eventBus.publish(events.CREATED, { exam });
+      eventBus.publish(events.CREATED, { exam: examData });
+      console.log('Exam created:', examData);
     }
     
     return { success: true };
