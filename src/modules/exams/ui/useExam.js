@@ -94,6 +94,8 @@ export function useExamForm(editExam, onExamSaved) {
           board: '',
           examColour: '#ffffff',
         });
+        // Also reset hasSubmitted flag to allow new submissions
+        setHasSubmitted(false);
       }
     } catch (error) {
       console.error('Error saving exam:', error);
@@ -103,8 +105,6 @@ export function useExamForm(editExam, onExamSaved) {
       setHasSubmitted(false);
     } finally {
       setSubmitting(false);
-      // Note: We don't reset hasSubmitted here because we want to prevent multiple submissions
-      // It will be reset when the form is cleared or when editExam changes
     }
   };
 
