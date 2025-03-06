@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply scroll-smooth;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-display tracking-wide;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+  
+  .fun-shadow {
+    @apply shadow-[0_10px_20px_rgba(255,107,107,0.3)];
+  }
+  
+  .hover-scale {
+    @apply transform transition-transform duration-300 hover:scale-110;
+  }
+  
+  .emoji-button {
+    @apply text-2xl transform transition duration-300 hover:rotate-12 hover:scale-125;
+  }
+}
+
+.loading-dots:after {
+  content: '.';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60% { content: '...'; }
+  80%, 100% { content: ''; }
+}
