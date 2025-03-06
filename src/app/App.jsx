@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from '../modules/landing/ui/LandingPage';
 import Login from '../modules/auth/ui/Login';
 import ProtectedRoute from '../modules/auth/ui/ProtectedRoute';
@@ -13,12 +13,23 @@ import { useAuth } from '../modules/auth/ui/useAuth';
  * @returns {React.ReactElement} App component
  */
 function App() {
+  const { user, loading } = useAuth();
+
+  // Render a simple loading indicator during initial auth check
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full">
       <Routes>
         {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
+        <Route path="/login" element={user ? <Navigate to="/preferences" replace /> : <Login />} />
         
         {/* Protected routes */}
         <Route path="/preferences" element={
@@ -38,7 +49,7 @@ function App() {
         } />
         
         {/* Fallback route */}
-        <Route path="*" element={<LandingPage />} />
+        <Route path="*" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
       </Routes>
       
       {/* ZAPT Attribution */}

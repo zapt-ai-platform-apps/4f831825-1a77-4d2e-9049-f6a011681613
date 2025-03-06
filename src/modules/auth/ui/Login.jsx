@@ -1,12 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../core/api';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { useAuth } from './useAuth';
 
 /**
  * Login component using Supabase Auth UI
  */
 function Login() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // Redirect to preferences if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/preferences', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
       <div className="w-full max-w-md p-8 space-y-6 bg-foreground/5 rounded-2xl backdrop-blur-lg border-2 border-primary/30 fun-shadow">

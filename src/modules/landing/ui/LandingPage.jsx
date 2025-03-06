@@ -1,14 +1,25 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AnimatedBackground from './AnimatedBackground';
 import FeatureCard from './FeatureCard';
 import EmojiFloats from './EmojiFloats';
+import { useAuth } from '../../auth/ui/useAuth';
 
 /**
  * Landing page component
  * @returns {React.ReactElement} Landing page
  */
 function LandingPage() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // Redirect to preferences if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/preferences', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-background text-foreground relative overflow-hidden">
       <AnimatedBackground />
