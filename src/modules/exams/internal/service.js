@@ -3,6 +3,7 @@ import { eventBus } from '../../core/events';
 import { events } from '../events';
 import * as Sentry from '@sentry/browser';
 import { validateExam } from '../validators';
+import { supabase } from '../../core/api';
 
 /**
  * Validates exam data before saving
@@ -117,9 +118,18 @@ export async function deleteExam(id) {
 export async function generateTimetable() {
   try {
     console.log("Generating timetable...");
+    
+    // Get the current session to add authentication token
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session found. Please log in again.");
+    }
+    
     const response = await fetch('/api/generateTimetable', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       }
     });
