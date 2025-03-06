@@ -1,5 +1,7 @@
-import { api as authApi } from "@/modules/auth/api.js";
-import Sentry from "@/modules/core/internal/sentry.js";
+import { initializeZapt } from '@zapt/zapt-js';
+import Sentry from "./_sentry.js";
+
+const { supabase } = initializeZapt(process.env.VITE_PUBLIC_APP_ID);
 
 /**
  * Authenticates a user based on the request's Authorization header
@@ -13,9 +15,10 @@ export async function authenticateUser(req) {
   }
 
   const token = authHeader.split(' ')[1];
-  const user = await authApi.getUserByToken(token);
+  const { data: { user }, error } = await supabase.auth.getUser(token);
   
-  if (!user) {
+  if (error) {
+    Sentry.captureException(error);
     throw new Error('Invalid token');
   }
 
