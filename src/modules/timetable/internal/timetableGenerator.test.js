@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { generateTimetable } from './timetableGenerator';
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, addDays } from 'date-fns';
 import { createDateRange } from './dateUtils';
 
 // Mock dependencies
@@ -15,14 +15,17 @@ vi.mock('../../exams/internal/examUtils', () => ({
 
 vi.mock('./dateUtils', () => ({
   createDateRange: vi.fn((start, end) => {
+    // Fixed implementation to avoid date mutation issues
     const startDate = parseISO(start);
     const endDate = parseISO(end);
     const dates = [];
-    let currentDate = startDate;
     
+    // Generate dates properly without mutating date object
+    let currentDate = startDate;
     while (currentDate <= endDate) {
       dates.push(format(currentDate, 'yyyy-MM-dd'));
-      currentDate.setDate(currentDate.getDate() + 1);
+      // Use date-fns addDays instead of direct mutation
+      currentDate = addDays(currentDate, 1);
     }
     
     return dates;
@@ -100,7 +103,7 @@ describe('generateTimetable', () => {
     
     const startDate = '2023-06-01';
     
-    // Mock implementation of createDateRange to return a limited set for testing
+    // Mock implementation of createDateRange to return a fixed set for testing
     vi.mocked(createDateRange).mockReturnValue([
       '2023-06-14', '2023-06-15', '2023-06-16', 
       '2023-06-19', '2023-06-20', '2023-06-21'
@@ -124,7 +127,7 @@ describe('generateTimetable', () => {
     
     const startDate = '2023-06-01';
     
-    // Mock implementation of createDateRange to return a limited set for testing
+    // Mock implementation with a fixed array of dates to avoid any date generation issues
     vi.mocked(createDateRange).mockReturnValue([
       '2023-06-01', '2023-06-02', '2023-06-05', '2023-06-06',
       '2023-06-07', '2023-06-08', '2023-06-09', '2023-06-12',

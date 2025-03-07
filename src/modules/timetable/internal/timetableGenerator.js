@@ -72,6 +72,9 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     // Distribute subjects to create initial timetable
     let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes, examSlots);
     
+    // Ensure all entries have date property (defensive programming)
+    timetable = timetable.filter(entry => entry && entry.date);
+    
     // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
     timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate, blockTimes);
     
@@ -184,6 +187,12 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
   
   // Process each available session
   reversedSessions.forEach(session => {
+    // Verify session has a date (defensive programming)
+    if (!session || !session.date) {
+      console.error("Invalid session without date:", session);
+      return;
+    }
+    
     const sessionKey = `${session.date}-${session.block}`;
     
     // Skip if this slot is already assigned
@@ -209,16 +218,23 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
     );
     
     // Create and add the session
-    timetableEntries.push(createSession(
+    const newSession = createSession(
       session.date,
       session.block,
       selectedSubject,
       blockTimes
-    ));
+    );
     
-    // Mark this slot as assigned and increment subject count
-    assignedSlots.add(sessionKey);
-    subjectCounts[selectedSubject]++;
+    // Ensure created session has a date before adding
+    if (newSession && newSession.date) {
+      timetableEntries.push(newSession);
+      
+      // Mark this slot as assigned and increment subject count
+      assignedSlots.add(sessionKey);
+      subjectCounts[selectedSubject]++;
+    } else {
+      console.error("Created session missing date:", newSession);
+    }
   });
   
   return timetableEntries;
