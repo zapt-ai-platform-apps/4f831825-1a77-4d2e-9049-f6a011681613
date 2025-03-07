@@ -22,7 +22,7 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
   
-  // Find exams on this day to exclude their subjects from revision
+  // Find exams on this day 
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
     .map(key => {
@@ -37,14 +37,19 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   // Filter out subjects that have exams at or after the current block on the same day
   const excludedSubjects = new Set();
   sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
-    // Exclude subjects with exams in later blocks on the same day
-    if (examTimeOrder > currentTimeOrder) {
+    // Only exclude subjects with exams in this block or later blocks on the same day
+    if (examTimeOrder >= currentTimeOrder) {
       subjects.forEach(subject => excludedSubjects.add(subject));
     }
   });
   
+  // Log the eligible subjects analysis for debugging
+  console.log(`Eligible subjects for ${date}-${block}:`);
+  console.log(`- Exams on this day: ${sameDay.map(e => `${e.subjects.join(',')} (${e.block})`).join(', ') || 'none'}`);
+  console.log(`- Excluded subjects: ${Array.from(excludedSubjects).join(', ') || 'none'}`);
+  
   // Filter subjects that haven't had their exam yet (or have had it earlier this day)
-  return exams
+  const eligibleSubjects = exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
@@ -57,7 +62,6 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
       if (isSameDay(examDate, sessionDate)) {
         const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
         // Allow revision for this subject only if its exam is in an earlier block
-        // Changed from <= to < to fix the test failure
         return examTimeOrder < currentTimeOrder;
       }
       
@@ -65,4 +69,7 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     })
     .map(exam => exam.subject)
     .filter(subject => !excludedSubjects.has(subject));
+  
+  console.log(`- Final eligible subjects: ${eligibleSubjects.join(', ') || 'none'}`);
+  return eligibleSubjects;
 }
