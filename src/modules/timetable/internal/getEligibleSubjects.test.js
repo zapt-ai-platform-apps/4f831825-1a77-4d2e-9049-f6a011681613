@@ -39,11 +39,15 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
   
-  // Filter out subjects that have exams on the same day (at any time)
-  // This prevents scheduling revision for a subject on the same day as its exam
+  // Filter out subjects that have exams at or after the current block on the same day
+  // This allows scheduling revision for a subject after its exam is complete on the same day
   const excludedSubjects = new Set();
-  sameDay.forEach(({ subjects }) => {
-    subjects.forEach(subject => excludedSubjects.add(subject));
+  sameDay.forEach(({ block: examBlock, subjects }) => {
+    const examTimeOrder = timeOrder[examBlock];
+    // Only exclude subjects with exams in the current block or later blocks
+    if (examTimeOrder >= currentTimeOrder) {
+      subjects.forEach(subject => excludedSubjects.add(subject));
+    }
   });
   
   // Filter subjects that haven't had their exam yet on this date
@@ -57,14 +61,15 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
         return false;
       }
       
-      // Exclude subjects that have an exam on this day
+      // For exams on the same day, check if they're in a later time block
       if (
         examDate.getFullYear() === sessionDate.getFullYear() &&
         examDate.getMonth() === sessionDate.getMonth() &&
-        examDate.getDate() === sessionDate.getDate() && 
-        excludedSubjects.has(exam.subject)
+        examDate.getDate() === sessionDate.getDate()
       ) {
-        return false;
+        const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
+        // Allow revision for this subject only if its exam is in an earlier block of the day
+        return examTimeOrder < currentTimeOrder;
       }
       
       return true;
@@ -89,11 +94,11 @@ describe('getEligibleSubjects', () => {
     expect(result).toEqual([]);
   });
   
-  it('should exclude subjects with exams on the same day', () => {
+  it('should allow revision for a subject after its exam on the same day', () => {
     const date = '2023-06-15';
     const block = 'Afternoon';
     const exams = [
-      { subject: 'Math', examDate: '2023-06-15' }, // Exam on same day
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }, // Exam earlier in the day
       { subject: 'Science', examDate: '2023-06-16' } // Exam on future day
     ];
     const examSlots = new Map([
@@ -102,8 +107,27 @@ describe('getEligibleSubjects', () => {
     
     const result = getEligibleSubjects(date, block, exams, {}, examSlots);
     
-    // Should not include Math as it has an exam on the same day
-    expect(result).toEqual(['Science']);
+    // Should include Math as its exam is earlier in the day
+    expect(result).toContain('Math');
+    expect(result).toContain('Science');
+  });
+  
+  it('should exclude subjects with exams later in the same day', () => {
+    const date = '2023-06-15';
+    const block = 'Morning';
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Afternoon' }, // Exam later in the day
+      { subject: 'Science', examDate: '2023-06-16' } // Exam on future day
+    ];
+    const examSlots = new Map([
+      [`${date}-Afternoon`, ['Math']] // Math exam in the afternoon
+    ]);
+    
+    const result = getEligibleSubjects(date, block, exams, {}, examSlots);
+    
+    // Should not include Math as its exam is later in the day
+    expect(result).not.toContain('Math');
+    expect(result).toContain('Science');
   });
   
   it('should exclude subjects whose exams have already passed', () => {
@@ -118,28 +142,36 @@ describe('getEligibleSubjects', () => {
     const result = getEligibleSubjects(date, block, exams, {}, examSlots);
     
     // Should not include Math as its exam has already passed
-    expect(result).toEqual(['Science']);
+    expect(result).not.toContain('Math');
+    expect(result).toContain('Science');
   });
   
   it('should return all eligible subjects', () => {
     const date = '2023-06-15';
     const block = 'Evening';
     const exams = [
-      { subject: 'Math', examDate: '2023-06-15' }, // Exam on same day
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }, // Morning exam on same day
+      { subject: 'Physics', examDate: '2023-06-15', timeOfDay: 'Afternoon' }, // Afternoon exam on same day
+      { subject: 'Chemistry', examDate: '2023-06-15', timeOfDay: 'Evening' }, // Evening exam on same day
       { subject: 'Science', examDate: '2023-06-16' }, // Future exam
       { subject: 'History', examDate: '2023-06-14' }, // Past exam
       { subject: 'English', examDate: '2023-06-20' } // Future exam
     ];
     const examSlots = new Map([
-      [`${date}-Morning`, ['Math']] // Math exam in the morning
+      [`${date}-Morning`, ['Math']], // Math exam in the morning
+      [`${date}-Afternoon`, ['Physics']], // Physics exam in the afternoon
+      [`${date}-Evening`, ['Chemistry']] // Chemistry exam in the evening
     ]);
     
     const result = getEligibleSubjects(date, block, exams, {}, examSlots);
     
-    // Should include Science and English, but not Math (same day) or History (past)
+    // Should include Math and Physics (exams earlier in day), but not Chemistry (same block),
+    // History (past), or Science and English (future)
+    expect(result).toContain('Math');
+    expect(result).toContain('Physics');
+    expect(result).not.toContain('Chemistry');
+    expect(result).not.toContain('History');
     expect(result).toContain('Science');
     expect(result).toContain('English');
-    expect(result).not.toContain('Math');
-    expect(result).not.toContain('History');
   });
 });
