@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { generateTimetable } from './timetableGenerator';
 import { parseISO, format, addDays } from 'date-fns';
-import { createDateRange } from './dateUtils';
+import { createDateRange, getDayOfWeek } from './dateUtils';
 import * as Sentry from '@sentry/browser';
 
 // Mock Sentry
@@ -182,7 +182,7 @@ describe('generateTimetable', () => {
       session.subject === 'Math'
     );
     
-    // Expect filtering to work correctly - not needing any session entry
+    // Since Math has an exam on this day, we should not schedule any Math sessions
     expect(mathLaterSessions.length).toBe(0);
   });
   

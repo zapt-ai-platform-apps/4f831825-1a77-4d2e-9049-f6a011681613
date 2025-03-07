@@ -61,7 +61,10 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     
     if (existingEntryIndex >= 0) {
       // Update the existing entry to this exam's subject
-      updatedEntries[existingEntryIndex].subject = exam.subject;
+      updatedEntries[existingEntryIndex] = {
+        ...updatedEntries[existingEntryIndex],
+        subject: exam.subject
+      };
     } else {
       // Only add a new entry if this timeslot is available in the user's preferences
       const dayOfWeek = getDayOfWeek(targetDate);
