@@ -15,14 +15,38 @@ export async function authenticateUser(req) {
   }
 
   const token = authHeader.split(' ')[1];
-  const { data: { user }, error } = await supabase.auth.getUser(token);
   
-  if (error) {
+  // Add more robustness to the authentication process
+  try {
+    const response = await supabase.auth.getUser(token);
+    
+    // Debug log to help diagnose issues
+    console.log('Auth response status:', response && response.data ? 'has data' : 'missing data');
+    
+    // Check if response has the expected structure
+    if (!response || !response.data) {
+      console.error('Invalid auth response structure');
+      throw new Error('Invalid authentication response structure');
+    }
+    
+    // Check if user exists in the response
+    if (!response.data.user) {
+      console.error('Auth session missing! User not found in response');
+      throw new Error('Auth session missing! User not found in response');
+    }
+    
+    // Check for errors
+    if (response.error) {
+      Sentry.captureException(response.error);
+      throw new Error(`Invalid token: ${response.error.message}`);
+    }
+    
+    return response.data.user;
+  } catch (error) {
+    console.error('Authentication error:', error.message);
     Sentry.captureException(error);
-    throw new Error('Invalid token');
+    throw error;
   }
-
-  return user;
 }
 
 export { Sentry };
