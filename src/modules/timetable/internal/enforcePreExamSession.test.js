@@ -67,6 +67,33 @@ describe('enforcePreExamSession', () => {
     }));
   });
 
+  it('should update an existing session if it exists', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
+    ];
+    
+    const timetableEntries = [
+      { date: '2023-06-14', block: 'Evening', subject: 'History' }
+    ];
+    
+    const revisionTimes = {
+      wednesday: ['Evening'] // June 14, 2023 is a Wednesday
+    };
+    
+    // Force getDayOfWeek to return wednesday for the date
+    vi.mocked(getDayOfWeek).mockReturnValue('wednesday');
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // Should update the existing Evening session on June 14 to Math
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(expect.objectContaining({
+      date: '2023-06-14',
+      block: 'Evening',
+      subject: 'Math'
+    }));
+  });
+
   it('should not add a revision session in the same slot as an exam', () => {
     const exams = [
       { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
@@ -106,29 +133,5 @@ describe('enforcePreExamSession', () => {
     
     // We should still find an appropriate slot for a pre-exam session
     expect(result.length).toBeGreaterThan(0);
-  });
-
-  it('should update an existing session if it exists', () => {
-    const exams = [
-      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
-    ];
-    
-    const timetableEntries = [
-      { date: '2023-06-14', block: 'Evening', subject: 'History' }
-    ];
-    
-    const revisionTimes = {
-      wednesday: ['Evening'] // June 14, 2023 is a Wednesday
-    };
-    
-    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
-    
-    // Should update the existing Evening session on June 14 to Math
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual(expect.objectContaining({
-      date: '2023-06-14',
-      block: 'Evening',
-      subject: 'Math'
-    }));
   });
 });

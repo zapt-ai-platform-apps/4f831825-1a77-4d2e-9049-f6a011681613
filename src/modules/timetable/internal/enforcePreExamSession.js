@@ -66,6 +66,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     
     if (existingEntryIndex >= 0) {
       // Update the existing entry to this exam's subject
+      // Create a new object to avoid reference issues
       updatedEntries[existingEntryIndex] = {
         ...updatedEntries[existingEntryIndex],
         subject: exam.subject
