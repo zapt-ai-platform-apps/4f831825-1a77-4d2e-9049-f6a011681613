@@ -25,7 +25,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
   });
   
   // Process each exam to ensure it has a pre-exam session
-  exams.forEach(exam => {
+  for (const exam of exams) {
     const examDate = parseISO(exam.examDate);
     const examTimeOfDay = exam.timeOfDay || 'Morning';
     
@@ -50,23 +50,14 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     // IMPORTANT: Skip if this would create a session at the same time as an exam
     if (targetDateStr === exam.examDate && targetBlock === examTimeOfDay) {
       console.log(`Cannot add pre-exam session for ${exam.subject} at the same time as the exam itself`);
-      return;
+      continue; // Skip to the next exam
     }
     
     // Skip if the target slot is an exam slot
     const targetSlotKey = `${targetDateStr}-${targetBlock}`;
     if (examSlots.has(targetSlotKey)) {
       console.log(`Cannot add pre-exam session for ${exam.subject} in slot ${targetSlotKey} because there's an exam`);
-      return;
-    }
-    
-    // Check if there's a conflicting exam in the same time slot
-    // This is the key fix - we need to check if any exam occurs in this exact time slot
-    const hasConflictingExam = examSlots.has(targetSlotKey);
-    
-    if (hasConflictingExam) {
-      console.log(`Cannot add pre-exam session for ${exam.subject} on ${targetDateStr} in block ${targetBlock} because there's a conflicting exam`);
-      return;
+      continue; // Skip to the next exam
     }
     
     // Find if this session already exists
@@ -87,7 +78,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
         );
       }
     }
-  });
+  }
   
   return updatedEntries;
 }
