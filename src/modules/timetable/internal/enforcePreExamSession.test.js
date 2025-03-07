@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { enforcePreExamSession } from './enforcePreExamSession';
-import { formatDateToString, getDayOfWeek } from './dateUtils';
+import { formatDateToString, getDayOfWeek, createDateRange } from './dateUtils';
 import { parseISO } from 'date-fns';
 
 // Mock the dateUtils functions
@@ -9,7 +9,20 @@ vi.mock('./dateUtils', () => ({
   getDayOfWeek: vi.fn(date => {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     return days[new Date(date).getDay()];
-  })
+  }),
+  createDateRange: vi.fn((start, end) => {
+    const startDate = typeof start === 'string' ? new Date(start) : start;
+    const endDate = typeof end === 'string' ? new Date(end) : end;
+    const dates = [];
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+      dates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dates;
+  }),
 }));
 
 describe('enforcePreExamSession', () => {

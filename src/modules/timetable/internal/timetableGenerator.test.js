@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { generateTimetable } from './timetableGenerator';
 import { parseISO, format } from 'date-fns';
+import { createDateRange } from './dateUtils';
 
 // Mock dependencies
 vi.mock('../../exams/internal/examUtils', () => ({
@@ -79,6 +80,9 @@ describe('generateTimetable', () => {
     console.error = vi.fn();
     console.log = vi.fn();
     console.warn = vi.fn();
+    
+    // Reset mock implementations before each test
+    vi.mocked(createDateRange).mockClear();
   });
   
   afterEach(() => {
