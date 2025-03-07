@@ -45,6 +45,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     
     const targetDateStr = formatDateToString(targetDate);
     
+    // IMPORTANT: Skip if this would create a session at the same time as an exam
+    if (targetDateStr === exam.examDate && targetBlock === examTimeOfDay) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} at the same time as the exam itself`);
+      return;
+    }
+    
     // Skip if the target slot is an exam slot
     const targetSlotKey = `${targetDateStr}-${targetBlock}`;
     if (examSlots.has(targetSlotKey)) {

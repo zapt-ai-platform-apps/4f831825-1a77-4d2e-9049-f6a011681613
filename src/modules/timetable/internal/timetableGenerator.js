@@ -228,7 +228,6 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
   const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-  const sessionBlockOrder = blockOrder[block];
   
   // Check if there's any exam in this slot
   const slotKey = `${date}-${block}`;
@@ -259,14 +258,4 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       return true;
     })
     .map(exam => exam.subject);
-}
-
-/**
- * Utility function to check if an array includes any items from another array
- * @param {Array} array - The array to check
- * @param {Array} items - The items to look for
- * @returns {boolean} True if any items are found
- */
-function includesAny(array, items) {
-  return items.some(item => array.includes(item));
 }
