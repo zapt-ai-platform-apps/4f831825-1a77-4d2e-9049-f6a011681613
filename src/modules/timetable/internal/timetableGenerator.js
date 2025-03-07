@@ -273,12 +273,6 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
   
-  // Check if there's any exam in this slot
-  const slotKey = `${date}-${block}`;
-  if (examSlots.has(slotKey)) {
-    return [];
-  }
-  
   // Get times of day in sequential order
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
@@ -311,7 +305,7 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       const examDate = parseISO(exam.examDate);
       
       // Exclude subjects whose exams have already passed on previous days
-      if (isBefore(examDate, sessionDate) && !isSameDay(examDate, sessionDate)) {
+      if (examDate < sessionDate && !isSameDay(examDate, sessionDate)) {
         return false;
       }
       
