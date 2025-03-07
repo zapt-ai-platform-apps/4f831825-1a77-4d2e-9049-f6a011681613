@@ -98,6 +98,7 @@ export async function saveOrUpdateExam(exam, editExam = null) {
  */
 export async function deleteExam(id) {
   try {
+    // Handle ID conversion - if it's a string, we'll pass it as is since our validator now accepts both
     const result = await examsApi.deleteExam(id);
     
     // Publish exam deleted event after successful API call

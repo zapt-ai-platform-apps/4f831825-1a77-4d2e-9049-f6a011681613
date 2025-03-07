@@ -3,7 +3,7 @@ import { createValidator } from '../core/validators';
 
 // Define the exam schema
 export const examSchema = z.object({
-  id: z.number().optional(), // Optional for new exams
+  id: z.union([z.string(), z.number()]).optional(), // Accept either string or number for ID
   subject: z.string().min(1, "Subject is required"),
   examDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
   timeOfDay: z.enum(['Morning', 'Afternoon', 'Evening']).default('Morning'),
