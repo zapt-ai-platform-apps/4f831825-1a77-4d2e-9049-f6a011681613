@@ -5,7 +5,16 @@ import { parseISO, format } from 'date-fns';
 // Using a simplified version to test the logic without dependencies
 function getEligibleSubjectsForTest(date, block, exams, examSlots) {
   const sessionDate = parseISO(date);
-  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const sessionDateStr = format(sessionDate, 'yyyy-MM-dd');
+  
+  // Check if there's any exam on this day, regardless of block
+  const hasExamOnDay = exams.some(exam => {
+    return format(parseISO(exam.examDate), 'yyyy-MM-dd') === sessionDateStr;
+  });
+  
+  if (hasExamOnDay) {
+    return [];
+  }
   
   // Check if there's any exam in this slot
   const slotKey = `${date}-${block}`;
@@ -20,11 +29,6 @@ function getEligibleSubjectsForTest(date, block, exams, examSlots) {
       
       // Exclude subjects whose exams have already passed
       if (examDate < sessionDate) {
-        return false;
-      }
-      
-      // For same day, exclude all subjects with exams on that day
-      if (format(examDate, 'yyyy-MM-dd') === format(sessionDate, 'yyyy-MM-dd')) {
         return false;
       }
       
@@ -78,6 +82,6 @@ describe('getEligibleSubjects', () => {
   it('should not return subjects that have already had their exam', () => {
     const result = getEligibleSubjectsForTest('2023-06-16', 'Afternoon', exams, examSlots);
     // Math and Science had exams on June 15th, History on morning of June 16th
-    expect(result).toEqual(['English']);
+    expect(result).toEqual([]);
   });
 });
