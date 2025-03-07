@@ -60,10 +60,21 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       return;
     }
     
-    // Skip if the target day has any exams
-    const hasExamOnTargetDay = Array.from(examSlots.keys()).some(key => key.startsWith(targetDateStr));
-    if (hasExamOnTargetDay) {
-      console.log(`Cannot add pre-exam session for ${exam.subject} on ${targetDateStr} because there's an exam that day`);
+    // Modified check: Only skip if there's an exam on the same day AND in the same block or we're trying
+    // to add a session on the same day as the target exam
+    const hasConflictingExam = Array.from(examSlots.keys()).some(key => {
+      // If on same date as target and target isn't on same day as exam
+      if (key.startsWith(targetDateStr) && targetDateStr !== exam.examDate) {
+        // Extract the block from the key
+        const examBlock = key.split('-')[1];
+        // Skip if this block is the same as our target block
+        return examBlock === targetBlock;
+      }
+      return false;
+    });
+    
+    if (hasConflictingExam) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} on ${targetDateStr} because there's a conflicting exam`);
       return;
     }
     

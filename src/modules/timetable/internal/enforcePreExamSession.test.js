@@ -103,8 +103,14 @@ describe('enforcePreExamSession', () => {
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Should not add any sessions on a day with exams
-    expect(result.length).toBe(0);
+    // Should add a Morning session on June 15 for Science (because it's an afternoon exam),
+    // but not for Math (because it would conflict with the Math exam)
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(expect.objectContaining({
+      date: '2023-06-15',
+      block: 'Morning',
+      subject: 'Science'
+    }));
   });
 
   it('should update an existing session if it exists', () => {
