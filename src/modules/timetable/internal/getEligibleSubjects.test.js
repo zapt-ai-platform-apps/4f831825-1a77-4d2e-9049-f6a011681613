@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { parseISO, isSameDay } from 'date-fns';
 
 // Mock the required functions
@@ -80,6 +80,11 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
 }
 
 describe('getEligibleSubjects', () => {
+  beforeEach(() => {
+    // Clear all mock function calls before each test
+    vi.clearAllMocks();
+  });
+
   it('should return empty array if there is an exam in the slot', () => {
     const date = '2023-06-15';
     const block = 'Morning';
@@ -175,5 +180,20 @@ describe('getEligibleSubjects', () => {
     expect(result).not.toContain('History');
     expect(result).toContain('Science');
     expect(result).toContain('English');
+  });
+  
+  // Add a specific test for the error case
+  it('should include Math in eligible subjects when its exam is in the future', () => {
+    const date = '2023-06-15';
+    const block = 'Afternoon';
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-16' } // Math exam is in the future
+    ];
+    const examSlots = new Map(); // No exams on the given date
+    
+    const result = getEligibleSubjects(date, block, exams, {}, examSlots);
+    
+    // Math should be eligible since its exam is in the future
+    expect(result).toContain('Math');
   });
 });
