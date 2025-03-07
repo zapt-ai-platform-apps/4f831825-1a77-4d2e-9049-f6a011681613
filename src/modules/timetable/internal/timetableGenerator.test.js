@@ -35,7 +35,7 @@ vi.mock('./dateUtils', () => ({
 }));
 
 vi.mock('./enforcePreExamSession', () => ({
-  enforcePreExamSession: vi.fn(entries => entries),
+  enforcePreExamSession: vi.fn(entries => entries.map(entry => ({...entry}))),
 }));
 
 vi.mock('./sessionUtils', () => ({
