@@ -22,6 +22,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-router-dom": "^6.14.1",
+    "stream-chat": "^8.56.0",
+    "stream-chat-react": "^12.11.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

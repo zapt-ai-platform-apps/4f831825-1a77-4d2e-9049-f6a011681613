@@ -11,6 +11,7 @@ Welcome to **UpGrade**, a personalized revision timetable app designed to help y
 - **Preference Settings**: Set your available days, blocks, and start date
 - **Interactive Calendar**: View your schedule in an easy-to-use calendar
 - **Session Management**: Fine-tune your study sessions on specific days
+- **Customer Support**: Get help through our built-in chat system
 
 ---
 
@@ -25,6 +26,7 @@ Welcome to **UpGrade**, a personalized revision timetable app designed to help y
 7. **Use Navigation Menu**: Explore app sections (Preferences, Exams, Timetable)
 8. **Manage Account**: Sign out and account management
 9. **Manage Revision Sessions**: Fine-tune your study sessions on specific days
+10. **Customer Support**: Get help by clicking the chat button in the bottom-right corner
 
 ---
 
@@ -38,6 +40,7 @@ This app uses the following external services:
 - **Umami**: Used for analytics tracking
 - **Resend**: For sending emails if needed
 - **OpenAI**: For ChatGPT-based final review of the locally generated timetable
+- **Stream**: For real-time chat functionality
 
 ---
 
@@ -52,6 +55,7 @@ Please create a file named **.env** at the project root with the following envir
 5. NPM_TOKEN="<Your NPM token if needed>"
 6. VITE_PUBLIC_UMAMI_WEBSITE_ID="<Your Umami website ID>"
 7. OPENAI_API_KEY="<Your OpenAI API Key>"
+8. ZAPT_SECRET_KEY="<Your ZAPT Secret Key>"
 
 ---
 

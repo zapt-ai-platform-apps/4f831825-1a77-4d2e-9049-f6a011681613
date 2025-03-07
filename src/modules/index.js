@@ -3,6 +3,7 @@ import { initializeAuth } from './auth/internal/initialize';
 import { initializePreferences } from './preferences/internal/initialize';
 import { initializeExams } from './exams/internal/initialize';
 import { initializeTimetable } from './timetable/internal/initialize';
+import { initializeSupport } from './support/internal/initialize';
 
 /**
  * Initialize all application modules
@@ -18,6 +19,7 @@ export async function initializeModules() {
     await initializePreferences(); 
     await initializeExams();
     await initializeTimetable();
+    await initializeSupport();
     
     console.log('All modules initialized successfully');
   } catch (error) {

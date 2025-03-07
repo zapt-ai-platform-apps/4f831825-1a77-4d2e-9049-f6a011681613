@@ -6,6 +6,7 @@ import ProtectedRoute from '../modules/auth/ui/ProtectedRoute';
 import PreferencesScreen from '../modules/preferences/ui/PreferencesScreen';
 import ExamsScreen from '../modules/exams/ui/ExamsScreen';
 import TimetableScreen from '../modules/timetable/ui/TimetableScreen';
+import ChatWidget from '../modules/support/ui/ChatWidget';
 import { useAuth } from '../modules/auth/ui/useAuth';
 
 /**
@@ -51,6 +52,9 @@ function App() {
         {/* Fallback route */}
         <Route path="*" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
       </Routes>
+      
+      {/* Customer Support Chat Widget - only shown when user is logged in */}
+      <ChatWidget />
       
       {/* ZAPT Attribution */}
       <div className="fixed bottom-2 right-2 text-xs text-gray-400 select-none z-50">

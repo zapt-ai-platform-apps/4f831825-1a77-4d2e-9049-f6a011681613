@@ -49,3 +49,13 @@ html {
   60% { content: '...'; }
   80%, 100% { content: ''; }
 }
+
+/* Chat widget responsive styles */
+@media (max-width: 480px) {
+  .chat-container {
+    width: 100vw !important;
+    height: 80vh !important;
+    right: -10px !important;
+    bottom: 60px !important;
+  }
+}
