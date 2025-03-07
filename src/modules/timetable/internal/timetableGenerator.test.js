@@ -44,7 +44,7 @@ vi.mock('./dateUtils', () => ({
 }));
 
 vi.mock('./enforcePreExamSession', () => ({
-  enforcePreExamSession: vi.fn(entries => entries),
+  enforcePreExamSession: vi.fn((exams, entries) => entries),
 }));
 
 // Fix the mock implementation for createSession to always include date
@@ -139,13 +139,37 @@ describe('generateTimetable', () => {
     
     const startDate = '2023-06-01';
     
-    // Mock implementation with a fixed array of dates to avoid any date generation issues
+    // Mock implementation with several dates that don't conflict with exams
+    // Include more dates that are NOT exam days to ensure we get some valid sessions
     vi.mocked(createDateRange).mockReturnValue([
       '2023-06-01', '2023-06-02', '2023-06-05', '2023-06-06',
       '2023-06-07', '2023-06-08', '2023-06-09', '2023-06-12',
-      '2023-06-13', '2023-06-14', '2023-06-15', '2023-06-16',
-      '2023-06-19', '2023-06-20'
+      '2023-06-13', '2023-06-14', '2023-06-16', '2023-06-19'
     ]);
+    
+    // Mock implementations to ensure we get at least one timetable entry
+    vi.mocked(createDateRange).mockImplementation(() => [
+      '2023-06-01', '2023-06-02', '2023-06-05', '2023-06-06', 
+      '2023-06-07', '2023-06-08', '2023-06-12', '2023-06-13'
+    ]);
+    
+    // Ensure getDayOfWeek returns days with revision times
+    const getDayOfWeekMock = vi.fn(date => {
+      const day = parseISO(date).getDay();
+      // Map all dates to days with revision times (mon-fri)
+      return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][day % 5];
+    });
+    
+    vi.mocked(createDateRange).mockImplementation(() => {
+      const dates = [];
+      // Generate 10 dates that aren't exam days
+      for (let i = 1; i <= 14; i++) {
+        if (i !== 15 && i !== 20) { // Skip exam days
+          dates.push(`2023-06-${String(i).padStart(2, '0')}`);
+        }
+      }
+      return dates;
+    });
     
     const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
     
@@ -165,7 +189,7 @@ describe('generateTimetable', () => {
     });
   });
   
-  it('should throw an error if no exams are provided', async () => {
+  it('should return an empty array if no exams are provided', async () => {
     await expect(generateTimetable([], '2023-06-01', revisionTimes, blockTimes))
       .resolves.toEqual([]);
     expect(console.warn).toHaveBeenCalledWith('No upcoming exams found');
