@@ -15,6 +15,13 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
   // Clone the timetable entries to avoid modifying the original
   const updatedEntries = [...timetableEntries];
   
+  // Create a map of exam slots for quick lookup
+  const examSlots = new Map();
+  exams.forEach(exam => {
+    const key = `${exam.examDate}-${exam.timeOfDay || 'Morning'}`;
+    examSlots.set(key, exam.subject);
+  });
+  
   // Process each exam to ensure it has a pre-exam session
   exams.forEach(exam => {
     const examDate = parseISO(exam.examDate);
@@ -37,6 +44,13 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     }
     
     const targetDateStr = formatDateToString(targetDate);
+    
+    // Skip if the target slot is an exam slot
+    const targetSlotKey = `${targetDateStr}-${targetBlock}`;
+    if (examSlots.has(targetSlotKey)) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} in slot ${targetSlotKey} because there's an exam`);
+      return;
+    }
     
     // Find if this session already exists
     const existingEntryIndex = updatedEntries.findIndex(

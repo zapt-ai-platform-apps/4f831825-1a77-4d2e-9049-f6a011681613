@@ -58,8 +58,11 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     // Create date range between start date and end date
     const dateRange = createDateRange(startDate, endDate);
     
+    // Create a map of exam slots to exclude
+    const examSlots = createExamSlotsMap(sortedExams);
+    
     // Generate available sessions
-    const availableSessions = generateAvailableSessions(dateRange, revisionTimes);
+    const availableSessions = generateAvailableSessions(dateRange, revisionTimes, examSlots);
     
     if (availableSessions.length === 0) {
       console.error("No available sessions found. Check revision times and date range.");
@@ -67,7 +70,7 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     }
     
     // Distribute subjects to create initial timetable
-    let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes);
+    let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes, examSlots);
     
     // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
     timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate);
@@ -88,12 +91,36 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
 }
 
 /**
+ * Creates a map of date-block combinations where exams are scheduled
+ * @param {Array} exams - Array of exam objects
+ * @returns {Map} Map of exam slots
+ */
+function createExamSlotsMap(exams) {
+  const examSlots = new Map();
+  
+  exams.forEach(exam => {
+    const examDate = exam.examDate;
+    const block = exam.timeOfDay || 'Morning';
+    const key = `${examDate}-${block}`;
+    
+    if (!examSlots.has(key)) {
+      examSlots.set(key, []);
+    }
+    
+    examSlots.get(key).push(exam.subject);
+  });
+  
+  return examSlots;
+}
+
+/**
  * Generates all available sessions based on date range and revision times
  * @param {Array} dateRange - Array of date strings
  * @param {Object} revisionTimes - Available revision times by day of week
+ * @param {Map} examSlots - Map of exam slots to exclude
  * @returns {Array} Array of available session objects
  */
-function generateAvailableSessions(dateRange, revisionTimes) {
+function generateAvailableSessions(dateRange, revisionTimes, examSlots) {
   const sessions = [];
   
   dateRange.forEach(date => {
@@ -101,6 +128,13 @@ function generateAvailableSessions(dateRange, revisionTimes) {
     const availableBlocks = revisionTimes[dayOfWeek] || [];
     
     availableBlocks.forEach(block => {
+      // Skip this slot if there's an exam scheduled
+      const slotKey = `${date}-${block}`;
+      if (examSlots.has(slotKey)) {
+        console.log(`Skipping slot ${slotKey} because there's an exam scheduled`);
+        return;
+      }
+      
       sessions.push({
         date,
         block,
@@ -117,9 +151,10 @@ function generateAvailableSessions(dateRange, revisionTimes) {
  * @param {Array} exams - Array of sorted exam objects
  * @param {Array} availableSessions - Array of available session objects
  * @param {Object} blockTimes - User block time preferences
+ * @param {Map} examSlots - Map of exam slots
  * @returns {Array} Array of timetable entry objects
  */
-function distributeSubjects(exams, availableSessions, blockTimes) {
+function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
   if (exams.length === 0 || availableSessions.length === 0) {
     return [];
   }
@@ -148,8 +183,13 @@ function distributeSubjects(exams, availableSessions, blockTimes) {
       return;
     }
     
+    // Skip if there's an exam in this slot
+    if (examSlots.has(sessionKey)) {
+      return;
+    }
+    
     // Get eligible subjects for this session
-    const eligibleSubjects = getEligibleSubjects(session.date, session.block, exams, subjectCounts);
+    const eligibleSubjects = getEligibleSubjects(session.date, session.block, exams, subjectCounts, examSlots);
     
     if (eligibleSubjects.length === 0) {
       return;
@@ -182,15 +222,21 @@ function distributeSubjects(exams, availableSessions, blockTimes) {
  * @param {string} block - Block name (Morning, Afternoon, Evening)
  * @param {Array} exams - Array of exam objects
  * @param {Object} subjectCounts - Map of subjects to their assignment counts
+ * @param {Map} examSlots - Map of exam slots
  * @returns {Array} Array of eligible subject names
  */
-function getEligibleSubjects(date, block, exams, subjectCounts) {
+function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
   const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
   const sessionBlockOrder = blockOrder[block];
   
+  // Check if there's any exam in this slot
+  const slotKey = `${date}-${block}`;
+  if (examSlots.has(slotKey)) {
+    return [];
+  }
+  
   // Filter subjects that haven't had their exam yet on this date
-  // AND exclude subjects that have an exam on this day but earlier or at the same time
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
@@ -200,16 +246,27 @@ function getEligibleSubjects(date, block, exams, subjectCounts) {
         return false;
       }
       
-      // For same day, check if exam is scheduled before this session block
+      // For same day, check exams for this subject and other subjects
       if (isSameDay(examDate, sessionDate)) {
         const examBlock = exam.timeOfDay || 'Morning';
         const examBlockOrder = blockOrder[examBlock];
         
-        // If exam is scheduled at this block or earlier in the day, don't schedule a revision session
-        return examBlockOrder > sessionBlockOrder;
+        // If this subject has an exam on the same day, exclude it for all blocks
+        // This prevents revision sessions on the day of an exam
+        return false;
       }
       
       return true;
     })
     .map(exam => exam.subject);
+}
+
+/**
+ * Utility function to check if an array includes any items from another array
+ * @param {Array} array - The array to check
+ * @param {Array} items - The items to look for
+ * @returns {boolean} True if any items are found
+ */
+function includesAny(array, items) {
+  return items.some(item => array.includes(item));
 }
