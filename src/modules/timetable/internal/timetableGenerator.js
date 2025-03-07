@@ -73,7 +73,7 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes, examSlots);
     
     // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
-    timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate);
+    timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate, blockTimes);
     
     // Add unique IDs to each session for tracking and future updates
     timetable = timetable.map(session => ({

@@ -1,5 +1,6 @@
 import { formatDateToString, getDayOfWeek } from './dateUtils';
 import { addDays, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
+import { createSession } from './sessionUtils';
 
 /**
  * Ensures that the session right before an exam is for that exam's subject
@@ -7,9 +8,10 @@ import { addDays, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
  * @param {Array} timetableEntries - Array of timetable entry objects
  * @param {Object} revisionTimes - Available revision times by day of week
  * @param {string} startDate - Start date string in YYYY-MM-DD format
+ * @param {Object} blockTimes - User block time preferences (optional)
  * @returns {Array} Updated timetable entries
  */
-export function enforcePreExamSession(exams, timetableEntries, revisionTimes, startDate) {
+export function enforcePreExamSession(exams, timetableEntries, revisionTimes, startDate, blockTimes = {}) {
   if (!exams.length) return timetableEntries;
 
   // Clone the timetable entries to avoid modifying the original
@@ -77,12 +79,10 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       // Only add a new entry if this timeslot is available in the user's preferences
       const dayOfWeek = getDayOfWeek(targetDate);
       if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes(targetBlock)) {
-        updatedEntries.push({
-          date: targetDateStr,
-          block: targetBlock,
-          subject: exam.subject,
-          isUserCreated: false
-        });
+        // Use createSession to ensure all required properties are present
+        updatedEntries.push(
+          createSession(targetDateStr, targetBlock, exam.subject, blockTimes)
+        );
       }
     }
   });
