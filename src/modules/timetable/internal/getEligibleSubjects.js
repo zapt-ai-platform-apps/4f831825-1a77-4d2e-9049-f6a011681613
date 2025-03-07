@@ -35,10 +35,9 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     });
   
   // Filter out subjects that have exams at or after the current block on the same day
-  // This allows scheduling revision for a subject after its exam is complete on the same day
   const excludedSubjects = new Set();
   sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
-    // Only exclude subjects with exams in LATER blocks (not the current block)
+    // Exclude subjects with exams in later blocks on the same day
     if (examTimeOrder > currentTimeOrder) {
       subjects.forEach(subject => excludedSubjects.add(subject));
     }
@@ -57,8 +56,9 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
       // For exams on the same day, check if they're in a later time block
       if (isSameDay(examDate, sessionDate)) {
         const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
-        // Allow revision for this subject only if its exam is in an earlier block or the same block
-        return examTimeOrder <= currentTimeOrder;
+        // Allow revision for this subject only if its exam is in an earlier block
+        // Changed from <= to < to fix the test failure
+        return examTimeOrder < currentTimeOrder;
       }
       
       return true;

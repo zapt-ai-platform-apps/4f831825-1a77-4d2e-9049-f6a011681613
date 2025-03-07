@@ -92,8 +92,7 @@ describe('getEligibleSubjects', () => {
     expect(result).toContain('Science');
   });
   
-  // Add a specific test for the error case
-  it('should include Math in eligible subjects when its exam is in the future', () => {
+  it('should include subjects whose exams are in the future', () => {
     const date = '2023-06-15';
     const block = 'Afternoon';
     const exams = [
