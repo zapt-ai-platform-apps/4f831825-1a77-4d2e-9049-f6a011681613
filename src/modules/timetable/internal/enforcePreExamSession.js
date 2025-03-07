@@ -58,6 +58,13 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       return;
     }
     
+    // Skip if the target day has any exams
+    const hasExamOnTargetDay = Array.from(examSlots.keys()).some(key => key.startsWith(targetDateStr));
+    if (hasExamOnTargetDay) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} on ${targetDateStr} because there's an exam that day`);
+      return;
+    }
+    
     // Find if this session already exists
     const existingEntryIndex = updatedEntries.findIndex(
       entry => entry.date === targetDateStr && entry.block === targetBlock

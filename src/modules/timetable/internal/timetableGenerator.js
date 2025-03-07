@@ -124,11 +124,19 @@ function generateAvailableSessions(dateRange, revisionTimes, examSlots) {
   const sessions = [];
   
   dateRange.forEach(date => {
+    // Check if there are any exams on this date
+    const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
+    
+    // Skip this day entirely if there's an exam
+    if (hasExamOnDay) {
+      return;
+    }
+    
     const dayOfWeek = getDayOfWeek(date);
     const availableBlocks = revisionTimes[dayOfWeek] || [];
     
     availableBlocks.forEach(block => {
-      // Skip this slot if there's an exam scheduled
+      // Double-check this slot doesn't have an exam
       const slotKey = `${date}-${block}`;
       if (examSlots.has(slotKey)) {
         console.log(`Skipping slot ${slotKey} because there's an exam scheduled`);
@@ -227,11 +235,16 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
  */
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
-  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
   
   // Check if there's any exam in this slot
   const slotKey = `${date}-${block}`;
   if (examSlots.has(slotKey)) {
+    return [];
+  }
+  
+  // Check if there are any exams on this day
+  const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
+  if (hasExamOnDay) {
     return [];
   }
   
@@ -242,16 +255,6 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       
       // Exclude subjects whose exams have already passed
       if (isBefore(examDate, sessionDate)) {
-        return false;
-      }
-      
-      // For same day, check exams for this subject and other subjects
-      if (isSameDay(examDate, sessionDate)) {
-        const examBlock = exam.timeOfDay || 'Morning';
-        const examBlockOrder = blockOrder[examBlock];
-        
-        // If this subject has an exam on the same day, exclude it for all blocks
-        // This prevents revision sessions on the day of an exam
         return false;
       }
       

@@ -96,4 +96,19 @@ describe('enforcePreExamSession', () => {
     expect(mathMorningSession).toBeUndefined();
     expect(scienceAfternoonSession).toBeUndefined();
   });
+  
+  it('should not add any revision session on a day with an exam', () => {
+    const exams = [
+      { examDate: '2023-06-15', timeOfDay: 'Morning', subject: 'Math' }
+    ];
+    
+    const timetableEntries = [];
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // Check that no sessions were added on the exam day at any time
+    const examDaySessions = result.filter(entry => entry.date === '2023-06-15');
+    
+    expect(examDaySessions.length).toBe(0);
+  });
 });
