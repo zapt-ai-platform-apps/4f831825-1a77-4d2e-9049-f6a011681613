@@ -149,7 +149,7 @@ function distributeSubjects(exams, availableSessions, blockTimes) {
     }
     
     // Get eligible subjects for this session
-    const eligibleSubjects = getEligibleSubjects(session.date, exams, subjectCounts);
+    const eligibleSubjects = getEligibleSubjects(session.date, session.block, exams, subjectCounts);
     
     if (eligibleSubjects.length === 0) {
       return;
@@ -177,20 +177,39 @@ function distributeSubjects(exams, availableSessions, blockTimes) {
 }
 
 /**
- * Gets eligible subjects for a particular date
+ * Gets eligible subjects for a particular date and block
  * @param {string} date - Date string in YYYY-MM-DD format
+ * @param {string} block - Block name (Morning, Afternoon, Evening)
  * @param {Array} exams - Array of exam objects
  * @param {Object} subjectCounts - Map of subjects to their assignment counts
  * @returns {Array} Array of eligible subject names
  */
-function getEligibleSubjects(date, exams, subjectCounts) {
+function getEligibleSubjects(date, block, exams, subjectCounts) {
   const sessionDate = parseISO(date);
+  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const sessionBlockOrder = blockOrder[block];
   
   // Filter subjects that haven't had their exam yet on this date
+  // AND exclude subjects that have an exam on this day but earlier or at the same time
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
-      return !isBefore(examDate, sessionDate);
+      
+      // Exclude subjects whose exams have already passed
+      if (isBefore(examDate, sessionDate)) {
+        return false;
+      }
+      
+      // For same day, check if exam is scheduled before this session block
+      if (isSameDay(examDate, sessionDate)) {
+        const examBlock = exam.timeOfDay || 'Morning';
+        const examBlockOrder = blockOrder[examBlock];
+        
+        // If exam is scheduled at this block or earlier in the day, don't schedule a revision session
+        return examBlockOrder > sessionBlockOrder;
+      }
+      
+      return true;
     })
     .map(exam => exam.subject);
 }
