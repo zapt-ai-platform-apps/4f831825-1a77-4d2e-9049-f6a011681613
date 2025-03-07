@@ -262,7 +262,8 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
  */
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
-  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
+  const currentTimeOrder = timeOrder[block];
   
   // Check if there's any exam in this slot
   const slotKey = `${date}-${block}`;
@@ -270,25 +271,48 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
     return [];
   }
   
-  // Check if there are any exams on this day
-  const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
-  if (hasExamOnDay) {
-    return [];
-  }
+  // Find exams on this day to exclude their subjects from revision
+  const sameDay = Array.from(examSlots.keys())
+    .filter(key => key.startsWith(date))
+    .map(key => {
+      const [, timeBlock] = key.split('-');
+      return { 
+        block: timeBlock, 
+        timeOrder: timeOrder[timeBlock],
+        subjects: examSlots.get(key) 
+      };
+    });
   
-  // Filter subjects that haven't had their exam yet on this date
+  // Filter out subjects that have exams at or after the current block on the same day
+  const excludedSubjects = new Set();
+  sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
+    // Only exclude subjects with exams in the current block or later blocks
+    if (examTimeOrder >= currentTimeOrder) {
+      subjects.forEach(subject => excludedSubjects.add(subject));
+    }
+  });
+  
+  // Filter subjects that haven't had their exam yet (or have had it earlier this day)
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
-      // Exclude subjects whose exams have already passed
-      if (isBefore(examDate, sessionDate)) {
+      // Exclude subjects whose exams have already passed on previous days
+      if (examDate < sessionDate && !isSameDay(examDate, sessionDate)) {
         return false;
+      }
+      
+      // For exams on the same day, check if they're in a later time block
+      if (isSameDay(examDate, sessionDate)) {
+        const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
+        // Allow revision for this subject only if its exam is in an earlier block of the day
+        return examTimeOrder < currentTimeOrder;
       }
       
       return true;
     })
-    .map(exam => exam.subject);
+    .map(exam => exam.subject)
+    .filter(subject => !excludedSubjects.has(subject));
 }
 
 /**
