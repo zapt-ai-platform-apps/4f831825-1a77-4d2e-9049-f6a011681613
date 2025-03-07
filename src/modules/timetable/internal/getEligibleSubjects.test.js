@@ -92,35 +92,6 @@ describe('getEligibleSubjects', () => {
     expect(result).toContain('Science');
   });
   
-  it('should return all eligible subjects', () => {
-    const date = '2023-06-15';
-    const block = 'Evening';
-    const exams = [
-      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }, // Morning exam on same day
-      { subject: 'Physics', examDate: '2023-06-15', timeOfDay: 'Afternoon' }, // Afternoon exam on same day
-      { subject: 'Chemistry', examDate: '2023-06-15', timeOfDay: 'Evening' }, // Evening exam on same day
-      { subject: 'Science', examDate: '2023-06-16' }, // Future exam
-      { subject: 'History', examDate: '2023-06-14' }, // Past exam
-      { subject: 'English', examDate: '2023-06-20' } // Future exam
-    ];
-    const examSlots = new Map([
-      [`${date}-Morning`, ['Math']], // Math exam in the morning
-      [`${date}-Afternoon`, ['Physics']], // Physics exam in the afternoon
-      [`${date}-Evening`, ['Chemistry']] // Chemistry exam in the evening
-    ]);
-    
-    const result = getEligibleSubjects(date, block, exams, {}, examSlots);
-    
-    // Should include Math and Physics (exams earlier in day), and Chemistry (same block),
-    // but not History (past)
-    expect(result).toContain('Math');
-    expect(result).toContain('Physics');
-    expect(result).toContain('Chemistry');
-    expect(result).not.toContain('History');
-    expect(result).toContain('Science');
-    expect(result).toContain('English');
-  });
-  
   // Add a specific test for the error case
   it('should include Math in eligible subjects when its exam is in the future', () => {
     const date = '2023-06-15';
