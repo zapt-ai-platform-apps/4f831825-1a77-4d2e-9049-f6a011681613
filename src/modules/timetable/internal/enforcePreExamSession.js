@@ -53,10 +53,11 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       continue; // Skip to the next exam
     }
     
-    // Skip if the target slot is an exam slot
+    // Skip if the target slot has an exam for the SAME subject
+    // This allows a pre-exam session even if there's an exam for a different subject
     const targetSlotKey = `${targetDateStr}-${targetBlock}`;
-    if (examSlots.has(targetSlotKey)) {
-      console.log(`Cannot add pre-exam session for ${exam.subject} in slot ${targetSlotKey} because there's an exam`);
+    if (examSlots.has(targetSlotKey) && examSlots.get(targetSlotKey) === exam.subject) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} in slot ${targetSlotKey} because there's an exam for this subject`);
       continue; // Skip to the next exam
     }
     
