@@ -156,19 +156,11 @@ function generateAvailableSessions(dateRange, revisionTimes, examSlots) {
       return;
     }
     
-    // Check if there are any exams on this date
-    const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
-    
-    // Skip this day entirely if there's an exam
-    if (hasExamOnDay) {
-      return;
-    }
-    
     const dayOfWeek = getDayOfWeek(date);
     const availableBlocks = revisionTimes[dayOfWeek] || [];
     
     availableBlocks.forEach(block => {
-      // Double-check this slot doesn't have an exam
+      // Check if this specific slot has an exam
       const slotKey = `${date}-${block}`;
       if (examSlots.has(slotKey)) {
         console.log(`Skipping slot ${slotKey} because there's an exam scheduled`);
@@ -287,19 +279,39 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
     return [];
   }
   
-  // Check if there are any exams on this day
-  const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
-  if (hasExamOnDay) {
-    return [];
-  }
+  // Find exams on this day to exclude their subjects from earlier sessions
+  const sameDay = Array.from(examSlots.keys())
+    .filter(key => key.startsWith(date))
+    .map(key => {
+      const [, timeBlock] = key.split('-');
+      return { block: timeBlock, subjects: examSlots.get(key) };
+    });
+  
+  // Get times of day in sequential order
+  const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
+  const currentTimeOrder = timeOrder[block];
+  
+  // Filter out subjects that have exams on the same day in earlier or current time blocks
+  const excludedSubjects = new Set();
+  sameDay.forEach(({ block: examBlock, subjects }) => {
+    if (timeOrder[examBlock] <= currentTimeOrder) {
+      subjects.forEach(subject => excludedSubjects.add(subject));
+    }
+  });
   
   // Filter subjects that haven't had their exam yet on this date
+  // and aren't excluded due to same-day exam timing
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
       // Exclude subjects whose exams have already passed
       if (isBefore(examDate, sessionDate)) {
+        return false;
+      }
+      
+      // Exclude subjects that have an exam on this day in or before this time block
+      if (isSameDay(examDate, sessionDate) && excludedSubjects.has(exam.subject)) {
         return false;
       }
       

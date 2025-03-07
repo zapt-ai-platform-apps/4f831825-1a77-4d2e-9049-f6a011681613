@@ -67,7 +67,7 @@ describe('enforcePreExamSession', () => {
     }));
   });
 
-  it('should not add any revision sessions on days with exams', () => {
+  it('should not add a revision session in the same slot as an exam', () => {
     const exams = [
       { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
       { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
@@ -76,14 +76,36 @@ describe('enforcePreExamSession', () => {
     const timetableEntries = [];
     
     const revisionTimes = {
-      thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
+      thursday: ['Morning', 'Afternoon', 'Evening'] // June 15, 2023 is a Thursday
     };
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Should not add any sessions on June 15 because there are exams that day
-    const sessionsOnExamDay = result.filter(session => session.date === '2023-06-15');
-    expect(sessionsOnExamDay.length).toBe(0);
+    // Should not add sessions for morning or afternoon on June 15 because there are exams in those slots
+    const morningOrAfternoonSessions = result.filter(
+      session => session.date === '2023-06-15' && (session.block === 'Morning' || session.block === 'Afternoon')
+    );
+    expect(morningOrAfternoonSessions.length).toBe(0);
+  });
+
+  it('should add a revision session on the same day as an exam but in a different slot', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
+    ];
+    
+    const timetableEntries = [];
+    
+    const revisionTimes = {
+      thursday: ['Morning', 'Afternoon', 'Evening'] // June 15, 2023 is a Thursday
+    };
+    
+    // Mock getDayOfWeek to ensure it returns the right day of week
+    vi.mocked(getDayOfWeek).mockReturnValue('thursday');
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // We should still find an appropriate slot for a pre-exam session
+    expect(result.length).toBeGreaterThan(0);
   });
 
   it('should update an existing session if it exists', () => {
