@@ -273,11 +273,17 @@ function distributeSubjects(exams, availableSessions, blockTimes, examSlots) {
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
   
+  // Check if there's any exam in this slot
+  const slotKey = `${date}-${block}`;
+  if (examSlots.has(slotKey)) {
+    return [];
+  }
+  
   // Get times of day in sequential order
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
   
-  // Find exams on this day to check time order
+  // Find exams on this day to exclude their subjects from revision
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
     .map(key => {
@@ -309,10 +315,9 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
         return false;
       }
       
-      // For exams on the same day:
+      // For exams on the same day, check if they're in a later time block
       if (isSameDay(examDate, sessionDate)) {
         const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
-        
         // Allow revision for this subject only if its exam is in an earlier block of the day
         return examTimeOrder < currentTimeOrder;
       }

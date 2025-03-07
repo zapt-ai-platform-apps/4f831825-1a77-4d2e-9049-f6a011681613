@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { parseISO } from 'date-fns';
+import { parseISO, isSameDay } from 'date-fns';
 
 // Mock the required functions
 vi.mock('date-fns', async () => {
@@ -16,6 +16,9 @@ vi.mock('date-fns', async () => {
     )
   };
 });
+
+// Import isSameDay to make it available in the test scope
+import { isSameDay as actualIsSameDay } from 'date-fns';
 
 // Mock internal function to test it directly
 function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
