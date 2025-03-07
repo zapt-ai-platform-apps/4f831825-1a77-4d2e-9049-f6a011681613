@@ -25,7 +25,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
   });
   
   // Process each exam to ensure it has a pre-exam session
-  for (const exam of exams) {
+  // Sort exams by date to prioritize earlier exams first
+  const sortedExams = [...exams].sort((a, b) => 
+    new Date(a.examDate) - new Date(b.examDate)
+  );
+  
+  for (const exam of sortedExams) {
     const examDate = parseISO(exam.examDate);
     const examTimeOfDay = exam.timeOfDay || 'Morning';
     
