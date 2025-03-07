@@ -160,14 +160,23 @@ function generateAvailableSessions(dateRange, revisionTimes, examSlots) {
     const dayOfWeek = getDayOfWeek(date);
     const availableBlocks = revisionTimes[dayOfWeek] || [];
     
+    // Get blocks with exams on this day (for logging)
+    const examsOnThisDay = Array.from(examSlots.keys())
+      .filter(key => key.startsWith(date))
+      .map(key => key.split('-')[1]);
+    
+    console.log(`Processing date ${date} (${dayOfWeek}), has exams in blocks: ${examsOnThisDay.join(', ') || 'none'}`);
+    
+    // Process each time block separately - never skip the entire day
     availableBlocks.forEach(block => {
       // Check if this specific slot has an exam
       const slotKey = `${date}-${block}`;
       if (examSlots.has(slotKey)) {
         console.log(`Skipping slot ${slotKey} because there's an exam scheduled`);
-        return;
+        return; // Skip only this specific time slot
       }
       
+      // Add this time slot as available
       sessions.push({
         date,
         block,
