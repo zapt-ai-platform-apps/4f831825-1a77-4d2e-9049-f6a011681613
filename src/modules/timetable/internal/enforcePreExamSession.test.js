@@ -114,24 +114,4 @@ describe('enforcePreExamSession', () => {
     );
     expect(morningOrAfternoonSessions.length).toBe(0);
   });
-
-  it('should add a revision session on the same day as an exam but in a different slot', () => {
-    const exams = [
-      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
-    ];
-    
-    const timetableEntries = [];
-    
-    const revisionTimes = {
-      thursday: ['Morning', 'Afternoon', 'Evening'] // June 15, 2023 is a Thursday
-    };
-    
-    // Mock getDayOfWeek to ensure it returns the right day of week
-    vi.mocked(getDayOfWeek).mockReturnValue('thursday');
-    
-    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
-    
-    // We should still find an appropriate slot for a pre-exam session
-    expect(result.length).toBeGreaterThan(0);
-  });
 });

@@ -275,8 +275,9 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   
   // Check if there's any exam in this slot
   const slotKey = `${date}-${block}`;
-  // Remove the early return which was causing the issue
-  // This was preventing subjects with exams earlier in the day from being eligible
+  if (examSlots.has(slotKey)) {
+    return [];
+  }
   
   // Get times of day in sequential order
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
