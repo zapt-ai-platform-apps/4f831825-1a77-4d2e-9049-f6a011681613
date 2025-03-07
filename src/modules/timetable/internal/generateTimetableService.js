@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "../../auth/internal/authUtils.js";
 import { deleteGeneratedTimetableEntries } from "./dataAccess.js";
 import { generateTimetable } from "./timetableGenerator.js";
-import { reviewTimetable } from "./timetableReviewer.js";
 import { saveTimetable } from "./timetableSaver.js";
 import { 
   getUserPreferences, 
@@ -56,11 +55,8 @@ export async function generateTimetableHandler(req, res, Sentry) {
       blockTimes
     );
 
-    // Review timetable with ChatGPT (optional enhancement)
-    const finalTimetable = await reviewTimetable(userId, timetable);
-
-    // Save timetable
-    await saveTimetable(userId, finalTimetable);
+    // Save timetable directly (skipping review step)
+    await saveTimetable(userId, timetable);
 
     res.status(200).json({ message: "Timetable generated successfully" });
   } catch (error) {
