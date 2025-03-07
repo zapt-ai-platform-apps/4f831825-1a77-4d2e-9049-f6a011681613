@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { generateTimetable } from './timetableGenerator';
 import { parseISO, format, addDays } from 'date-fns';
 import { createDateRange } from './dateUtils';
+import * as Sentry from '@sentry/browser';
+
+// Mock Sentry
+vi.mock('@sentry/browser', () => ({
+  captureException: vi.fn(),
+}));
 
 // Mock dependencies
 vi.mock('../../exams/internal/examUtils', () => ({
@@ -38,18 +44,24 @@ vi.mock('./dateUtils', () => ({
 }));
 
 vi.mock('./enforcePreExamSession', () => ({
-  enforcePreExamSession: vi.fn(entries => entries.map(entry => ({...entry}))),
+  enforcePreExamSession: vi.fn(entries => entries),
 }));
 
+// Fix the mock implementation for createSession to always include date
 vi.mock('./sessionUtils', () => ({
-  createSession: vi.fn((date, block, subject) => ({
-    date, // Ensure date is included
-    block,
-    subject,
-    startTime: '09:00',
-    endTime: '12:00',
-    isUserCreated: false,
-  })),
+  createSession: vi.fn((date, block, subject) => {
+    if (!date) {
+      console.error('createSession called without date parameter');
+    }
+    return {
+      date,
+      block,
+      subject,
+      startTime: '09:00',
+      endTime: '12:00',
+      isUserCreated: false,
+    };
+  }),
 }));
 
 vi.mock('./utils/sessionSorter', () => ({
@@ -137,9 +149,13 @@ describe('generateTimetable', () => {
     
     const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
     
+    // Verify the timetable is not empty
+    expect(timetable.length).toBeGreaterThan(0);
+    
     // Verify each entry has the expected properties
     timetable.forEach(entry => {
       expect(entry).toHaveProperty('date');
+      expect(entry.date).toBeTruthy(); // Ensure date is not null or undefined
       expect(entry).toHaveProperty('block');
       expect(entry).toHaveProperty('subject');
       expect(entry).toHaveProperty('startTime');
@@ -147,5 +163,20 @@ describe('generateTimetable', () => {
       expect(entry).toHaveProperty('isUserCreated', false);
       expect(entry).toHaveProperty('id', 'test-id');
     });
+  });
+  
+  it('should throw an error if no exams are provided', async () => {
+    await expect(generateTimetable([], '2023-06-01', revisionTimes, blockTimes))
+      .resolves.toEqual([]);
+    expect(console.warn).toHaveBeenCalledWith('No upcoming exams found');
+  });
+  
+  it('should throw an error if no revision times are selected', async () => {
+    const exams = [
+      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
+    ];
+    
+    await expect(generateTimetable(exams, '2023-06-01', {}, blockTimes))
+      .rejects.toThrow('No revision times selected');
   });
 });

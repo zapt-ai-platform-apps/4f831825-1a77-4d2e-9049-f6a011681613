@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { enforcePreExamSession } from './enforcePreExamSession';
 import { formatDateToString, getDayOfWeek } from './dateUtils';
+import { createSession } from './sessionUtils';
 
 // Mock dependencies
 vi.mock('./dateUtils', () => ({
@@ -8,93 +9,125 @@ vi.mock('./dateUtils', () => ({
     if (typeof date === 'string') return date;
     return date.toISOString().split('T')[0];
   }),
-  getDayOfWeek: vi.fn(() => 'monday'),
+  getDayOfWeek: vi.fn(date => {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayIndex = typeof date === 'string' 
+      ? new Date(date).getDay() 
+      : date.getDay();
+    return days[dayIndex];
+  })
 }));
 
 vi.mock('./sessionUtils', () => ({
-  createSession: vi.fn((date, block, subject) => ({
+  createSession: vi.fn((date, block, subject, blockTimes = {}) => ({
     date,
     block,
     subject,
     startTime: '09:00',
     endTime: '12:00',
-    isUserCreated: false,
-  })),
+    isUserCreated: false
+  }))
 }));
 
 describe('enforcePreExamSession', () => {
-  it('should return empty array if no exams provided', () => {
-    const result = enforcePreExamSession([], [], {}, '2023-06-01');
-    expect(result).toEqual([]);
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('should add pre-exam session for each exam', () => {
+  it('should return the original timetable if no exams are provided', () => {
+    const timetableEntries = [
+      { date: '2023-06-10', block: 'Morning', subject: 'Math' }
+    ];
+    
+    const result = enforcePreExamSession([], timetableEntries, {}, '2023-06-01');
+    
+    expect(result).toEqual(timetableEntries);
+  });
+
+  it('should add a pre-exam session for a morning exam', () => {
     const exams = [
-      { 
-        subject: 'Math', 
-        examDate: '2023-06-15', 
-        timeOfDay: 'Morning' 
-      }
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
     ];
     
     const timetableEntries = [];
     
     const revisionTimes = {
-      monday: ['Morning', 'Afternoon', 'Evening'],
-      tuesday: ['Morning', 'Afternoon', 'Evening'],
-      wednesday: ['Morning', 'Afternoon', 'Evening'],
-      thursday: ['Morning', 'Afternoon', 'Evening'],
-      friday: ['Morning', 'Afternoon', 'Evening'],
+      wednesday: ['Evening'], // June 14, 2023 is a Wednesday
+      thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
     };
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // We expect to add a session - either the day before or same day depending on availability
-    expect(result.length).toBeGreaterThan(0);
-    
-    // Check that the added session is for the correct subject
-    const addedSession = result.find(e => e.subject === 'Math');
-    expect(addedSession).toBeDefined();
-    
-    // Check that the added session has all required properties
-    expect(addedSession).toHaveProperty('date');
-    expect(addedSession).toHaveProperty('block');
-    expect(addedSession).toHaveProperty('subject', 'Math');
-    expect(addedSession).toHaveProperty('startTime');
-    expect(addedSession).toHaveProperty('endTime');
+    // Should add an Evening session on June 14 for Math
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(expect.objectContaining({
+      date: '2023-06-14',
+      block: 'Evening',
+      subject: 'Math'
+    }));
   });
 
-  it('should not create sessions that conflict with exams', () => {
+  it('should add a pre-exam session for an afternoon exam', () => {
     const exams = [
-      { 
-        subject: 'Math', 
-        examDate: '2023-06-15', 
-        timeOfDay: 'Morning' 
-      },
-      { 
-        subject: 'Science', 
-        examDate: '2023-06-15', 
-        timeOfDay: 'Afternoon' 
-      }
+      { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
     ];
     
     const timetableEntries = [];
     
     const revisionTimes = {
-      monday: ['Morning', 'Afternoon', 'Evening'],
+      thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
     };
-    
-    // Mock getDayOfWeek to always return 'monday' for this test
-    vi.mocked(getDayOfWeek).mockReturnValue('monday');
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Verify we don't have any sessions on exam day at exam times
-    const conflictingSessions = result.filter(
-      session => session.date === '2023-06-15' && 
-                (session.block === 'Morning' || session.block === 'Afternoon')
-    );
+    // Should add a Morning session on June 15 for Science
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(expect.objectContaining({
+      date: '2023-06-15',
+      block: 'Morning',
+      subject: 'Science'
+    }));
+  });
+
+  it('should not add a session that conflicts with an exam', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
+      { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
+    ];
     
-    expect(conflictingSessions.length).toBe(0);
+    const timetableEntries = [];
+    
+    const revisionTimes = {
+      thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
+    };
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // Should not add any sessions on a day with exams
+    expect(result.length).toBe(0);
+  });
+
+  it('should update an existing session if it exists', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
+    ];
+    
+    const timetableEntries = [
+      { date: '2023-06-14', block: 'Evening', subject: 'History' }
+    ];
+    
+    const revisionTimes = {
+      wednesday: ['Evening'] // June 14, 2023 is a Wednesday
+    };
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // Should update the existing Evening session on June 14 to Math
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(expect.objectContaining({
+      date: '2023-06-14',
+      block: 'Evening',
+      subject: 'Math'
+    }));
   });
 });

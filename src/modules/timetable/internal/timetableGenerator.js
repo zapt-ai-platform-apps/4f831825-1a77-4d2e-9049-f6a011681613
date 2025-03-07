@@ -57,6 +57,10 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     
     // Create date range between start date and end date
     const dateRange = createDateRange(startDate, endDate);
+    if (!dateRange || !Array.isArray(dateRange) || dateRange.length === 0) {
+      console.error("Failed to create date range", { startDate, endDate });
+      throw new Error("Failed to create valid date range");
+    }
     
     // Create a map of exam slots to exclude
     const examSlots = createExamSlotsMap(sortedExams);
@@ -73,10 +77,25 @@ export async function generateTimetable(exams, startDate, revisionTimes, blockTi
     let timetable = distributeSubjects(sortedExams, availableSessions, blockTimes, examSlots);
     
     // Ensure all entries have date property (defensive programming)
-    timetable = timetable.filter(entry => entry && entry.date);
+    timetable = timetable.filter(entry => {
+      if (!entry || !entry.date) {
+        console.error("Found entry without date, filtering it out:", entry);
+        return false;
+      }
+      return true;
+    });
     
     // Enforce pre-exam sessions (ensuring last session before an exam is that subject)
     timetable = enforcePreExamSession(sortedExams, timetable, revisionTimes, startDate, blockTimes);
+    
+    // Additional validation to ensure all entries have dates
+    timetable = timetable.filter(entry => {
+      if (!entry || !entry.date) {
+        console.error("After enforcePreExamSession, found entry without date:", entry);
+        return false;
+      }
+      return true;
+    });
     
     // Add unique IDs to each session for tracking and future updates
     timetable = timetable.map(session => ({
@@ -124,9 +143,19 @@ function createExamSlotsMap(exams) {
  * @returns {Array} Array of available session objects
  */
 function generateAvailableSessions(dateRange, revisionTimes, examSlots) {
+  if (!dateRange || !Array.isArray(dateRange) || dateRange.length === 0) {
+    console.error("Invalid dateRange in generateAvailableSessions:", dateRange);
+    return [];
+  }
+  
   const sessions = [];
   
   dateRange.forEach(date => {
+    if (!date) {
+      console.error("Found invalid date in dateRange:", date);
+      return;
+    }
+    
     // Check if there are any exams on this date
     const hasExamOnDay = Array.from(examSlots.keys()).some(key => key.startsWith(date));
     
