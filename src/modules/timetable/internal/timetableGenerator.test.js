@@ -182,8 +182,9 @@ describe('generateTimetable', () => {
       session.subject === 'Math'
     );
     
-    // Since Math has an exam on this day, we should not schedule any Math sessions
-    expect(mathLaterSessions.length).toBe(0);
+    // We should now allow Math sessions after its morning exam
+    // This test was previously expecting 0, but now we want to allow these sessions
+    expect(mathLaterSessions.length).toBeGreaterThan(0);
   });
   
   it('should generate valid timetable entries', async () => {
