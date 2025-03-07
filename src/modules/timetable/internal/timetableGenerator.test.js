@@ -40,7 +40,7 @@ vi.mock('./enforcePreExamSession', () => ({
 
 vi.mock('./sessionUtils', () => ({
   createSession: vi.fn((date, block, subject) => ({
-    date,
+    date, // Ensure date is included
     block,
     subject,
     startTime: '09:00',
