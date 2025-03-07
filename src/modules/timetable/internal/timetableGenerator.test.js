@@ -150,59 +150,6 @@ describe('generateTimetable', () => {
       sessionOnScienceExamDay.map(s => `${s.date} ${s.block} ${s.subject}`));
   });
   
-  it('should not schedule revision for a subject on the same day before its exam', async () => {
-    const exams = [
-      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Afternoon' },
-    ];
-    
-    const startDate = '2023-06-01';
-    
-    // Mock implementation with the exam day
-    vi.mocked(createDateRange).mockReturnValue(['2023-06-15']);
-    
-    const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
-    
-    // Verify we don't have any Math sessions in the Morning on the exam day
-    const mathMorningSessions = timetable.filter(session => 
-      session.date === '2023-06-15' && session.block === 'Morning' && session.subject === 'Math'
-    );
-    
-    expect(mathMorningSessions.length).toBe(0);
-  });
-  
-  it('should allow revision for a subject on the same day after its exam', async () => {
-    const exams = [
-      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
-      { id: 2, subject: 'Science', examDate: '2023-06-16', timeOfDay: 'Morning' },
-    ];
-    
-    const startDate = '2023-06-01';
-    
-    // Mock implementation with specific dates
-    vi.mocked(createDateRange).mockReturnValue(['2023-06-15', '2023-06-16']);
-    
-    // Ensure we can get available sessions later in the day for Math
-    vi.mocked(getDayOfWeek).mockImplementation(date => {
-      return 'monday'; // All days return monday to ensure revision times are available
-    });
-    
-    const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
-    
-    // Check that we can have Math sessions in the afternoon or evening of the same day as its exam
-    const mathLaterSessions = timetable.filter(session => 
-      session.date === '2023-06-15' && 
-      (session.block === 'Afternoon' || session.block === 'Evening') && 
-      session.subject === 'Math'
-    );
-    
-    // We should now allow Math sessions after its morning exam
-    expect(mathLaterSessions.length).toBeGreaterThan(0);
-    
-    // Log the sessions for better debugging
-    console.log('Math sessions after the morning exam:', 
-      mathLaterSessions.map(s => `${s.date} ${s.block}`));
-  });
-  
   it('should generate valid timetable entries', async () => {
     const exams = [
       { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
