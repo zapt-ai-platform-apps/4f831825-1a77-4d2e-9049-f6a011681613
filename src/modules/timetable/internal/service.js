@@ -145,9 +145,15 @@ function getConsistentColor(subject) {
   }
   
   // Convert hash to RGB color
-  const r = (hash & 0xFF0000) >> 16;
-  const g = (hash & 0x00FF00) >> 8;
-  const b = hash & 0x0000FF;
+  let r = (hash & 0xFF0000) >> 16;
+  let g = (hash & 0x00FF00) >> 8;
+  let b = hash & 0x0000FF;
+  
+  // Ensure the color is not red (if it's reddish, adjust it)
+  if (r > 200 && g < 100 && b < 100) {
+    // Swap red and blue to make it non-red
+    [r, b] = [b, r];
+  }
   
   // Ensure colors are vibrant enough (minimum brightness)
   const minBrightness = 60; // Adjust as needed

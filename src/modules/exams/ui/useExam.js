@@ -2,6 +2,36 @@ import { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/browser';
 
 /**
+ * Generates a random color that isn't red
+ * @returns {string} Random hex color that isn't reddish
+ */
+function generateRandomNonRedColor() {
+  // Colors that are visually distinct and not red
+  const colors = [
+    '#4285F4', // Blue
+    '#0F9D58', // Green
+    '#F4B400', // Yellow
+    '#9C27B0', // Purple
+    '#00BCD4', // Cyan
+    '#3F51B5', // Indigo
+    '#009688', // Teal
+    '#795548', // Brown
+    '#607D8B', // Blue Grey
+    '#673AB7', // Deep Purple
+    '#2196F3', // Light Blue
+    '#00796B', // Dark Teal
+    '#E91E63', // Pink
+    '#FFA000', // Amber
+    '#4CAF50', // Light Green
+    '#8BC34A', // Lime
+    '#FF5722', // Deep Orange
+  ];
+  
+  // Pick a random color from the palette
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+/**
  * Hook for managing exam form state
  * @param {Object} editExam - Exam to edit (null for new exam)
  * @param {Function} onExamSaved - Callback when exam is saved
@@ -13,7 +43,7 @@ export function useExamForm(editExam, onExamSaved) {
     examDate: '',
     timeOfDay: 'Morning',
     board: '',
-    examColour: '#ff0000', // Default to red color
+    examColour: generateRandomNonRedColor(), // Generate a random non-red color for new exams
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -27,7 +57,7 @@ export function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate || '',
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
-        examColour: '#ff0000', // Always use red color regardless of existing value
+        examColour: editExam.examColour || '#FF0000', // Preserve existing color for edits
       });
     } else {
       setFormData({
@@ -35,7 +65,7 @@ export function useExamForm(editExam, onExamSaved) {
         examDate: '',
         timeOfDay: 'Morning',
         board: '',
-        examColour: '#ff0000', // Default to red color for new exams
+        examColour: generateRandomNonRedColor(), // New exams get a random non-red color
       });
     }
     // Reset submission state when exam changes
@@ -92,7 +122,7 @@ export function useExamForm(editExam, onExamSaved) {
           examDate: '',
           timeOfDay: 'Morning',
           board: '',
-          examColour: '#ff0000', // Maintain red color
+          examColour: generateRandomNonRedColor(), // Generate a new color for the next exam
         });
         // Also reset hasSubmitted flag to allow new submissions
         setHasSubmitted(false);
