@@ -24,6 +24,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     examSlots.set(key, exam.subject);
   });
   
+  // Create a set of dates with exams for quick lookup
+  const datesWithExams = new Set();
+  exams.forEach(exam => {
+    datesWithExams.add(exam.examDate);
+  });
+  
   // Process each exam to ensure it has a pre-exam session
   for (const exam of exams) {
     const examDate = parseISO(exam.examDate);
@@ -47,17 +53,9 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     
     const targetDateStr = formatDateToString(targetDate);
     
-    // IMPORTANT: Skip if this would create a session at the same time as an exam
-    if (targetDateStr === exam.examDate && targetBlock === examTimeOfDay) {
-      console.log(`Cannot add pre-exam session for ${exam.subject} at the same time as the exam itself`);
-      continue; // Skip to the next exam
-    }
-    
-    // Skip if the target slot has an exam for the SAME subject
-    // This allows a pre-exam session even if there's an exam for a different subject
-    const targetSlotKey = `${targetDateStr}-${targetBlock}`;
-    if (examSlots.has(targetSlotKey) && examSlots.get(targetSlotKey) === exam.subject) {
-      console.log(`Cannot add pre-exam session for ${exam.subject} in slot ${targetSlotKey} because there's an exam for this subject`);
+    // IMPORTANT: Skip if the target date has any exams scheduled
+    if (datesWithExams.has(targetDateStr)) {
+      console.log(`Cannot add pre-exam session for ${exam.subject} on ${targetDateStr} because there are exams scheduled that day`);
       continue; // Skip to the next exam
     }
     

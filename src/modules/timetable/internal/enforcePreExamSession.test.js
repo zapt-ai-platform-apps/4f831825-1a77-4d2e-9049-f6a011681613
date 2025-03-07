@@ -44,7 +44,7 @@ describe('enforcePreExamSession', () => {
     expect(result).toEqual(timetableEntries);
   });
 
-  it('should add a pre-exam session for a morning exam', () => {
+  it('should add a pre-exam session for a morning exam on the previous day', () => {
     const exams = [
       { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
     ];
@@ -67,29 +67,7 @@ describe('enforcePreExamSession', () => {
     }));
   });
 
-  it('should add a pre-exam session for an afternoon exam', () => {
-    const exams = [
-      { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
-    ];
-    
-    const timetableEntries = [];
-    
-    const revisionTimes = {
-      thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
-    };
-    
-    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
-    
-    // Should add a Morning session on June 15 for Science
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual(expect.objectContaining({
-      date: '2023-06-15',
-      block: 'Morning',
-      subject: 'Science'
-    }));
-  });
-
-  it('should not add a session that conflicts with an exam', () => {
+  it('should not add any revision sessions on days with exams', () => {
     const exams = [
       { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
       { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
@@ -103,14 +81,9 @@ describe('enforcePreExamSession', () => {
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Should add a Morning session on June 15 for Science (because it's an afternoon exam),
-    // but not for Math (because it would conflict with the Math exam)
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual(expect.objectContaining({
-      date: '2023-06-15',
-      block: 'Morning',
-      subject: 'Science'
-    }));
+    // Should not add any sessions on June 15 because there are exams that day
+    const sessionsOnExamDay = result.filter(session => session.date === '2023-06-15');
+    expect(sessionsOnExamDay.length).toBe(0);
   });
 
   it('should update an existing session if it exists', () => {
