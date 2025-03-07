@@ -12,12 +12,6 @@ import { parseISO, isBefore, isAfter, isSameDay } from 'date-fns';
 export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
   const sessionDate = parseISO(date);
   
-  // Check if there's any exam in this slot
-  const slotKey = `${date}-${block}`;
-  if (examSlots.has(slotKey)) {
-    return [];
-  }
-  
   // Get times of day in sequential order
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
