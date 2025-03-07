@@ -27,6 +27,10 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
     return [];
   }
   
+  // Get times of day in sequential order
+  const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
+  const currentTimeOrder = timeOrder[block];
+  
   // Find exams on this day to exclude their subjects from revision
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
@@ -34,10 +38,6 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       const [, timeBlock] = key.split('-');
       return { block: timeBlock, subjects: examSlots.get(key) };
     });
-  
-  // Get times of day in sequential order
-  const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
-  const currentTimeOrder = timeOrder[block];
   
   // Filter out subjects that have exams at or after the current block on the same day
   // This allows scheduling revision for a subject after its exam is complete on the same day
@@ -74,7 +74,8 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       
       return true;
     })
-    .map(exam => exam.subject);
+    .map(exam => exam.subject)
+    .filter(subject => !excludedSubjects.has(subject));
 }
 
 describe('getEligibleSubjects', () => {

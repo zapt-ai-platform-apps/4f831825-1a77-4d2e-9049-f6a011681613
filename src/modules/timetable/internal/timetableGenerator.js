@@ -325,5 +325,6 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
       
       return true;
     })
-    .map(exam => exam.subject);
+    .map(exam => exam.subject)
+    .filter(subject => !excludedSubjects.has(subject));
 }
