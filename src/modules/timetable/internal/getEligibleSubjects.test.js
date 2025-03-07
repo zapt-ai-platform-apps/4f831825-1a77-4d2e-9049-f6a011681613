@@ -36,37 +36,35 @@ function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
     .filter(key => key.startsWith(date))
     .map(key => {
       const [, timeBlock] = key.split('-');
-      return { block: timeBlock, subjects: examSlots.get(key) };
+      return { 
+        block: timeBlock, 
+        timeOrder: timeOrder[timeBlock],
+        subjects: examSlots.get(key) 
+      };
     });
   
   // Filter out subjects that have exams at or after the current block on the same day
   // This allows scheduling revision for a subject after its exam is complete on the same day
   const excludedSubjects = new Set();
-  sameDay.forEach(({ block: examBlock, subjects }) => {
-    const examTimeOrder = timeOrder[examBlock];
+  sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
     // Only exclude subjects with exams in the current block or later blocks
     if (examTimeOrder >= currentTimeOrder) {
       subjects.forEach(subject => excludedSubjects.add(subject));
     }
   });
   
-  // Filter subjects that haven't had their exam yet on this date
-  // and aren't excluded due to same-day exam timing
+  // Filter subjects that haven't had their exam yet (or have had it earlier this day)
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
-      // Exclude subjects whose exams have already passed
-      if (examDate < sessionDate) {
+      // Exclude subjects whose exams have already passed on previous days
+      if (examDate < sessionDate && !isSameDay(examDate, sessionDate)) {
         return false;
       }
       
       // For exams on the same day, check if they're in a later time block
-      if (
-        examDate.getFullYear() === sessionDate.getFullYear() &&
-        examDate.getMonth() === sessionDate.getMonth() &&
-        examDate.getDate() === sessionDate.getDate()
-      ) {
+      if (isSameDay(examDate, sessionDate)) {
         const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
         // Allow revision for this subject only if its exam is in an earlier block of the day
         return examTimeOrder < currentTimeOrder;
