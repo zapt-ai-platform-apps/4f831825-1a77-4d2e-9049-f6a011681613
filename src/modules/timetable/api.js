@@ -79,5 +79,25 @@ export const api = {
       console.error('Error deleting timetable entry:', error);
       throw error;
     }
+  },
+  
+  /**
+   * Generate timetable
+   * @param {Array} exams - Array of exam objects
+   * @param {string} startDate - Start date string
+   * @param {Object} revisionTimes - Revision times configuration
+   * @param {Object} blockTimes - Block times configuration
+   * @returns {Promise<Array>} Generated timetable entries
+   */
+  async generateTimetable(exams, startDate, revisionTimes, blockTimes) {
+    // Import the generator dynamically to avoid circular dependencies
+    const { generateTimetable } = await import('../timetable/internal/timetableGeneratorCore');
+    
+    try {
+      return await generateTimetable(exams, startDate, revisionTimes, blockTimes);
+    } catch (error) {
+      console.error('Error generating timetable:', error);
+      throw error;
+    }
   }
 };

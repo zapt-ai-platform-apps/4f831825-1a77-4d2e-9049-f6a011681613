@@ -4,7 +4,7 @@ import { events } from '../events';
 import * as Sentry from '@sentry/browser';
 import { validateExam } from '../validators';
 import { supabase } from '../../core/api';
-import { generateTimetableClient } from '../../timetable/internal/clientTimetableGenerator';
+import { generateTimetable } from '../../timetable/internal/timetableGeneratorCore';
 import { api as preferencesApi } from '../../preferences/api';
 
 /**
@@ -144,7 +144,7 @@ export async function generateTimetable() {
     }
     
     // Generate timetable on the client side
-    const timetable = await generateTimetableClient(
+    const timetable = await generateTimetable(
       exams,
       preferences.startDate,
       preferences.revisionTimes,
