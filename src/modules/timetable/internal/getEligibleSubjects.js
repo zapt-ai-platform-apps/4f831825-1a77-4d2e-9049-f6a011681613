@@ -16,6 +16,14 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
   
+  // Check if there's an exam in this specific slot
+  const slotKey = `${date}-${block}`;
+  const slotSubjects = examSlots.get(slotKey) || [];
+  if (slotSubjects.length > 0) {
+    console.log(`No eligible subjects for ${slotKey} because there's an exam in this block`);
+    return [];
+  }
+  
   // Find exams on this day 
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
