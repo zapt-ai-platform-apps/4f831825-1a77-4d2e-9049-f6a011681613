@@ -1,5 +1,5 @@
 import { formatDateToString, getDayOfWeek } from './dateUtils';
-import { addDays, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
+import { addDays, parseISO } from 'date-fns';
 import { createSession } from './sessionUtils';
 
 /**
@@ -53,7 +53,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
         console.log(`Cannot add pre-exam session for ${exam.subject} on ${formatDateToString(examDate)}-${examTimeOfDay} - skipping`);
         continue;
       }
-    }
+    } 
     // If the exam is in the morning, try to reserve evening session from day before
     else if (examTimeOfDay === 'Morning') {
       const prevDay = addDays(examDate, -1);
@@ -91,7 +91,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       // Only add a new entry if this timeslot is available in the user's preferences
       const dayOfWeek = getDayOfWeek(targetDate);
       if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes(targetBlock)) {
-        // Use createSession to ensure all required properties are present
+        // Create new session with all required properties
         updatedEntries.push(
           createSession(targetDateStr, targetBlock, exam.subject, blockTimes)
         );

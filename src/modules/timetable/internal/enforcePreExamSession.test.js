@@ -20,6 +20,7 @@ vi.mock('./dateUtils', () => ({
 
 vi.mock('./sessionUtils', () => ({
   createSession: vi.fn((date, block, subject, blockTimes = {}) => ({
+    id: 'mock-id',
     date,
     block,
     subject,

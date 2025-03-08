@@ -40,3 +40,15 @@ export function getDayOfWeek(date) {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return format(dateObj, 'EEEE').toLowerCase();
 }
+
+/**
+ * Checks if two dates are the same day
+ * @param {Date} date1 - First date
+ * @param {Date} date2 - Second date
+ * @returns {boolean} Whether the dates are the same day
+ */
+export function areSameDay(date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}

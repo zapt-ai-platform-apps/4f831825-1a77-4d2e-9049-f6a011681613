@@ -1,4 +1,5 @@
-import { parseISO, isBefore, isAfter, isSameDay } from 'date-fns';
+import { parseISO } from 'date-fns';
+import { areSameDay } from './dateUtils';
 
 /**
  * Gets eligible subjects for a particular date and block
@@ -46,20 +47,13 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   
   const sessionDate = parseISO(date);
   
-  // Helper function to check if two dates are the same day (more explicit)
-  const areSameDay = (date1, date2) => {
-    return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
-  };
-  
   // Filter subjects that haven't had their exam yet (or have had it earlier this day)
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
       // Exclude subjects whose exams have already passed on previous days
-      if (isBefore(examDate, sessionDate) && !areSameDay(examDate, sessionDate)) {
+      if (examDate < sessionDate && !areSameDay(examDate, sessionDate)) {
         return false;
       }
       

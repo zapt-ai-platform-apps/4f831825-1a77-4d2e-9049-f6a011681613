@@ -1,9 +1,5 @@
 import { parseISO } from 'date-fns';
-
-/**
- * Block order for sorting
- */
-const BLOCK_ORDER = { Morning: 0, Afternoon: 1, Evening: 2 };
+import { BLOCK_ORDER } from '../constants';
 
 /**
  * Sorts sessions by date and block
