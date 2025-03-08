@@ -3,6 +3,7 @@ import { generateTimetable } from './timetableGenerator';
 import { parseISO, format, addDays } from 'date-fns';
 import { createDateRange, getDayOfWeek } from './dateUtils';
 import * as Sentry from '@sentry/browser';
+import { getEligibleSubjects } from './getEligibleSubjects';
 
 // Mock Sentry
 vi.mock('@sentry/browser', () => ({
@@ -148,6 +149,7 @@ describe('generateTimetable', () => {
     
     // Reset mock implementations before each test
     vi.mocked(createDateRange).mockClear();
+    vi.mocked(getEligibleSubjects).mockClear();
   });
   
   afterEach(() => {
@@ -175,6 +177,7 @@ describe('generateTimetable', () => {
     vi.mocked(getEligibleSubjects).mockImplementation((date, block, exams) => {
       if (date === '2023-06-15' && block === 'Morning') return []; // exam slot
       if (date === '2023-06-20' && block === 'Afternoon') return []; // exam slot
+      if (date === '2023-06-15' && block === 'Afternoon') return ['Math']; // Math had exam in morning
       return ['Math', 'Science']; // return subjects for non-exam slots
     });
     
@@ -213,6 +216,7 @@ describe('generateTimetable', () => {
       // Return empty array only for actual exam slots
       if (date === '2023-06-15' && block === 'Morning') return [];
       if (date === '2023-06-20' && block === 'Afternoon') return [];
+      if (date === '2023-06-15' && block === 'Afternoon') return ['Math']; // Math had exam in morning
       return ['Math', 'Science'];
     });
     
@@ -269,6 +273,9 @@ describe('generateTimetable', () => {
       if (date === '2023-06-15' && block === 'Morning') return [];
       if (date === '2023-06-15' && block === 'Afternoon') return [];
       if (date === '2023-06-16' && block === 'Evening') return [];
+      
+      // Return Math subject for sessions after its exam
+      if (date === '2023-06-15' && block === 'Evening') return ['Math', 'Science'];
       
       // Return subjects for non-exam slots
       return ['Math', 'Science', 'History'];

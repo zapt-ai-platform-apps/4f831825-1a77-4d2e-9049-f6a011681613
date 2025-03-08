@@ -25,6 +25,18 @@ describe('getEligibleSubjects', () => {
     ['2023-06-20-Morning', ['English']]
   ]);
   
+  // Mock dateUtils functionality
+  vi.mock('./dateUtils', () => ({
+    areSameDay: (date1, date2) => {
+      if (typeof date1 === 'string') date1 = parseISO(date1);
+      if (typeof date2 === 'string') date2 = parseISO(date2);
+      
+      return date1.getFullYear() === date2.getFullYear() &&
+             date1.getMonth() === date2.getMonth() &&
+             date1.getDate() === date2.getDate();
+    }
+  }));
+  
   // Mock console.log to not pollute test output
   const originalConsoleLog = console.log;
   

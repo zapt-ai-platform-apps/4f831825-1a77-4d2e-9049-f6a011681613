@@ -48,7 +48,7 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   
   const sessionDate = parseISO(date);
   
-  // Filter subjects that haven't had their exam yet (or have had it earlier this day)
+  // Filter subjects that haven't had their exam yet OR have had it earlier this day
   return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
