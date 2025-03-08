@@ -47,25 +47,27 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     }
   });
   
-  // Log the eligible subjects analysis for debugging
-  console.log(`Eligible subjects for ${date}-${block}:`);
-  console.log(`- Exams on this day: ${sameDay.map(e => `${e.subjects.join(',')} (${e.block})`).join(', ') || 'none'}`);
-  console.log(`- Excluded subjects: ${Array.from(excludedSubjects).join(', ') || 'none'}`);
+  // Helper function to check if two dates are the same day (more explicit)
+  const areSameDay = (date1, date2) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  };
   
   // Filter subjects that haven't had their exam yet (or have had it earlier this day)
-  const eligibleSubjects = exams
+  return exams
     .filter(exam => {
       const examDate = parseISO(exam.examDate);
       
       // Exclude subjects whose exams have already passed on previous days
-      if (isBefore(examDate, sessionDate) && !isSameDay(examDate, sessionDate)) {
+      if (examDate < sessionDate && !areSameDay(examDate, sessionDate)) {
         return false;
       }
       
       // For exams on the same day, check if they're in a later time block
-      if (isSameDay(examDate, sessionDate)) {
+      if (areSameDay(examDate, sessionDate)) {
         const examTimeOrder = timeOrder[exam.timeOfDay || 'Morning'];
-        // Allow revision for this subject only if its exam is in an earlier block
+        // Allow revision for this subject only if its exam is in an earlier block of the day
         return examTimeOrder < currentTimeOrder;
       }
       
@@ -73,7 +75,4 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     })
     .map(exam => exam.subject)
     .filter(subject => !excludedSubjects.has(subject));
-  
-  console.log(`- Final eligible subjects: ${eligibleSubjects.join(', ') || 'none'}`);
-  return eligibleSubjects;
 }
