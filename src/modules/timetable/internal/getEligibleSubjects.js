@@ -10,21 +10,18 @@ import { parseISO, isBefore, isAfter, isSameDay } from 'date-fns';
  * @returns {Array} Array of eligible subject names
  */
 export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
-  // First, check if there's an exam in this exact slot
-  const exactSlotKey = `${date}-${block}`;
-  if (examSlots.has(exactSlotKey)) {
-    // If there's any exam in this exact slot, no subjects are eligible
-    console.log(`No eligible subjects for ${date}-${block} (exam slot)`);
-    return [];
-  }
-  
-  const sessionDate = parseISO(date);
-  
   // Get times of day in sequential order
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
+
+  // Check for subjects with exams in this exact slot (to exclude from eligible subjects)
+  const exactSlotKey = `${date}-${block}`;
+  const subjectsWithExamsInThisSlot = examSlots.get(exactSlotKey) || [];
   
-  // Find exams on this day 
+  // Initialize a set to keep track of excluded subjects
+  const excludedSubjects = new Set(subjectsWithExamsInThisSlot);
+  
+  // Find exams on this day to determine which subjects are excluded
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
     .map(key => {
@@ -36,16 +33,15 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
       };
     });
   
-  // Filter out subjects that have exams at or after the current block on the same day
-  const excludedSubjects = new Set();
-  
-  // Find subjects with exams in this slot or later slots
+  // Exclude subjects with exams in later slots on the same day
   sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
-    // Only exclude subjects with exams in this block or later blocks on the same day
-    if (examTimeOrder >= currentTimeOrder) {
+    // Only exclude subjects with exams in later blocks on the same day
+    if (examTimeOrder > currentTimeOrder) {
       subjects.forEach(subject => excludedSubjects.add(subject));
     }
   });
+  
+  const sessionDate = parseISO(date);
   
   // Helper function to check if two dates are the same day (more explicit)
   const areSameDay = (date1, date2) => {
@@ -60,7 +56,7 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
       const examDate = parseISO(exam.examDate);
       
       // Exclude subjects whose exams have already passed on previous days
-      if (examDate < sessionDate && !areSameDay(examDate, sessionDate)) {
+      if (isBefore(examDate, sessionDate) && !areSameDay(examDate, sessionDate)) {
         return false;
       }
       
