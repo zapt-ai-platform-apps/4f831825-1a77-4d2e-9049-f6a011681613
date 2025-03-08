@@ -15,16 +15,13 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
 
-  // Check for subjects with exams in this exact slot (to exclude from eligible subjects)
+  // Check for subjects with exams in this exact slot
   const exactSlotKey = `${date}-${block}`;
-  
-  // If there's an exam in this exact slot, return empty array immediately
-  if (examSlots.has(exactSlotKey)) {
-    return [];
-  }
+  // Get subjects that have exams in this exact slot
+  const subjectsWithExamInThisSlot = examSlots.has(exactSlotKey) ? examSlots.get(exactSlotKey) : [];
   
   // Initialize a set to keep track of excluded subjects
-  const excludedSubjects = new Set();
+  const excludedSubjects = new Set(subjectsWithExamInThisSlot);
   
   // Find exams on this day to determine which subjects are excluded
   const sameDay = Array.from(examSlots.keys())
