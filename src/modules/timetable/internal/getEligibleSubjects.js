@@ -17,24 +17,27 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     return [];
   }
   
-  // Check if this timeslot has an exam
-  const slotKey = `${date}-${block}`;
-  if (examSlots.has(slotKey)) {
-    return [];
-  }
-  
   const dateObj = parseISO(date);
   if (isNaN(dateObj.getTime())) {
     console.error('Invalid date passed to getEligibleSubjects:', date);
     return [];
   }
 
+  // Get subjects that have exams in this specific timeslot
+  const slotKey = `${date}-${block}`;
+  const subjectsWithExamsInThisSlot = examSlots.get(slotKey) || [];
+  
   // Time of day mapping for comparison (earlier = lower number)
   const timeOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
   const currentBlockOrder = timeOrder[block];
   
   // Filter exams to find eligible subjects
   const eligibleSubjects = exams.filter(exam => {
+    // Skip subjects that have an exam in this exact timeslot
+    if (subjectsWithExamsInThisSlot.includes(exam.subject)) {
+      return false;
+    }
+    
     if (!exam.examDate) return false;
     
     const examDateObj = parseISO(exam.examDate);
