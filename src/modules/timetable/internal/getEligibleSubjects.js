@@ -27,17 +27,18 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const slotKey = `${date}-${block}`;
   const subjectsWithExamsInThisSlot = examSlots.get(slotKey) || [];
   
+  // If any exam is scheduled in this slot, return empty array immediately
+  // This prevents scheduling revision sessions in slots with exams
+  if (subjectsWithExamsInThisSlot.length > 0) {
+    return [];
+  }
+  
   // Time of day mapping for comparison (earlier = lower number)
   const timeOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
   const currentBlockOrder = timeOrder[block];
   
   // Filter exams to find eligible subjects
   const eligibleSubjects = exams.filter(exam => {
-    // Skip subjects that have an exam in this exact timeslot
-    if (subjectsWithExamsInThisSlot.includes(exam.subject)) {
-      return false;
-    }
-    
     if (!exam.examDate) return false;
     
     const examDateObj = parseISO(exam.examDate);
