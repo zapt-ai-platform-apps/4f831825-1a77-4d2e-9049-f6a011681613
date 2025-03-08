@@ -18,8 +18,13 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const exactSlotKey = `${date}-${block}`;
   const subjectsWithExamsInThisSlot = examSlots.get(exactSlotKey) || [];
   
+  // If there's any exam in this slot, no subjects are eligible
+  if (subjectsWithExamsInThisSlot.length > 0) {
+    return [];
+  }
+  
   // Initialize a set to keep track of excluded subjects
-  const excludedSubjects = new Set(subjectsWithExamsInThisSlot);
+  const excludedSubjects = new Set();
   
   // Find exams on this day to determine which subjects are excluded
   const sameDay = Array.from(examSlots.keys())
