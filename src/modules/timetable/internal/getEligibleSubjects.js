@@ -16,14 +16,6 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
   const currentTimeOrder = timeOrder[block];
   
-  // Check if there's an exam in this exact slot
-  const exactSlotKey = `${date}-${block}`;
-  if (examSlots.has(exactSlotKey)) {
-    // If there's an exam in this exact slot, no subjects are eligible
-    console.log(`Exam scheduled in ${exactSlotKey}, no subjects eligible`);
-    return [];
-  }
-  
   // Find exams on this day 
   const sameDay = Array.from(examSlots.keys())
     .filter(key => key.startsWith(date))
@@ -38,6 +30,8 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   
   // Filter out subjects that have exams at or after the current block on the same day
   const excludedSubjects = new Set();
+  
+  // Find subjects with exams in this slot or later slots
   sameDay.forEach(({ block: examBlock, timeOrder: examTimeOrder, subjects }) => {
     // Only exclude subjects with exams in this block or later blocks on the same day
     if (examTimeOrder >= currentTimeOrder) {
