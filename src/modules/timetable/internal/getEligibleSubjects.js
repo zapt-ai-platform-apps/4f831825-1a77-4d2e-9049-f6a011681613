@@ -10,6 +10,14 @@ import { parseISO, isBefore, isAfter, isSameDay } from 'date-fns';
  * @returns {Array} Array of eligible subject names
  */
 export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots) {
+  // First, check if there's an exam in this exact slot
+  const exactSlotKey = `${date}-${block}`;
+  if (examSlots.has(exactSlotKey)) {
+    // If there's any exam in this exact slot, no subjects are eligible
+    console.log(`No eligible subjects for ${date}-${block} (exam slot)`);
+    return [];
+  }
+  
   const sessionDate = parseISO(date);
   
   // Get times of day in sequential order
