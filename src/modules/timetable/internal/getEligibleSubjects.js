@@ -1,4 +1,4 @@
-import { parseISO, isBefore, isAfter, isSameDay } from 'date-fns';
+import { parseISO, isAfter, isSameDay } from 'date-fns';
 
 /**
  * Gets eligible subjects for a specific date and block
@@ -40,14 +40,14 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     const examDateObj = parseISO(exam.examDate);
     
     // For exams on the same day as the session
-    if (isSameDay(examDateObj, dateObj)) {
+    if (exam.examDate === date) {  // Use direct string comparison instead of isSameDay
       // Only include subjects where the exam is earlier in the day than the current block
       const examBlockOrder = timeOrder[exam.timeOfDay || 'Morning'];
       return examBlockOrder < currentBlockOrder;
     }
     
     // For exams on other days:
-    // FIXED: Include only subjects with upcoming exams (exclude past exams)
+    // Include only subjects with upcoming exams (exclude past exams)
     return isAfter(examDateObj, dateObj);
   }).map(exam => exam.subject);
   
