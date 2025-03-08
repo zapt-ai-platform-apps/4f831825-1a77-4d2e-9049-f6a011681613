@@ -1,39 +1,45 @@
+import { DEFAULT_BLOCK_TIMES } from './constants';
+import { generateId } from '../../core/internal/helpers';
+
 /**
- * Creates a session object for the timetable
- * @param {string} date - Date string in YYYY-MM-DD format
+ * Creates a timetable session object
+ * @param {string} date - Date in YYYY-MM-DD format
  * @param {string} block - Block name (Morning, Afternoon, Evening)
  * @param {string} subject - Subject name
  * @param {Object} blockTimes - User block time preferences
+ * @param {boolean} isUserCreated - Whether the session was created by the user
  * @returns {Object} Session object
  */
-export function createSession(date, block, subject, blockTimes = {}) {
-  const blockInfo = getBlockTimeInfo(block, blockTimes);
-  
+export function createSession(date, block, subject, blockTimes = {}, isUserCreated = false) {
+  if (!date) {
+    console.error('createSession called without date parameter');
+    throw new Error('Date is required for session creation');
+  }
+
   return {
     date,
     block,
     subject,
-    startTime: blockInfo.startTime,
-    endTime: blockInfo.endTime,
-    isUserCreated: false
+    startTime: getBlockTime(block, blockTimes, 'startTime'),
+    endTime: getBlockTime(block, blockTimes, 'endTime'),
+    isUserCreated
   };
 }
 
 /**
- * Gets start and end times for a block
- * @param {string} block - Block name
+ * Gets the start or end time for a block based on user preferences or defaults
+ * @param {string} block - Block name (Morning, Afternoon, Evening)
  * @param {Object} blockTimes - User block time preferences
- * @returns {Object} Start and end times
+ * @param {string} timeType - 'startTime' or 'endTime'
+ * @returns {string} Time string in HH:MM format
  */
-export function getBlockTimeInfo(block, blockTimes = {}) {
-  const defaultTimes = {
-    Morning: { startTime: '09:00', endTime: '13:00' },
-    Afternoon: { startTime: '14:00', endTime: '17:00' },
-    Evening: { startTime: '19:00', endTime: '21:00' }
-  };
+function getBlockTime(block, blockTimes, timeType) {
+  // If user has specified block times, use those
+  if (blockTimes && blockTimes[block] && blockTimes[block][timeType]) {
+    return blockTimes[block][timeType];
+  }
   
-  const startTime = blockTimes?.[block]?.startTime || defaultTimes[block].startTime;
-  const endTime = blockTimes?.[block]?.endTime || defaultTimes[block].endTime;
-  
-  return { startTime, endTime };
+  // Otherwise, use defaults from constants
+  return DEFAULT_BLOCK_TIMES[block]?.[timeType] || 
+    (timeType === 'startTime' ? '09:00' : '12:00'); // Fallback defaults
 }

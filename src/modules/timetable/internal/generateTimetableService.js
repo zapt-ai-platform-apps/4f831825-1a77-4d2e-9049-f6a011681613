@@ -1,73 +1,15 @@
 import * as Sentry from "@sentry/node";
-import { authenticateUser } from "../../auth/internal/authUtils.js";
-import { deleteGeneratedTimetableEntries } from "./dataAccess.js";
 import { generateTimetable } from "./timetableGenerator.js";
 import { saveTimetable } from "./timetableSaver.js";
-import { 
-  getUserPreferences, 
-  getUserExams, 
-  getUserRevisionTimes, 
-  getUserBlockTimes
-} from "./dataAccess.js";
-import { db } from "../../../utils/dbClient.js";
 
 /**
- * Main handler for timetable generation
- * @param {Object} req - HTTP request object
- * @param {Object} res - HTTP response object
- * @param {Object} Sentry - Sentry error tracking instance
+ * @deprecated Timetable generation has been moved to client-side.
+ * This file is maintained for reference and backwards compatibility.
+ * For current implementation, see timetableGeneratorCore.js and the client-side API.
  */
-export async function generateTimetableHandler(req, res, Sentry) {
-  try {
-    // Authenticate user
-    const user = await authenticateUser(req);
-    const userId = user.id;
-
-    // Delete existing generated timetable entries (keeping user-created ones)
-    await deleteGeneratedTimetableEntries(db, userId);
-
-    // Fetch user data
-    const preferences = await getUserPreferences(db, userId);
-    const exams = await getUserExams(db, userId);
-    const revisionTimes = await getUserRevisionTimes(db, userId);
-    const blockTimes = await getUserBlockTimes(db, userId);
-
-    if (!preferences) {
-      return res.status(400).json({ 
-        error: "You need to set preferences before generating a timetable" 
-      });
-    }
-
-    if (!exams.length) {
-      return res.status(400).json({ 
-        error: "You need to add at least one exam before generating a timetable" 
-      });
-    }
-
-    // Process revision times
-    const revisionTimesData = processRevisionTimes(revisionTimes);
-
-    // Generate timetable
-    const timetable = await generateTimetable(
-      exams,
-      preferences.startDate,
-      revisionTimesData,
-      blockTimes
-    );
-
-    // Save timetable directly (skipping review step)
-    await saveTimetable(userId, timetable);
-
-    res.status(200).json({ message: "Timetable generated successfully" });
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error("Error generating timetable:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
-  }
-}
 
 /**
- * Process revision times from database format to a more usable structure
+ * Process revision times from database format to a usable structure
  * @param {Array} revisionTimes - Revision times from database
  * @returns {Object} Processed revision times by day of week
  */
@@ -82,9 +24,47 @@ function processRevisionTimes(revisionTimes) {
     sunday: [],
   };
 
+  if (!revisionTimes || !Array.isArray(revisionTimes)) {
+    console.warn("Invalid revision times format");
+    return processed;
+  }
+
   for (const row of revisionTimes) {
-    processed[row.dayOfWeek].push(row.block);
+    if (row.dayOfWeek && row.block) {
+      if (!processed[row.dayOfWeek]) {
+        processed[row.dayOfWeek] = [];
+      }
+      processed[row.dayOfWeek].push(row.block);
+    }
   }
 
   return processed;
+}
+
+/**
+ * Main handler for timetable generation
+ * @deprecated Use client-side generation instead
+ * @param {Object} req - HTTP request object
+ * @param {Object} res - HTTP response object
+ * @param {Object} Sentry - Sentry error tracking instance
+ */
+export async function generateTimetableHandler(req, res, Sentry) {
+  try {
+    console.warn("DEPRECATED: Using server-side timetable generation. Consider using client-side generation instead.");
+    
+    // Check if request contains necessary data
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ error: "User authentication is required" });
+    }
+    
+    // Respond with deprecation notice
+    return res.status(200).json({ 
+      message: "Timetable generation should be done on the client side now. Please use the client-side timetable generator and call /api/saveTimetable to save the generated timetable.",
+      deprecated: true
+    });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error("Error in deprecated timetable generation service:", error);
+    res.status(500).json({ error: error.message || "Internal Server Error" });
+  }
 }

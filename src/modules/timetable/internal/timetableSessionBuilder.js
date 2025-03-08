@@ -3,6 +3,11 @@ import { createSession } from './sessionUtils';
 import { generateId } from '../../core/internal/helpers';
 
 /**
+ * @deprecated Use createSession from sessionUtils.js instead
+ * This file is maintained for backwards compatibility and will be removed in a future version
+ */
+
+/**
  * Builds a timetable session object
  * @param {string} date - Date in YYYY-MM-DD format
  * @param {string} block - Block name (Morning, Afternoon, Evening)
@@ -12,19 +17,13 @@ import { generateId } from '../../core/internal/helpers';
  * @returns {Object} Session object
  */
 export function buildTimetableSession(date, block, subject, blockTimes, isUserCreated = false) {
-  return {
-    id: generateId(),
-    date,
-    block,
-    subject,
-    startTime: getBlockTime(block, blockTimes, 'startTime'),
-    endTime: getBlockTime(block, blockTimes, 'endTime'),
-    isUserCreated
-  };
+  // Use createSession for consistent behavior
+  return createSession(date, block, subject, blockTimes, isUserCreated);
 }
 
 /**
  * Gets the start or end time for a block
+ * @deprecated Use sessionUtils internal functions instead
  * @param {string} block - Block name
  * @param {Object} blockTimes - User block time preferences
  * @param {string} timeType - 'startTime' or 'endTime'
@@ -59,17 +58,24 @@ export function buildSubjectSessions(subject, startDate, endDate, availableBlock
   const start = parseISO(startDate);
   const end = parseISO(endDate);
   
-  let currentDate = start;
+  // Handle invalid date inputs safely
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    console.error('Invalid date inputs for buildSubjectSessions', { startDate, endDate });
+    return sessions;
+  }
+  
+  let currentDate = new Date(start);
   while (!isAfter(currentDate, end)) {
     const dateStr = format(currentDate, 'yyyy-MM-dd');
     const dayOfWeek = format(currentDate, 'EEEE').toLowerCase();
     const blocks = availableBlocks[dayOfWeek] || [];
     
     blocks.forEach(block => {
-      sessions.push(buildTimetableSession(dateStr, block, subject, blockTimes));
+      sessions.push(createSession(dateStr, block, subject, blockTimes));
     });
     
-    currentDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+    // Avoid date mutation issues
+    currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
   }
   
   return sessions;
