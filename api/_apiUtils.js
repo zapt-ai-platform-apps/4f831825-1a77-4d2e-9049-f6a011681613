@@ -9,39 +9,63 @@ const { supabase } = initializeZapt(process.env.VITE_PUBLIC_APP_ID);
  * @returns {Promise<Object>} User object
  */
 export async function authenticateUser(req) {
+  // Check for authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader) {
+    console.error('Missing Authorization header');
     throw new Error('Missing Authorization header');
   }
 
+  // Extract the token
   const token = authHeader.split(' ')[1];
-  
-  // Add more robustness to the authentication process
+  if (!token) {
+    console.error('Invalid Authorization format');
+    throw new Error('Invalid Authorization format');
+  }
+
   try {
-    const response = await supabase.auth.getUser(token);
+    // Check for active session first
+    console.log('Checking for active session...');
+    const sessionResponse = await supabase.auth.getSession();
+    const sessionData = sessionResponse.data || {};
     
-    // Debug log to help diagnose issues
-    console.log('Auth response status:', response && response.data ? 'has data' : 'missing data');
+    const sessionActive = sessionData.session && 
+                          sessionData.session.expires_at && 
+                          new Date(sessionData.session.expires_at * 1000) > new Date();
     
-    // Check if response has the expected structure
-    if (!response || !response.data) {
-      console.error('Invalid auth response structure');
-      throw new Error('Invalid authentication response structure');
+    console.log('Session status:', {
+      hasSession: !!sessionData.session,
+      isActive: sessionActive
+    });
+    
+    // Try to get user with the provided token
+    console.log('Fetching user with provided token...');
+    const userResponse = await supabase.auth.getUser(token);
+    
+    // Handle errors first
+    if (userResponse.error) {
+      console.error('Auth error from Supabase:', userResponse.error);
+      Sentry.captureException(userResponse.error);
+      throw new Error(`Authentication failed: ${userResponse.error.message}`);
     }
     
-    // Check if user exists in the response
-    if (!response.data.user) {
-      console.error('Auth session missing! User not found in response');
-      throw new Error('Auth session missing! User not found in response');
+    const userData = userResponse.data || {};
+    
+    // If we have a user in the response, return it
+    if (userData.user) {
+      console.log('User authenticated successfully');
+      return userData.user;
     }
     
-    // Check for errors
-    if (response.error) {
-      Sentry.captureException(response.error);
-      throw new Error(`Invalid token: ${response.error.message}`);
+    // If token didn't get a user but we have an active session with user, use that as fallback
+    if (sessionActive && sessionData.session && sessionData.session.user) {
+      console.log('Using session user as fallback');
+      return sessionData.session.user;
     }
     
-    return response.data.user;
+    // No user found in response or session
+    console.error('No valid user found in auth response or session');
+    throw new Error('Authentication failed: User not found in response');
   } catch (error) {
     console.error('Authentication error:', error.message);
     Sentry.captureException(error);
