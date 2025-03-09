@@ -38,9 +38,24 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     let targetDate = examDate;
     let targetBlock = getPreExamBlock(examTimeOfDay);
     
-    // If the exam is not in the morning and the target block is morning (same day),
+    // For morning exams, strongly prioritize evening session on the previous day
+    if (examTimeOfDay === 'Morning') {
+      const prevDay = addDays(examDate, -1);
+      const prevDayOfWeek = getDayOfWeek(prevDay);
+      
+      // Check if the previous day has an evening session available
+      if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes('Evening')) {
+        console.log(`Assigning evening session on ${formatDateToString(prevDay)} for ${exam.subject} morning exam`);
+        targetDate = prevDay;
+        targetBlock = 'Evening';
+      } else {
+        // Log if we can't find a suitable evening slot before a morning exam
+        console.log(`No evening slot available on ${formatDateToString(prevDay)} for ${exam.subject} exam - using morning of exam day`);
+      }
+    } 
+    // If the exam is not in the morning but the target block is morning (same day),
     // we should try to use the evening block from the previous day instead
-    if (examTimeOfDay !== 'Morning' && targetBlock === 'Morning') {
+    else if (examTimeOfDay !== 'Morning' && targetBlock === 'Morning') {
       const prevDay = addDays(examDate, -1);
       const prevDayOfWeek = getDayOfWeek(prevDay);
       
@@ -52,17 +67,6 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
         // Skip this exam if we can't find a suitable slot
         console.log(`Cannot add pre-exam session for ${exam.subject} on ${formatDateToString(examDate)}-${examTimeOfDay} - skipping`);
         continue;
-      }
-    } 
-    // If the exam is in the morning, try to reserve evening session from day before
-    else if (examTimeOfDay === 'Morning') {
-      const prevDay = addDays(examDate, -1);
-      const prevDayOfWeek = getDayOfWeek(prevDay);
-      
-      // Check if the previous day has an evening session available
-      if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes('Evening')) {
-        targetDate = prevDay;
-        targetBlock = 'Evening';
       }
     }
     
@@ -83,6 +87,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     if (existingEntryIndex >= 0) {
       // Update the existing entry to this exam's subject
       // Create a new object to avoid reference issues
+      console.log(`Updating existing ${targetBlock} session on ${targetDateStr} from ${updatedEntries[existingEntryIndex].subject} to ${exam.subject}`);
       updatedEntries[existingEntryIndex] = {
         ...updatedEntries[existingEntryIndex],
         subject: exam.subject
@@ -92,9 +97,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       const dayOfWeek = getDayOfWeek(targetDate);
       if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes(targetBlock)) {
         // Create new session with all required properties
+        console.log(`Creating new ${targetBlock} session on ${targetDateStr} for ${exam.subject}`);
         updatedEntries.push(
           createSession(targetDateStr, targetBlock, exam.subject, blockTimes)
         );
+      } else {
+        console.log(`Cannot create session as ${targetBlock} is not enabled on ${dayOfWeek} in user preferences`);
       }
     }
   }
@@ -110,7 +118,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
 function getPreExamBlock(examTimeOfDay) {
   switch (examTimeOfDay) {
     case 'Morning':
-      return 'Morning'; // Will try Evening the day before first
+      return 'Morning'; // The code will try Evening the day before first
     case 'Afternoon':
       return 'Morning';
     case 'Evening':
