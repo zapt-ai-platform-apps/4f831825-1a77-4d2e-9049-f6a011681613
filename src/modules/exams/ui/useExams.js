@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api as examsApi } from '../api';
-import { saveOrUpdateExam, deleteExam, generateTimetable } from '../internal/service';
+import { saveOrUpdateExam, deleteExam, generateExamTimetable } from '../internal/service';
 import { eventBus } from '../../core/events';
 import { events } from '../events';
 import * as Sentry from '@sentry/browser';
@@ -110,7 +110,7 @@ export function useExams() {
       }
       
       console.log("Initiating timetable generation...");
-      const result = await generateTimetable();
+      const result = await generateExamTimetable();
       
       if (!result.success) {
         setError(result.error || 'Failed to generate timetable');

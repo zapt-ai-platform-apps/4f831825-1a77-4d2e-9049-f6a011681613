@@ -4,7 +4,7 @@ import { events } from '../events';
 import * as Sentry from '@sentry/browser';
 import { validateExam } from '../validators';
 import { supabase } from '../../core/api';
-import { generateTimetable } from '../../timetable/internal/timetableGeneratorCore';
+import { generateTimetable as generateTimetableCore } from '../../timetable/internal/timetableGeneratorCore';
 import { api as preferencesApi } from '../../preferences/api';
 
 /**
@@ -120,7 +120,7 @@ export async function deleteExam(id) {
  * Generate timetable based on exams and preferences
  * @returns {Promise<Object>} Result message
  */
-export async function generateTimetable() {
+export async function generateExamTimetable() {
   try {
     console.log("Generating timetable...");
     
@@ -144,7 +144,7 @@ export async function generateTimetable() {
     }
     
     // Generate timetable on the client side
-    const timetable = await generateTimetable(
+    const timetable = await generateTimetableCore(
       exams,
       preferences.startDate,
       preferences.revisionTimes,
