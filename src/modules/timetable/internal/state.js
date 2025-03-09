@@ -1,16 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import { parseISO, format, addMonths, subMonths } from 'date-fns';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api as timetableApi } from '../api';
-import { api as preferencesApi } from '../../preferences/api';
 import { api as examsApi } from '../../exams/api';
+import { api as preferencesApi } from '../../preferences/api';
 import { formatDatesWithData, buildSubjectColorMapping, calculateMonthLimits, getOrCreateCurrentMonth } from './service';
+import { eventBus, events } from '../../core/events';
 import * as Sentry from '@sentry/browser';
 
 /**
  * Hook for managing timetable state
- * Coordinates fetching of timetable, exams, and preferences data
- * Handles UI state for calendar display
- * 
  * @returns {Object} Timetable state and methods
  */
 export function useTimetableState() {
@@ -25,30 +22,41 @@ export function useTimetableState() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [minDate, setMinDate] = useState(null);
   const [maxDate, setMaxDate] = useState(null);
-
-  // Fetch timetable data
+  
+  // Use a ref to track if a request is in progress to prevent duplicates
+  const isFetchingRef = useRef(false);
+  
+  /**
+   * Fetch timetable data
+   * Wrapped in useCallback to maintain stable reference
+   */
   const fetchTimetable = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    // Skip if already fetching to prevent duplicate requests
+    if (isFetchingRef.current) {
+      console.log('Timetable fetch already in progress, skipping duplicate request');
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    console.log('Fetching timetable data...');
     
     try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch timetable, exams, and preferences in parallel
       const [timetableData, examsData, preferencesData] = await Promise.all([
         timetableApi.getTimetable(),
         examsApi.getExams(),
-        preferencesApi.getPreferences(),
+        preferencesApi.getPreferences()
       ]);
       
-      console.log("[Timetable] Data fetched successfully", {
-        timetableEntries: Object.keys(timetableData).length,
-        exams: examsData.length,
-        preferences: !!preferencesData
-      });
-      
+      // Update state with fetched data
       setTimetable(timetableData);
       setExams(examsData);
       setPreferences(preferencesData);
       
-      // Format dates with timetable and exam data
+      // Calculate derived data
       const { datesWithData: formattedDates, subjectsSet } = formatDatesWithData(timetableData, examsData);
       setDatesWithData(formattedDates);
       
@@ -56,40 +64,53 @@ export function useTimetableState() {
       const colours = buildSubjectColorMapping(subjectsSet, examsData);
       setSubjectColours(colours);
       
-      // Calculate min and max dates for the calendar
+      // Calculate month limits based on preferences and exams
       const { minDate: calculatedMinDate, maxDate: calculatedMaxDate } = calculateMonthLimits(preferencesData, examsData);
       setMinDate(calculatedMinDate);
       setMaxDate(calculatedMaxDate);
       
-      // Set current month based on preferences or min date
-      setCurrentMonth(getOrCreateCurrentMonth(currentMonth, preferencesData));
+      // Set current month if not already set
+      setCurrentMonth(prevMonth => getOrCreateCurrentMonth(prevMonth, preferencesData));
       
-      // If no date is selected, default to today or the min date
-      if (!selectedDate) {
-        setSelectedDate(new Date());
-      }
+      console.log('Timetable data fetched successfully');
     } catch (error) {
       console.error('Error fetching timetable data:', error);
       Sentry.captureException(error);
-      setError('Failed to load timetable data. Please try again.');
+      setError('Failed to load timetable. Please try again.');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  }, [currentMonth, selectedDate]);
+  }, []); // No dependencies to ensure stable reference
   
-  // Fetch data on mount
+  // Set up event listeners for timetable updates
   useEffect(() => {
-    fetchTimetable();
+    const timetableUpdatedUnsubscribe = eventBus.subscribe(events.TIMETABLE_UPDATED, () => {
+      console.log('Timetable updated, refreshing data...');
+      fetchTimetable();
+    });
+    
+    return () => {
+      timetableUpdatedUnsubscribe();
+    };
   }, [fetchTimetable]);
   
-  // Handle going to previous month
+  // Handle previous month navigation
   const handlePrevMonth = useCallback(() => {
-    setCurrentMonth((prev) => subMonths(prev, 1));
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() - 1);
+      return newMonth;
+    });
   }, []);
   
-  // Handle going to next month
+  // Handle next month navigation
   const handleNextMonth = useCallback(() => {
-    setCurrentMonth((prev) => addMonths(prev, 1));
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() + 1);
+      return newMonth;
+    });
   }, []);
   
   // Handle date click

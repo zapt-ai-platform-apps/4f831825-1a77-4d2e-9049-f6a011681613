@@ -1,3 +1,5 @@
+import { BLOCK_ORDER } from './constants';
+
 /**
  * Creates a timetable session object
  * @param {string} date - Date in YYYY-MM-DD format
@@ -7,43 +9,55 @@
  * @param {boolean} isUserCreated - Whether the session was created by the user
  * @returns {Object} Session object
  */
-export function createSession(date, block, subject, blockTimes, isUserCreated = false) {
+export function createSession(date, block, subject, blockTimes = {}, isUserCreated = false) {
   if (!date) {
     console.error('createSession called without date parameter');
-    throw new Error('Date is required for session creation');
+    throw new Error('Date is required for creating a session');
   }
   
-  const startTime = getBlockTime(block, blockTimes, 'startTime');
-  const endTime = getBlockTime(block, blockTimes, 'endTime');
+  if (!block) {
+    console.error('createSession called without block parameter');
+    throw new Error('Block is required for creating a session');
+  }
+  
+  const blockTime = blockTimes[block] || {};
   
   return {
     date,
     block,
     subject,
-    startTime,
-    endTime,
-    isUserCreated
+    startTime: blockTime.startTime || getDefaultStartTime(block),
+    endTime: blockTime.endTime || getDefaultEndTime(block),
+    isUserCreated: Boolean(isUserCreated)
   };
 }
 
 /**
- * Gets the start or end time for a block
+ * Gets the default start time for a block
  * @param {string} block - Block name
- * @param {Object} blockTimes - User block time preferences
- * @param {string} timeType - 'startTime' or 'endTime'
  * @returns {string} Time string in HH:MM format
  */
-function getBlockTime(block, blockTimes, timeType) {
-  if (blockTimes && blockTimes[block] && blockTimes[block][timeType]) {
-    return blockTimes[block][timeType];
-  }
-  
-  // Default times if not specified
+function getDefaultStartTime(block) {
   const defaults = {
-    Morning: { startTime: '09:00', endTime: '13:00' },
-    Afternoon: { startTime: '14:00', endTime: '17:00' },
-    Evening: { startTime: '19:00', endTime: '21:00' }
+    Morning: '09:00',
+    Afternoon: '14:00',
+    Evening: '19:00'
   };
   
-  return defaults[block][timeType];
+  return defaults[block] || '09:00';
+}
+
+/**
+ * Gets the default end time for a block
+ * @param {string} block - Block name
+ * @returns {string} Time string in HH:MM format
+ */
+function getDefaultEndTime(block) {
+  const defaults = {
+    Morning: '13:00',
+    Afternoon: '17:00',
+    Evening: '21:00'
+  };
+  
+  return defaults[block] || '12:00';
 }

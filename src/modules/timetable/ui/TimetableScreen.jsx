@@ -26,11 +26,12 @@ function TimetableScreen() {
     refreshTimetable
   } = useTimetable();
 
-  // Refresh timetable data when the component mounts to ensure we have the latest data
+  // Fetch timetable data once on mount with empty dependency array
+  // This prevents the infinite refresh loop
   useEffect(() => {
     console.log("TimetableScreen mounted, refreshing timetable data...");
     refreshTimetable();
-  }, [refreshTimetable]);
+  }, []); // Empty dependency array ensures this only runs once on mount
 
   if (loading) {
     return <LoadingOverlay message="Loading your timetable..." />;
