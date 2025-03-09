@@ -110,19 +110,28 @@ describe('enforcePreExamSession', () => {
       thursday: ['Morning', 'Afternoon', 'Evening'] // June 15, 2023 is a Thursday
     };
     
+    // Ensure we're mocking getDayOfWeek correctly for the test
+    vi.mocked(getDayOfWeek).mockImplementation(date => {
+      if (date instanceof Date && date.toISOString().includes('2023-06-15') || 
+          date === '2023-06-15') {
+        return 'thursday';
+      }
+      return 'wednesday';
+    });
+    
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Should not add new sessions for morning or afternoon on June 15
-    // because there are already sessions in those slots
+    // Should update the existing sessions to match the exam subjects
     expect(result.length).toBe(2);
     
-    // But it should update the subject of the existing sessions
+    // Should have updated the Morning session to Math
     expect(result).toContainEqual(expect.objectContaining({
       date: '2023-06-15',
       block: 'Morning',
       subject: 'Math'
     }));
     
+    // Should have updated the Afternoon session to Science
     expect(result).toContainEqual(expect.objectContaining({
       date: '2023-06-15',
       block: 'Afternoon',
@@ -141,9 +150,17 @@ describe('enforcePreExamSession', () => {
       thursday: ['Morning', 'Afternoon'] // June 15, 2023 is a Thursday
     };
     
-    // No available slots on Wednesday
+    // Mock getDayOfWeek to not provide Evening slot on Wednesday
+    // and return proper day for Thursday
     vi.mocked(getDayOfWeek).mockImplementation(date => {
-      if (date === '2023-06-15' || typeof date === 'string') return 'thursday';
+      if (date instanceof Date) {
+        const dateString = date.toISOString().split('T')[0];
+        if (dateString === '2023-06-15') return 'thursday';
+        if (dateString === '2023-06-14') return 'wednesday';
+      } else if (typeof date === 'string') {
+        if (date === '2023-06-15') return 'thursday';
+        if (date === '2023-06-14') return 'wednesday';
+      }
       return 'wednesday';
     });
     

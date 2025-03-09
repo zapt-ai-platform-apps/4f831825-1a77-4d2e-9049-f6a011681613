@@ -47,7 +47,7 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
     }
     
     // If we couldn't create a session on the previous day, try earlier blocks on the exam day
-    if (examBlock !== 'Morning') {
+    if (examBlock !== 'Morning' || !revisionTimes[dayOfWeek]?.includes('Evening')) {
       const blocksToTry = examBlock === 'Afternoon' ? ['Morning'] : ['Afternoon', 'Morning'];
       const examDayStr = exam.examDate;
       const examDayOfWeek = getDayOfWeek(examDate);
@@ -117,7 +117,7 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     // Create map of exam slots to avoid scheduling during exams
     const examSlots = createExamSlotsMap(sortedExams);
 
-    // ----- CHANGE: FIRST CREATE PRE-EXAM SESSIONS -----
+    // First create pre-exam sessions
     const { preExamSessions, reservedSlots } = createPreExamSessions(
       sortedExams, 
       startDate, 
@@ -142,7 +142,7 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
       }
     });
 
-    // ----- THEN FILL IN THE REST OF THE TIMETABLE -----
+    // Then fill in the rest of the timetable
     // Process each date in the range
     for (const date of dateRange) {
       const dayOfWeek = getDayOfWeek(date);
@@ -185,7 +185,6 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     }
 
     // Still use enforcePreExamSession as a final check to ensure we didn't miss anything
-    // (but its impact should be minimal now since we've already assigned pre-exam sessions)
     const finalTimetable = enforcePreExamSession(
       sortedExams,
       timetableEntries,
