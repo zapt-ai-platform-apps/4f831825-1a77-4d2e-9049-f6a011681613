@@ -150,6 +150,8 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
       }
     });
 
+    console.log("Initial subject counts after pre-exam sessions:", JSON.stringify(subjectCounts));
+
     // Then fill in the rest of the timetable
     // Process each date in the range
     for (const date of dateRange) {
@@ -180,9 +182,18 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
         }
 
         // Choose subject with lowest count (prioritize subjects that need more sessions)
-        const subjectsByCount = [...eligibleSubjects].sort(
-          (a, b) => (subjectCounts[a] || 0) - (subjectCounts[b] || 0)
-        );
+        // Enhanced sorting with explicit comparison and logs
+        const subjectsByCount = [...eligibleSubjects].sort((a, b) => {
+          const countA = subjectCounts[a] || 0;
+          const countB = subjectCounts[b] || 0;
+          return countA - countB;
+        });
+
+        // Log decision making process for this slot
+        console.log(`Slot ${date} ${block} - Eligible subjects:`, eligibleSubjects.map(s => 
+          `${s} (${subjectCounts[s] || 0} sessions)`
+        ));
+        console.log(`Selected subject: ${subjectsByCount[0]} with ${subjectCounts[subjectsByCount[0]] || 0} sessions`);
 
         const chosenSubject = subjectsByCount[0];
         subjectCounts[chosenSubject] = (subjectCounts[chosenSubject] || 0) + 1;
@@ -191,6 +202,8 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
         timetableEntries.push(createSession(date, block, chosenSubject, blockTimes));
       }
     }
+
+    console.log("Final subject counts:", JSON.stringify(subjectCounts));
 
     // Use enforcePreExamSession as a final check to ensure we didn't miss anything
     let finalTimetable = enforcePreExamSession(

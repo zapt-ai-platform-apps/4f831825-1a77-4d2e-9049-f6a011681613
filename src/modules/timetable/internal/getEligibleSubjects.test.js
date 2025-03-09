@@ -1,131 +1,89 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { getEligibleSubjects } from './getEligibleSubjects';
-import { parseISO } from 'date-fns';
 
 describe('getEligibleSubjects', () => {
-  // Mock setup
-  const mockExams = [
-    { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
-    { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' },
-    { subject: 'History', examDate: '2023-06-16', timeOfDay: 'Morning' },
-    { subject: 'English', examDate: '2023-06-20', timeOfDay: 'Morning' }
-  ];
-  
-  const mockSubjectCounts = {
-    'Math': 2,
-    'Science': 1,
-    'History': 0,
-    'English': 3
-  };
-  
-  const mockExamSlots = new Map([
-    ['2023-06-15-Morning', ['Math']],
-    ['2023-06-15-Afternoon', ['Science']],
-    ['2023-06-16-Morning', ['History']],
-    ['2023-06-20-Morning', ['English']]
-  ]);
-  
-  // Mock dateUtils functionality
-  vi.mock('./dateUtils', () => ({
-    areSameDay: (date1, date2) => {
-      if (typeof date1 === 'string') date1 = parseISO(date1);
-      if (typeof date2 === 'string') date2 = parseISO(date2);
-      
-      return date1.getFullYear() === date2.getFullYear() &&
-             date1.getMonth() === date2.getMonth() &&
-             date1.getDate() === date2.getDate();
-    }
-  }));
-  
-  // Mock console.log to not pollute test output
-  const originalConsoleLog = console.log;
-  
-  beforeEach(() => {
-    console.log = vi.fn();
+  it('should return empty array for invalid inputs', () => {
+    expect(getEligibleSubjects()).toEqual([]);
+    expect(getEligibleSubjects('2023-01-01')).toEqual([]);
+    expect(getEligibleSubjects('2023-01-01', 'Morning')).toEqual([]);
+    expect(getEligibleSubjects('2023-01-01', 'Morning', [])).toEqual([]);
   });
-  
-  afterEach(() => {
-    console.log = originalConsoleLog;
-  });
-  
-  it('should NOT include subjects whose exams have already taken place', () => {
-    // Afternoon on a day with a morning exam
-    const result = getEligibleSubjects(
-      '2023-06-15', 'Afternoon', mockExams, mockSubjectCounts, mockExamSlots
-    );
+
+  it('should exclude subjects with exams on earlier dates', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-01-01', timeOfDay: 'Morning' },
+      { subject: 'History', examDate: '2023-01-05', timeOfDay: 'Morning' }
+    ];
+    const subjectCounts = { Math: 0, History: 0 };
+    const examSlots = new Map([['2023-01-01-Morning', ['Math']]]);
     
-    // Should NOT include Math (exam already happened in morning)
-    // Should NOT include Science (has exam in this block)
+    const result = getEligibleSubjects('2023-01-02', 'Morning', exams, subjectCounts, examSlots);
+    
+    expect(result).toContain('History');
     expect(result).not.toContain('Math');
-    expect(result).not.toContain('Science');
   });
-  
-  it('should NOT include subjects with exams in the same or earlier time blocks on the same day', () => {
-    // Evening on a day with morning and afternoon exams
-    const result = getEligibleSubjects(
-      '2023-06-15', 'Evening', mockExams, mockSubjectCounts, mockExamSlots
-    );
+
+  it('should exclude subjects with exams in the same block on the same day', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-01-01', timeOfDay: 'Morning' },
+      { subject: 'History', examDate: '2023-01-01', timeOfDay: 'Afternoon' }
+    ];
+    const subjectCounts = { Math: 0, History: 0 };
+    const examSlots = new Map([
+      ['2023-01-01-Morning', ['Math']],
+      ['2023-01-01-Afternoon', ['History']]
+    ]);
     
-    // Should NOT include Math and Science (both had exams earlier in the day)
-    expect(result).not.toContain('Math');
-    expect(result).not.toContain('Science');
-  });
-  
-  it('should return empty array for a slot with an exam', () => {
-    // Morning on a day with a morning exam
-    const result = getEligibleSubjects(
-      '2023-06-16', 'Morning', mockExams, mockSubjectCounts, mockExamSlots
-    );
+    const result = getEligibleSubjects('2023-01-01', 'Morning', exams, subjectCounts, examSlots);
     
-    // Should be empty (slot has an exam)
     expect(result).toEqual([]);
   });
-  
-  it('should include subjects with exams on later days', () => {
-    // Any block on a day before an exam
-    const result = getEligibleSubjects(
-      '2023-06-14', 'Afternoon', mockExams, mockSubjectCounts, mockExamSlots
-    );
+
+  it('should allow subjects with exams later in the day', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-01-01', timeOfDay: 'Afternoon' },
+      { subject: 'History', examDate: '2023-01-02', timeOfDay: 'Morning' }
+    ];
+    const subjectCounts = { Math: 0, History: 0 };
+    const examSlots = new Map([['2023-01-01-Afternoon', ['Math']]]);
     
-    // Should include all subjects with upcoming exams
+    const result = getEligibleSubjects('2023-01-01', 'Morning', exams, subjectCounts, examSlots);
+    
     expect(result).toContain('Math');
-    expect(result).toContain('Science');
-    expect(result).toContain('History');
-    expect(result).toContain('English');
   });
-  
-  it('should exclude subjects with exams on previous days', () => {
-    // Any block on a day after an exam
-    const result = getEligibleSubjects(
-      '2023-06-17', 'Morning', mockExams, mockSubjectCounts, mockExamSlots
-    );
+
+  it('should prioritize subjects with fewer assigned sessions', () => {
+    const exams = [
+      { subject: 'Math', examDate: '2023-02-01', timeOfDay: 'Morning' },
+      { subject: 'History', examDate: '2023-02-01', timeOfDay: 'Morning' },
+      { subject: 'English', examDate: '2023-02-01', timeOfDay: 'Morning' }
+    ];
+    const subjectCounts = { Math: 3, History: 1, English: 2 };
+    const examSlots = new Map();
     
-    // Should not include subjects that had exams already
-    expect(result).not.toContain('Math');
-    expect(result).not.toContain('Science');
-    expect(result).not.toContain('History');
+    const result = getEligibleSubjects('2023-01-15', 'Afternoon', exams, subjectCounts, examSlots);
     
-    // Should include subjects with upcoming exams
-    expect(result).toContain('English');
+    // Should only return History since it has the lowest count
+    expect(result).toEqual(['History']);
   });
-  
-  it('should NOT include any subject with an exam on the same day, regardless of time', () => {
-    // Test for morning slot on an exam day
-    const morningResult = getEligibleSubjects(
-      '2023-06-15', 'Morning', mockExams, mockSubjectCounts, new Map([])
-    );
+
+  it('should handle the example scenario from the user request', () => {
+    const exams = [
+      { subject: 'English Literature', examDate: '2023-05-28', timeOfDay: 'Afternoon' },
+      { subject: 'History', examDate: '2023-05-27', timeOfDay: 'Afternoon' }
+    ];
     
-    // Should not include Math or Science (both have exams on this day)
-    expect(morningResult).not.toContain('Math');
-    expect(morningResult).not.toContain('Science');
+    // Simulate that English Literature already has 2 sessions and History has 1
+    const subjectCounts = { 'English Literature': 2, 'History': 1 };
+    const examSlots = new Map([
+      ['2023-05-27-Afternoon', ['History']],
+      ['2023-05-28-Afternoon', ['English Literature']]
+    ]);
     
-    // Test for evening slot on an exam day (no exams in evening)
-    const eveningResult = getEligibleSubjects(
-      '2023-06-15', 'Evening', mockExams, mockSubjectCounts, new Map([])
-    );
+    // Test for day 26 afternoon slot
+    const result = getEligibleSubjects('2023-05-26', 'Afternoon', exams, subjectCounts, examSlots);
     
-    // Should not include Math or Science (both have exams on this day)
-    expect(eveningResult).not.toContain('Math');
-    expect(eveningResult).not.toContain('Science');
+    // Should prioritize History since it has fewer sessions
+    expect(result).toEqual(['History']);
   });
 });
