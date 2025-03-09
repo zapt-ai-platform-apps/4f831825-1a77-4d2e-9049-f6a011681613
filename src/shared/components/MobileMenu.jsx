@@ -5,19 +5,22 @@ import { useAuth } from '../../modules/auth/ui/useAuth';
 /**
  * Mobile menu component
  * @param {Object} props - Component props
- * @param {Function} props.setMenuOpen - Function to set menu open state
+ * @param {boolean} props.isOpen - Whether the menu is open
+ * @param {Function} props.onClose - Function to close the menu
  * @returns {React.ReactElement} Mobile menu
  */
-function MobileMenu({ setMenuOpen }) {
+function MobileMenu({ isOpen, onClose }) {
   const location = useLocation();
   const { signOut } = useAuth();
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-background p-6 w-3/4 max-w-xs relative rounded-lg shadow-xl backdrop-blur-md">
         <button
           className="absolute top-2 right-2 text-white hover:text-gray-300 cursor-pointer"
-          onClick={() => setMenuOpen(false)}
+          onClick={onClose}
           aria-label="Close menu"
         >
           &times;
@@ -28,7 +31,7 @@ function MobileMenu({ setMenuOpen }) {
             className={`text-xl text-white hover:underline cursor-pointer ${
               location.pathname === '/preferences' ? 'font-bold' : ''
             }`}
-            onClick={() => setMenuOpen(false)}
+            onClick={onClose}
           >
             Preferences
           </Link>
@@ -37,7 +40,7 @@ function MobileMenu({ setMenuOpen }) {
             className={`text-xl text-white hover:underline cursor-pointer ${
               location.pathname === '/exams' ? 'font-bold' : ''
             }`}
-            onClick={() => setMenuOpen(false)}
+            onClick={onClose}
           >
             Exams
           </Link>
@@ -46,7 +49,7 @@ function MobileMenu({ setMenuOpen }) {
             className={`text-xl text-white hover:underline cursor-pointer ${
               location.pathname === '/timetable' ? 'font-bold' : ''
             }`}
-            onClick={() => setMenuOpen(false)}
+            onClick={onClose}
           >
             Timetable
           </Link>
@@ -54,7 +57,7 @@ function MobileMenu({ setMenuOpen }) {
             className="btn btn-destructive w-full px-6 py-3 transform hover:scale-105 cursor-pointer mt-4"
             onClick={() => {
               signOut();
-              setMenuOpen(false);
+              onClose();
             }}
           >
             Sign Out
