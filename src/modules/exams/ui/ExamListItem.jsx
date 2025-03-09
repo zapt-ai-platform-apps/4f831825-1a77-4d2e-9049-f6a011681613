@@ -9,18 +9,28 @@ import React from 'react';
  * @returns {React.ReactElement} Exam list item
  */
 function ExamListItem({ exam, onEdit, onDelete }) {
+  // Check if exam date is in the past
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
+  const isPastExam = new Date(exam.examDate) < today;
+  
   return (
-    <div className="bg-input p-4 rounded-lg border border-border transition-all hover:border-primary">
+    <div className={`bg-input p-4 rounded-lg border ${isPastExam ? 'border-gray-500 opacity-80' : 'border-border'} transition-all hover:border-primary`}>
       <div className="flex justify-between items-start gap-2">
         <div className="flex-1">
-          <div className="text-lg font-semibold text-white flex items-center">
+          <div className="text-lg font-semibold text-white flex items-center gap-2">
             <span
-              className="w-3 h-3 rounded-full mr-2"
+              className="w-3 h-3 rounded-full mr-1"
               style={{ backgroundColor: exam.examColour || '#ffffff' }}
             ></span>
-            <div className="whitespace-normal">
+            <div className="whitespace-normal flex-1">
               <span className="font-semibold block">{exam.subject}</span>
             </div>
+            {isPastExam && 
+              <span className="text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                Past Exam
+              </span>
+            }
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {new Date(exam.examDate).toLocaleDateString('en-GB', {

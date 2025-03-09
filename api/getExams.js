@@ -2,8 +2,7 @@ import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { db } from "./_dbClient.js";
 import { exams } from "../drizzle/schema.js";
-import { eq, gte, and } from "drizzle-orm";
-import { format } from "date-fns";
+import { eq } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -25,16 +24,15 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const today = format(new Date(), 'yyyy-MM-dd');
-
+    // Removed the date filter to show all exams including past ones
     const result = await db
       .select()
       .from(exams)
-      .where(
-        and(eq(exams.userId, user.id), gte(exams.examDate, today))
-      )
+      .where(eq(exams.userId, user.id))
       .orderBy(exams.examDate);
 
+    console.log(`Retrieved ${result.length} exams for user ${user.id}, including past exams`);
+    
     res.status(200).json({ data: result });
   } catch (error) {
     Sentry.captureException(error);

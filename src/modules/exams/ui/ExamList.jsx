@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import ExamListItem from './ExamListItem';
 
@@ -11,6 +11,8 @@ import ExamListItem from './ExamListItem';
  * @returns {React.ReactElement} Exam list
  */
 function ExamList({ exams = [], onExamDeleted, onEditExam }) {
+  const [filter, setFilter] = useState('all'); // 'all', 'upcoming', 'past'
+  
   const handleDelete = async (id) => {
     try {
       await onExamDeleted(id);
@@ -20,14 +22,57 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
     }
   };
 
+  const filteredExams = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
+    
+    switch(filter) {
+      case 'upcoming':
+        return exams.filter(exam => new Date(exam.examDate) >= today);
+      case 'past':
+        return exams.filter(exam => new Date(exam.examDate) < today);
+      default:
+        return exams;
+    }
+  }, [exams, filter]);
+
   return (
     <div className="h-full">
-      <h3 className="text-xl font-semibold mb-4 text-white">Your Exams</h3>
-      {exams.length === 0 ? (
-        <p className="text-muted-foreground">No exams added yet</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <h3 className="text-xl font-semibold text-white">Your Exams</h3>
+        <div className="flex space-x-2 bg-white/5 p-1 rounded-lg">
+          <button 
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'all' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            onClick={() => setFilter('all')}
+          >
+            All Exams
+          </button>
+          <button 
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'upcoming' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            onClick={() => setFilter('upcoming')}
+          >
+            Upcoming
+          </button>
+          <button 
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'past' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            onClick={() => setFilter('past')}
+          >
+            Past
+          </button>
+        </div>
+      </div>
+      
+      {filteredExams.length === 0 ? (
+        <p className="text-muted-foreground">
+          {filter === 'all' 
+            ? 'No exams added yet' 
+            : filter === 'upcoming' 
+              ? 'No upcoming exams found' 
+              : 'No past exams found'}
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {exams.map((exam) => (
+          {filteredExams.map((exam) => (
             <ExamListItem
               key={exam.id}
               exam={exam}
