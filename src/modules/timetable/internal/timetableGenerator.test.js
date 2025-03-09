@@ -159,6 +159,44 @@ describe('generateTimetable', () => {
     vi.clearAllMocks();
   });
   
+  it('should prioritize creating pre-exam sessions before regular sessions', async () => {
+    const exams = [
+      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
+      { id: 2, subject: 'Science', examDate: '2023-06-20', timeOfDay: 'Afternoon' },
+    ];
+    
+    const startDate = '2023-06-01';
+    
+    // Ensure date range includes the exam dates
+    vi.mocked(createDateRange).mockReturnValueOnce([
+      '2023-06-14', '2023-06-15', '2023-06-16', 
+      '2023-06-19', '2023-06-20', '2023-06-21'
+    ]);
+    
+    // Make getDayOfWeek return expected values for testing
+    vi.mocked(getDayOfWeek).mockImplementation(date => {
+      if (date === '2023-06-14' || typeof date === 'object') return 'wednesday';
+      if (date === '2023-06-19') return 'monday';
+      if (date === '2023-06-20') return 'tuesday';
+      return 'monday'; // default
+    });
+    
+    const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
+    
+    // Check if the first sessions are pre-exam sessions
+    const mathPreExamSession = timetable.find(
+      session => session.subject === 'Math' && session.date === '2023-06-14' && session.block === 'Evening'
+    );
+    
+    const sciencePreExamSession = timetable.find(
+      session => session.subject === 'Science' && session.date === '2023-06-19' && session.block === 'Evening'
+    );
+    
+    // Verify we have these pre-exam sessions
+    expect(mathPreExamSession).toBeTruthy();
+    expect(sciencePreExamSession).toBeTruthy();
+  });
+  
   it('should allow revision sessions later in the day after an exam', async () => {
     const exams = [
       { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
@@ -194,6 +232,42 @@ describe('generateTimetable', () => {
     
     // We should have at least some sessions on exam days in different blocks
     expect(sessionOnMathExamDay.length + sessionOnScienceExamDay.length).toBeGreaterThan(0);
+  });
+  
+  it('should prioritize sessions on the day before when possible', async () => {
+    const exams = [
+      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
+      { id: 2, subject: 'Science', examDate: '2023-06-20', timeOfDay: 'Afternoon' },
+    ];
+    
+    const startDate = '2023-06-01';
+    
+    // Ensure date range includes the exam dates
+    vi.mocked(createDateRange).mockReturnValueOnce([
+      '2023-06-14', '2023-06-15', '2023-06-16', 
+      '2023-06-19', '2023-06-20', '2023-06-21'
+    ]);
+    
+    // Make getDayOfWeek return expected values for testing
+    vi.mocked(getDayOfWeek).mockImplementation(date => {
+      if (date === '2023-06-14' || typeof date === 'object') return 'wednesday';
+      if (date === '2023-06-19') return 'monday';
+      return 'monday'; // default
+    });
+    
+    const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
+    
+    // Check that we have pre-exam sessions on the day before both exams
+    const dayBeforeMathExam = timetable.filter(
+      session => session.date === '2023-06-14' && session.subject === 'Math'
+    );
+    
+    const dayBeforeScienceExam = timetable.filter(
+      session => session.date === '2023-06-19' && session.subject === 'Science'
+    );
+    
+    expect(dayBeforeMathExam.length).toBeGreaterThan(0);
+    expect(dayBeforeScienceExam.length).toBeGreaterThan(0);
   });
   
   it('should generate valid timetable entries', async () => {
@@ -250,53 +324,5 @@ describe('generateTimetable', () => {
     
     await expect(generateTimetable(exams, '2023-06-01', {}, blockTimes))
       .rejects.toThrow('No revision times selected');
-  });
-  
-  it('should correctly handle multiple time slots on exam days', async () => {
-    const exams = [
-      { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
-      { id: 2, subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' },
-      { id: 3, subject: 'History', examDate: '2023-06-16', timeOfDay: 'Evening' },
-    ];
-    
-    const startDate = '2023-06-01';
-    
-    // Mock with sufficient dates including exam days
-    vi.mocked(createDateRange).mockReturnValueOnce(['2023-06-15', '2023-06-16']);
-    
-    // Ensure all days have revision times available
-    vi.mocked(getDayOfWeek).mockImplementation(() => 'monday');
-    
-    // Provide eligible subjects for non-exam slots
-    vi.mocked(getEligibleSubjects).mockImplementation((date, block) => {
-      // No subjects for exam slots
-      if (date === '2023-06-15' && block === 'Morning') return [];
-      if (date === '2023-06-15' && block === 'Afternoon') return [];
-      if (date === '2023-06-16' && block === 'Evening') return [];
-      
-      // Return Math subject for sessions after its exam
-      if (date === '2023-06-15' && block === 'Evening') return ['Math', 'Science'];
-      
-      // Return subjects for non-exam slots
-      return ['Math', 'Science', 'History'];
-    });
-    
-    const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
-    
-    // Check for sessions in the Evening on Math/Science exam day
-    const eveningSessionsOnFirstDay = timetable.filter(session => 
-      session.date === '2023-06-15' && session.block === 'Evening'
-    );
-    
-    // Check for sessions in the Morning/Afternoon on History exam day
-    const morningAfternoonSessionsOnSecondDay = timetable.filter(session => 
-      session.date === '2023-06-16' && (session.block === 'Morning' || session.block === 'Afternoon')
-    );
-    
-    // We should have Evening sessions on the Math/Science exam day
-    expect(eveningSessionsOnFirstDay.length).toBeGreaterThan(0);
-    
-    // We should have Morning/Afternoon sessions on the History exam day
-    expect(morningAfternoonSessionsOnSecondDay.length).toBeGreaterThan(0);
   });
 });

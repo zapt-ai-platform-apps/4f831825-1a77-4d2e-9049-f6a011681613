@@ -5,6 +5,10 @@ import { createSession } from './sessionUtils';
 /**
  * Ensures that for every exam, the revision session immediately before it is for that exam's subject,
  * unless there is another exam between this exam and the closest revision session before it
+ * 
+ * Note: This function is now primarily a backup to ensure pre-exam sessions exist.
+ * The main pre-exam session assignment happens in timetableGeneratorCore.js.
+ * 
  * @param {Array} exams - Array of exam objects
  * @param {Array} timetableEntries - Array of timetable entry objects
  * @param {Object} revisionTimes - Available revision times by day of week
@@ -48,6 +52,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
   
   // Sort all events chronologically
   allEvents.sort((a, b) => a.timestamp - b.timestamp);
+  
+  // Track which slots are already used
+  const usedSlots = new Set();
+  updatedEntries.forEach(entry => {
+    usedSlots.add(`${entry.date}-${entry.block}`);
+  });
   
   // Process each exam
   for (let i = 0; i < allEvents.length; i++) {
@@ -94,15 +104,11 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes('Evening')) {
         // Check if this slot already has an exam or session
         const slotKey = `${prevDayStr}-Evening`;
-        const hasExam = allEvents.some(e => 
-          e.type === 'exam' && e.dateString === prevDayStr && e.block === 'Evening'
-        );
-        
-        // If no exam in this slot, create a new session
-        if (!hasExam) {
+        if (!usedSlots.has(slotKey)) {
           console.log(`Creating new Evening session on ${prevDayStr} for ${event.subject}`);
           const newSession = createSession(prevDayStr, 'Evening', event.subject, blockTimes);
           updatedEntries.push(newSession);
+          usedSlots.add(slotKey);
           
           // Also add to our events array for future exams to consider
           allEvents.push({
@@ -135,15 +141,13 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
         for (const block of blocksToTry) {
           // Check if this block is available
           if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
-            // Check if this slot already has an exam
-            const hasExam = allEvents.some(e => 
-              e.type === 'exam' && e.dateString === examDayStr && e.block === block
-            );
-            
-            if (!hasExam) {
+            // Check if this slot already has a session
+            const slotKey = `${examDayStr}-${block}`;
+            if (!usedSlots.has(slotKey)) {
               console.log(`Creating new ${block} session on ${examDayStr} for ${event.subject}`);
               const newSession = createSession(examDayStr, block, event.subject, blockTimes);
               updatedEntries.push(newSession);
+              usedSlots.add(slotKey);
               
               // Add to our events array
               allEvents.push({
