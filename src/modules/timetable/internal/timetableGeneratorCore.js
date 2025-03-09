@@ -214,27 +214,16 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
       blockTimes
     );
     
-    // Final safety filter: remove any sessions that occur after an exam on the same day
+    // Additional safety filter: remove any sessions in exam slots
     finalTimetable = finalTimetable.filter(session => {
-      // Find if there's an exam for this subject on the same day
-      const examOnSameDay = sortedExams.find(exam => 
-        exam.examDate === session.date && 
-        exam.subject === session.subject
-      );
-      
-      if (examOnSameDay) {
-        const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-        const examBlock = examOnSameDay.timeOfDay || 'Morning';
-        const sessionBlock = session.block;
-        
-        // Keep session only if it's before the exam
-        return blockOrder[sessionBlock] < blockOrder[examBlock];
+      const slotKey = `${session.date}-${session.block}`;
+      if (examSlots.has(slotKey)) {
+        console.log(`Removing session in exam slot (second pass): ${session.subject} on ${session.date} ${session.block}`);
+        return false;
       }
-      
-      // If no exam on the same day, keep the session
       return true;
     });
-
+    
     // Sort the final timetable by date and block
     const sortedTimetable = sortSessionsByBlock(finalTimetable);
 

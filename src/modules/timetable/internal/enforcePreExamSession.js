@@ -66,29 +66,32 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     // Skip if not an exam
     if (event.type !== 'exam') continue;
     
-    // First, look for a session in the same time slot as this exam
-    const sameSlotSessionIndex = updatedEntries.findIndex(entry => 
-      entry.date === event.dateString && entry.block === event.block
-    );
+    // Look for any sessions in the same time slot as this exam and remove them
+    const sameSlotSessionIndices = [];
+    for (let j = 0; j < updatedEntries.length; j++) {
+      if (updatedEntries[j].date === event.dateString && updatedEntries[j].block === event.block) {
+        sameSlotSessionIndices.push(j);
+      }
+    }
     
-    if (sameSlotSessionIndex >= 0) {
-      // Update the existing session to match this exam's subject
-      updatedEntries[sameSlotSessionIndex] = {
-        ...updatedEntries[sameSlotSessionIndex],
-        subject: event.subject
-      };
+    if (sameSlotSessionIndices.length > 0) {
+      // Remove sessions in this slot (in reverse order to not mess up indices)
+      for (let j = sameSlotSessionIndices.length - 1; j >= 0; j--) {
+        console.log(`Removing revision session that conflicts with exam: ${event.subject} on ${event.dateString} ${event.block}`);
+        updatedEntries.splice(sameSlotSessionIndices[j], 1);
+      }
       
-      // Update the event in allEvents array
-      for (let k = 0; k < allEvents.length; k++) {
+      // Also remove from allEvents array
+      for (let k = allEvents.length - 1; k >= 0; k--) {
         if (allEvents[k].type === 'session' && 
             allEvents[k].dateString === event.dateString && 
             allEvents[k].block === event.block) {
-          allEvents[k].subject = event.subject;
-          break;
+          allEvents.splice(k, 1);
+          if (k <= i) i--; // Adjust index if we removed an element before current position
         }
       }
       
-      // Continue to the next exam since we've updated a session for this one
+      // Continue to the next exam since we've removed conflicting sessions
       continue;
     }
     
@@ -221,24 +224,38 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     }
   }
   
-  // Final safety check: remove any sessions that occur after an exam on the same day
+  // Final safety check: remove any sessions that conflict with exams
   const filteredEntries = updatedEntries.filter(session => {
-    // Find if there's an exam for this subject on the same day
-    const examOnSameDay = exams.find(exam => 
+    // First check: Is there any exam in this exact time slot?
+    const examInSameSlot = exams.some(exam => 
+      exam.examDate === session.date && 
+      (exam.timeOfDay || 'Morning') === session.block
+    );
+    
+    if (examInSameSlot) {
+      console.log(`Removing session in exam slot: ${session.subject} on ${session.date} ${session.block}`);
+      return false;
+    }
+    
+    // Second check: Is there an exam for this subject on the same day?
+    const examForSubjectOnSameDay = exams.find(exam => 
       exam.examDate === session.date && 
       exam.subject === session.subject
     );
     
-    if (examOnSameDay) {
+    if (examForSubjectOnSameDay) {
       const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-      const examBlock = examOnSameDay.timeOfDay || 'Morning';
+      const examBlock = examForSubjectOnSameDay.timeOfDay || 'Morning';
       const sessionBlock = session.block;
       
-      // Keep session only if it's before the exam
-      return blockOrder[sessionBlock] < blockOrder[examBlock];
+      // Remove if session is at or after the exam time
+      if (blockOrder[sessionBlock] >= blockOrder[examBlock]) {
+        console.log(`Removing session after exam: ${session.subject} ${session.block} comes after ${examBlock}`);
+        return false;
+      }
     }
     
-    // If no exam on the same day, keep the session
+    // If we passed both checks, keep the session
     return true;
   });
   

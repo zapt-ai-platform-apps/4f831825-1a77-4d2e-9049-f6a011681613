@@ -21,6 +21,7 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
   
   // Check if this slot is available (no exam scheduled)
   if (examSlots.has(currentSlotKey)) {
+    console.log(`Slot ${date} ${block} has an exam scheduled, no subjects eligible`);
     return [];
   }
   
