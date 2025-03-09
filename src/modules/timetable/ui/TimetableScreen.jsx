@@ -3,7 +3,6 @@ import { useTimetable } from './useTimetable';
 import { TimetableProvider } from './TimetableContext';
 import CalendarGrid from './CalendarGrid';
 import DayDetails from './DayDetails';
-import MonthNavigation from './MonthNavigation';
 import LoadingOverlay from '../../../shared/components/LoadingOverlay';
 
 /**
@@ -43,16 +42,6 @@ function TimetableScreen() {
 
   return (
     <div className="container mx-auto px-1 sm:px-4 py-4 sm:py-8 max-w-full">
-      <div className="flex justify-center mb-3 sm:mb-4">
-        <MonthNavigation
-          currentMonth={currentMonth}
-          onPrevMonth={handlePrevMonth}
-          onNextMonth={handleNextMonth}
-          minDate={minDate}
-          maxDate={maxDate}
-        />
-      </div>
-      
       <TimetableProvider value={{ datesWithData, subjectColours, preferences: {}  }}>
         <CalendarGrid
           currentMonth={currentMonth}
