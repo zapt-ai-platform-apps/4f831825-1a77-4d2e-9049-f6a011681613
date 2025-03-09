@@ -1,4 +1,5 @@
 import { useTimetableState } from '../internal/state';
+import { useMonthNavigation } from './MonthNavigationContext';
 
 /**
  * Hook for accessing timetable state and actions in UI components
@@ -6,6 +7,7 @@ import { useTimetableState } from '../internal/state';
  */
 export function useTimetable() {
   const timetableState = useTimetableState();
+  const monthNavigation = useMonthNavigation();
   
   // Return public API only
   return {
@@ -16,14 +18,15 @@ export function useTimetable() {
     error: timetableState.error,
     datesWithData: timetableState.datesWithData,
     subjectColours: timetableState.subjectColours,
-    currentMonth: timetableState.currentMonth,
-    setCurrentMonth: timetableState.setCurrentMonth,
     selectedDate: timetableState.selectedDate,
-    minDate: timetableState.minDate,
-    maxDate: timetableState.maxDate,
-    handlePrevMonth: timetableState.handlePrevMonth,
-    handleNextMonth: timetableState.handleNextMonth,
+    refreshTimetable: timetableState.fetchTimetable,
     handleDateClick: timetableState.handleDateClick,
-    refreshTimetable: timetableState.fetchTimetable
+    
+    // Month navigation properties from separate context
+    currentMonth: monthNavigation.currentMonth,
+    minDate: monthNavigation.minDate,
+    maxDate: monthNavigation.maxDate,
+    handlePrevMonth: monthNavigation.handlePrevMonth,
+    handleNextMonth: monthNavigation.handleNextMonth
   };
 }

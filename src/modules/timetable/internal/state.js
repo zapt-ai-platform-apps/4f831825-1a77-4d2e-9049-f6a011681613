@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { api as timetableApi } from '../api';
 import { api as examsApi } from '../../exams/api';
 import { api as preferencesApi } from '../../preferences/api';
-import { formatDatesWithData, buildSubjectColorMapping, calculateMonthLimits, getOrCreateCurrentMonth } from './service';
+import { formatDatesWithData, buildSubjectColorMapping } from './service';
 import { eventBus, events } from '../../core/events';
 import * as Sentry from '@sentry/browser';
+import { useMonthNavigation } from '../ui/MonthNavigationContext';
 
 /**
  * Hook for managing timetable state
@@ -18,10 +19,15 @@ export function useTimetableState() {
   const [error, setError] = useState(null);
   const [datesWithData, setDatesWithData] = useState({});
   const [subjectColours, setSubjectColours] = useState({});
-  const [currentMonth, setCurrentMonth] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [minDate, setMinDate] = useState(null);
-  const [maxDate, setMaxDate] = useState(null);
+  
+  // Get month navigation state from context
+  const { 
+    currentMonth, 
+    updateMonthLimits,
+    handlePrevMonth,
+    handleNextMonth
+  } = useMonthNavigation();
   
   // Use a ref to track if a request is in progress to prevent duplicates
   const isFetchingRef = useRef(false);
@@ -64,13 +70,8 @@ export function useTimetableState() {
       const colours = buildSubjectColorMapping(subjectsSet, examsData);
       setSubjectColours(colours);
       
-      // Calculate month limits based on preferences and exams
-      const { minDate: calculatedMinDate, maxDate: calculatedMaxDate } = calculateMonthLimits(preferencesData, examsData);
-      setMinDate(calculatedMinDate);
-      setMaxDate(calculatedMaxDate);
-      
-      // Set current month if not already set
-      setCurrentMonth(prevMonth => getOrCreateCurrentMonth(prevMonth, preferencesData));
+      // Update month limits in the shared context
+      updateMonthLimits(preferencesData, examsData);
       
       console.log('Timetable data fetched successfully');
     } catch (error) {
@@ -81,7 +82,7 @@ export function useTimetableState() {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, []); // No dependencies to ensure stable reference
+  }, [updateMonthLimits]); // Include updateMonthLimits in dependencies
   
   // Set up event listeners for timetable updates
   useEffect(() => {
@@ -94,24 +95,6 @@ export function useTimetableState() {
       timetableUpdatedUnsubscribe();
     };
   }, [fetchTimetable]);
-  
-  // Handle previous month navigation
-  const handlePrevMonth = useCallback(() => {
-    setCurrentMonth(prev => {
-      const newMonth = new Date(prev);
-      newMonth.setMonth(prev.getMonth() - 1);
-      return newMonth;
-    });
-  }, []);
-  
-  // Handle next month navigation
-  const handleNextMonth = useCallback(() => {
-    setCurrentMonth(prev => {
-      const newMonth = new Date(prev);
-      newMonth.setMonth(prev.getMonth() + 1);
-      return newMonth;
-    });
-  }, []);
   
   // Handle date click
   const handleDateClick = useCallback((date) => {
@@ -127,10 +110,7 @@ export function useTimetableState() {
     datesWithData,
     subjectColours,
     currentMonth,
-    setCurrentMonth,
     selectedDate,
-    minDate,
-    maxDate,
     handlePrevMonth,
     handleNextMonth,
     handleDateClick,

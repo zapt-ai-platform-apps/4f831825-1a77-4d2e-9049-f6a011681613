@@ -8,6 +8,7 @@ import ExamsScreen from '../modules/exams/ui/ExamsScreen';
 import TimetableScreen from '../modules/timetable/ui/TimetableScreen';
 import ChatWidget from '../modules/support/ui/ChatWidget';
 import { useAuth } from '../modules/auth/ui/useAuth';
+import AppLayout from './AppLayout';
 
 /**
  * Main application component
@@ -27,31 +28,33 @@ function App() {
 
   return (
     <div className="h-full">
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
-        <Route path="/login" element={user ? <Navigate to="/preferences" replace /> : <Login />} />
-        
-        {/* Protected routes */}
-        <Route path="/preferences" element={
-          <ProtectedRoute>
-            <PreferencesScreen />
-          </ProtectedRoute>
-        } />
-        <Route path="/exams" element={
-          <ProtectedRoute>
-            <ExamsScreen />
-          </ProtectedRoute>
-        } />
-        <Route path="/timetable" element={
-          <ProtectedRoute>
-            <TimetableScreen />
-          </ProtectedRoute>
-        } />
-        
-        {/* Fallback route */}
-        <Route path="*" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
-      </Routes>
+      <AppLayout>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
+          <Route path="/login" element={user ? <Navigate to="/preferences" replace /> : <Login />} />
+          
+          {/* Protected routes */}
+          <Route path="/preferences" element={
+            <ProtectedRoute>
+              <PreferencesScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/exams" element={
+            <ProtectedRoute>
+              <ExamsScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/timetable" element={
+            <ProtectedRoute>
+              <TimetableScreen />
+            </ProtectedRoute>
+          } />
+          
+          {/* Fallback route */}
+          <Route path="*" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
+        </Routes>
+      </AppLayout>
       
       {/* Customer Support Chat Widget - only shown when user is logged in */}
       <ChatWidget />

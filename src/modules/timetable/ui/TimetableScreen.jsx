@@ -42,7 +42,7 @@ function TimetableScreen() {
 
   return (
     <div className="container mx-auto px-1 sm:px-4 py-4 sm:py-8 max-w-full">
-      <TimetableProvider value={{ datesWithData, subjectColours, preferences: {}  }}>
+      <TimetableProvider value={{ datesWithData, subjectColours, preferences: {} }}>
         <CalendarGrid
           currentMonth={currentMonth}
           selectedDate={selectedDate}

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import DesktopNav from './DesktopNav';
 import MonthNavigation from '../../modules/timetable/ui/MonthNavigation';
-import { useTimetable } from '../../modules/timetable/ui/useTimetable';
+import { useMonthNavigation } from '../../modules/timetable/ui/MonthNavigationContext';
 
 /**
  * Header component with navigation
@@ -16,14 +16,14 @@ function Header({ menuOpen, setMenuOpen }) {
   const location = useLocation();
   const isTimetable = location.pathname === '/timetable';
   
-  // Only try to access timetable state when on the timetable page
+  // Only try to access month navigation context when on the timetable page
   let monthNavProps = {};
   if (isTimetable) {
     try {
-      const { currentMonth, handlePrevMonth, handleNextMonth, minDate, maxDate } = useTimetable();
+      const { currentMonth, handlePrevMonth, handleNextMonth, minDate, maxDate } = useMonthNavigation();
       monthNavProps = { currentMonth, onPrevMonth: handlePrevMonth, onNextMonth: handleNextMonth, minDate, maxDate };
     } catch (error) {
-      console.error("Error accessing timetable state:", error);
+      console.error("Error accessing month navigation context:", error);
     }
   }
 
