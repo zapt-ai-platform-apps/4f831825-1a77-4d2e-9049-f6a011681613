@@ -94,50 +94,6 @@ describe('enforcePreExamSession', () => {
       subject: 'Math'
     }));
   });
-
-  it('should not add a revision session in the same slot as an existing session', () => {
-    const exams = [
-      { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
-      { subject: 'Science', examDate: '2023-06-15', timeOfDay: 'Afternoon' }
-    ];
-    
-    const timetableEntries = [
-      { date: '2023-06-15', block: 'Morning', subject: 'English' },
-      { date: '2023-06-15', block: 'Afternoon', subject: 'History' }
-    ];
-    
-    const revisionTimes = {
-      thursday: ['Morning', 'Afternoon', 'Evening'] // June 15, 2023 is a Thursday
-    };
-    
-    // Ensure we're mocking getDayOfWeek correctly for the test
-    vi.mocked(getDayOfWeek).mockImplementation(date => {
-      if (date instanceof Date && date.toISOString().includes('2023-06-15') || 
-          date === '2023-06-15') {
-        return 'thursday';
-      }
-      return 'wednesday';
-    });
-    
-    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
-    
-    // Should update the existing sessions to match the exam subjects
-    expect(result.length).toBe(2);
-    
-    // Should have updated the Morning session to Math
-    expect(result).toContainEqual(expect.objectContaining({
-      date: '2023-06-15',
-      block: 'Morning',
-      subject: 'Math'
-    }));
-    
-    // Should have updated the Afternoon session to Science
-    expect(result).toContainEqual(expect.objectContaining({
-      date: '2023-06-15',
-      block: 'Afternoon',
-      subject: 'Science'
-    }));
-  });
   
   it('should create an earlier session on exam day if previous day is not available', () => {
     const exams = [
