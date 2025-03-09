@@ -39,8 +39,8 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     
     const examDateObj = parseISO(exam.examDate);
     
-    // Don't include subjects with exams on the same day as the session
-    // This prevents scheduling revision sessions on the day of the exam
+    // CRITICAL: Never allow revision sessions for a subject on the same day as its exam
+    // This prevents scheduling revision sessions on the day of the exam, regardless of time
     if (exam.examDate === date) {
       return false;
     }

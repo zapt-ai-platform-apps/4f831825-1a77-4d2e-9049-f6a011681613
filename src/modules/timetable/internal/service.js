@@ -17,10 +17,30 @@ export function formatDatesWithData(timetable, exams) {
       datesWithData[date] = { sessions: [], exams: [] };
     }
     
-    datesWithData[date].sessions = sessions;
+    // Filter out sessions that occur after an exam for the same subject on the same day
+    const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+    
+    const filteredSessions = sessions.filter(session => {
+      // Check if there's an exam for this subject on this day
+      const examOnSameDay = exams.find(exam => 
+        exam.examDate === date && 
+        exam.subject === session.subject
+      );
+      
+      if (examOnSameDay) {
+        const examBlock = examOnSameDay.timeOfDay || 'Morning';
+        // Only keep sessions that are before the exam
+        return blockOrder[session.block] < blockOrder[examBlock];
+      }
+      
+      // If no exam on the same day, keep the session
+      return true;
+    });
+    
+    datesWithData[date].sessions = filteredSessions;
     
     // Collect unique subjects
-    sessions.forEach(session => {
+    filteredSessions.forEach(session => {
       subjectsSet.add(session.subject);
     });
   });

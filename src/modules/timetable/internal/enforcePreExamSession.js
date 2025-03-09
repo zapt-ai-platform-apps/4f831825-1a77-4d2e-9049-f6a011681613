@@ -168,7 +168,16 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       // If the exam is not in the morning or if we couldn't add a session on the previous day, 
       // try earlier blocks on the same day
       if (event.block !== 'Morning' || !revisionTimes[prevDayOfWeek]?.includes('Evening')) {
-        const blocksToTry = event.block === 'Afternoon' ? ['Morning'] : ['Afternoon', 'Morning'];
+        // Define blocks to try, ensuring they are earlier than the exam block
+        const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+        const examBlockOrder = blockOrder[event.block];
+        
+        // Only consider blocks that come BEFORE the exam block
+        const earlierBlocks = Object.keys(blockOrder).filter(b => blockOrder[b] < examBlockOrder);
+        
+        // Try each earlier block in reverse order (closest to exam first)
+        const blocksToTry = earlierBlocks.reverse();
+        
         const examDayStr = event.dateString;
         const examDayOfWeek = getDayOfWeek(examDate);
         
@@ -178,6 +187,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
             // Check if this slot already has a session
             const slotKey = `${examDayStr}-${block}`;
             if (!usedSlots.has(slotKey)) {
+              // IMPORTANT: Create session on exam day in an EARLIER block only
+              if (blockOrder[block] >= examBlockOrder) {
+                console.error(`Cannot create session after exam: ${block} comes after ${event.block}`);
+                continue;
+              }
+              
               const newSession = createSession(examDayStr, block, event.subject, blockTimes);
               updatedEntries.push(newSession);
               usedSlots.add(slotKey);
@@ -206,7 +221,28 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     }
   }
   
-  return updatedEntries;
+  // Final safety check: remove any sessions that occur after an exam on the same day
+  const filteredEntries = updatedEntries.filter(session => {
+    // Find if there's an exam for this subject on the same day
+    const examOnSameDay = exams.find(exam => 
+      exam.examDate === session.date && 
+      exam.subject === session.subject
+    );
+    
+    if (examOnSameDay) {
+      const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+      const examBlock = examOnSameDay.timeOfDay || 'Morning';
+      const sessionBlock = session.block;
+      
+      // Keep session only if it's before the exam
+      return blockOrder[sessionBlock] < blockOrder[examBlock];
+    }
+    
+    // If no exam on the same day, keep the session
+    return true;
+  });
+  
+  return filteredEntries;
 }
 
 /**
