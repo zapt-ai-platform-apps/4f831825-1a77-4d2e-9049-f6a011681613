@@ -66,7 +66,33 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     // Skip if not an exam
     if (event.type !== 'exam') continue;
     
-    // Look backward to find the closest session before this exam
+    // First, look for a session in the same time slot as this exam
+    const sameSlotSessionIndex = updatedEntries.findIndex(entry => 
+      entry.date === event.dateString && entry.block === event.block
+    );
+    
+    if (sameSlotSessionIndex >= 0) {
+      // Update the existing session to match this exam's subject
+      updatedEntries[sameSlotSessionIndex] = {
+        ...updatedEntries[sameSlotSessionIndex],
+        subject: event.subject
+      };
+      
+      // Update the event in allEvents array
+      for (let k = 0; k < allEvents.length; k++) {
+        if (allEvents[k].type === 'session' && 
+            allEvents[k].dateString === event.dateString && 
+            allEvents[k].block === event.block) {
+          allEvents[k].subject = event.subject;
+          break;
+        }
+      }
+      
+      // Continue to the next exam since we've updated a session for this one
+      continue;
+    }
+    
+    // If no session in the same slot, look backward to find the closest session before this exam
     // and check that there isn't another exam in between
     let closestSessionIndex = -1;
     let foundExamBetween = false;
