@@ -48,26 +48,27 @@ describe('getEligibleSubjects', () => {
     console.log = originalConsoleLog;
   });
   
-  it('should return eligible subjects for a session after a morning exam', () => {
+  it('should NOT include subjects whose exams have already taken place', () => {
     // Afternoon on a day with a morning exam
     const result = getEligibleSubjects(
       '2023-06-15', 'Afternoon', mockExams, mockSubjectCounts, mockExamSlots
     );
     
-    // Should include Math (had exam in morning) but not Science (has exam in this block)
-    expect(result).toContain('Math');
+    // Should NOT include Math (exam already happened in morning)
+    // Should NOT include Science (has exam in this block)
+    expect(result).not.toContain('Math');
     expect(result).not.toContain('Science');
   });
   
-  it('should return eligible subjects for an evening session on an exam day', () => {
+  it('should NOT include subjects with exams in the same or earlier time blocks on the same day', () => {
     // Evening on a day with morning and afternoon exams
     const result = getEligibleSubjects(
       '2023-06-15', 'Evening', mockExams, mockSubjectCounts, mockExamSlots
     );
     
-    // Should include Math and Science (both had exams earlier in the day)
-    expect(result).toContain('Math');
-    expect(result).toContain('Science');
+    // Should NOT include Math and Science (both had exams earlier in the day)
+    expect(result).not.toContain('Math');
+    expect(result).not.toContain('Science');
   });
   
   it('should return empty array for a slot with an exam', () => {
