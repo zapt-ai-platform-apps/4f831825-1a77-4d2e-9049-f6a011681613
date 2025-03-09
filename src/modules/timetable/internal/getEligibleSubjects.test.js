@@ -108,4 +108,24 @@ describe('getEligibleSubjects', () => {
     // Should include subjects with upcoming exams
     expect(result).toContain('English');
   });
+  
+  it('should NOT include any subject with an exam on the same day, regardless of time', () => {
+    // Test for morning slot on an exam day
+    const morningResult = getEligibleSubjects(
+      '2023-06-15', 'Morning', mockExams, mockSubjectCounts, new Map([])
+    );
+    
+    // Should not include Math or Science (both have exams on this day)
+    expect(morningResult).not.toContain('Math');
+    expect(morningResult).not.toContain('Science');
+    
+    // Test for evening slot on an exam day (no exams in evening)
+    const eveningResult = getEligibleSubjects(
+      '2023-06-15', 'Evening', mockExams, mockSubjectCounts, new Map([])
+    );
+    
+    // Should not include Math or Science (both have exams on this day)
+    expect(eveningResult).not.toContain('Math');
+    expect(eveningResult).not.toContain('Science');
+  });
 });

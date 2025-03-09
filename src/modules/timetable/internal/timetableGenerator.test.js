@@ -93,7 +93,7 @@ vi.mock('./utils/examUtils', () => ({
   )),
 }));
 
-// Fix the mock implementation of getEligibleSubjects
+// Update getEligibleSubjects mock to align with our new implementation
 vi.mock('./getEligibleSubjects', () => ({
   getEligibleSubjects: vi.fn((date, block, exams, subjectCounts, examSlots) => {
     // Check if this is an exam slot first
@@ -102,19 +102,11 @@ vi.mock('./getEligibleSubjects', () => ({
       return [];
     }
     
-    // Otherwise return all subjects for the test
+    // Return all subjects except those with exams on this day
     return exams
       .filter(exam => {
-        // Don't include subjects with exams on this day at a later time
-        if (exam.examDate === date) {
-          const timeOrder = { 'Morning': 0, 'Afternoon': 1, 'Evening': 2 };
-          const examTime = timeOrder[exam.timeOfDay];
-          const currentTime = timeOrder[block];
-          
-          // Only return subjects with exams earlier in the day
-          return examTime < currentTime;
-        }
-        return true;
+        // Don't include subjects with exams on this day at all
+        return exam.examDate !== date;
       })
       .map(exam => exam.subject);
   }),
@@ -197,7 +189,7 @@ describe('generateTimetable', () => {
     expect(sciencePreExamSession).toBeTruthy();
   });
   
-  it('should allow revision sessions later in the day after an exam', async () => {
+  it('should NOT allow revision sessions for a subject on the day of its exam', async () => {
     const exams = [
       { id: 1, subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' },
       { id: 2, subject: 'Science', examDate: '2023-06-20', timeOfDay: 'Afternoon' },
@@ -211,27 +203,27 @@ describe('generateTimetable', () => {
       '2023-06-19', '2023-06-20', '2023-06-21'
     ]);
     
-    // Make sure getEligibleSubjects returns at least one subject for non-exam slots
+    // Make sure getEligibleSubjects returns without subjects that have exams on that day
     vi.mocked(getEligibleSubjects).mockImplementation((date, block, exams) => {
-      if (date === '2023-06-15' && block === 'Morning') return []; // exam slot
-      if (date === '2023-06-20' && block === 'Afternoon') return []; // exam slot
-      if (date === '2023-06-15' && block === 'Afternoon') return ['Math']; // Math had exam in morning
-      return ['Math', 'Science']; // return subjects for non-exam slots
+      if (date === '2023-06-15') return ['Science']; // Only Science on Math exam day
+      if (date === '2023-06-20') return ['Math']; // Only Math on Science exam day
+      return ['Math', 'Science']; // Both on other days
     });
     
     const timetable = await generateTimetable(exams, startDate, revisionTimes, blockTimes);
     
-    // Verify we have sessions on exam days but in different time blocks
-    const sessionOnMathExamDay = timetable.filter(session => 
-      session.date === '2023-06-15' && session.block !== 'Morning'
+    // Check that there are no Math sessions on Math exam day
+    const mathSessionsOnExamDay = timetable.filter(
+      session => session.subject === 'Math' && session.date === '2023-06-15'
     );
     
-    const sessionOnScienceExamDay = timetable.filter(session => 
-      session.date === '2023-06-20' && session.block !== 'Afternoon'
+    // Check that there are no Science sessions on Science exam day
+    const scienceSessionsOnExamDay = timetable.filter(
+      session => session.subject === 'Science' && session.date === '2023-06-20'
     );
     
-    // We should have at least some sessions on exam days in different blocks
-    expect(sessionOnMathExamDay.length + sessionOnScienceExamDay.length).toBeGreaterThan(0);
+    expect(mathSessionsOnExamDay.length).toBe(0);
+    expect(scienceSessionsOnExamDay.length).toBe(0);
   });
   
   it('should prioritize sessions on the day before when possible', async () => {
@@ -290,7 +282,13 @@ describe('generateTimetable', () => {
       // Return empty array only for actual exam slots
       if (date === '2023-06-15' && block === 'Morning') return [];
       if (date === '2023-06-20' && block === 'Afternoon') return [];
-      if (date === '2023-06-15' && block === 'Afternoon') return ['Math']; // Math had exam in morning
+      
+      // Don't return Math on its exam day
+      if (date === '2023-06-15') return ['Science'];
+      
+      // Don't return Science on its exam day
+      if (date === '2023-06-20') return ['Math'];
+      
       return ['Math', 'Science'];
     });
     

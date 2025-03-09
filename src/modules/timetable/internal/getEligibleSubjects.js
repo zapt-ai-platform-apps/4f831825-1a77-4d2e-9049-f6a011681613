@@ -33,22 +33,16 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     return [];
   }
   
-  // Time of day mapping for comparison (earlier = lower number)
-  const timeOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-  const currentBlockOrder = timeOrder[block];
-  
   // Filter exams to find eligible subjects
   const eligibleSubjects = exams.filter(exam => {
     if (!exam.examDate) return false;
     
     const examDateObj = parseISO(exam.examDate);
     
-    // For exams on the same day as the session
-    if (exam.examDate === date) {  // Use direct string comparison instead of isSameDay
-      // Only include subjects where the exam is LATER in the day than the current block
-      // This fixes the previous logic which incorrectly included subjects with exams earlier in the day
-      const examBlockOrder = timeOrder[exam.timeOfDay || 'Morning'];
-      return examBlockOrder > currentBlockOrder;  // Changed from < to >
+    // Don't include subjects with exams on the same day as the session
+    // This prevents scheduling revision sessions on the day of the exam
+    if (exam.examDate === date) {
+      return false;
     }
     
     // For exams on other days:
