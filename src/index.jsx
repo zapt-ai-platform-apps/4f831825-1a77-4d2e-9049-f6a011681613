@@ -21,7 +21,7 @@ Sentry.init({
 // Setup Progressive Web App
 window.progressierAppRuntimeSettings = {
   uid: import.meta.env.VITE_PUBLIC_APP_ID,
-  icon512: "https://supabase.zapt.ai/storage/v1/render/image/public/icons/4f831825-1a77-4d2e-9049-f6a011681613/599b08f5-e3d4-498e-a2a5-687a781d184a.png?width=512&height=512",
+  icon512: "https://supabase.zapt.ai/storage/v1/render/image/public/icons/4f831825-1a77-4d2e-9049-f6a011681613/599b08f5-e3d4-498e-a2a5-687a781d184a.png",
   name: "UpGrade",
   shortName: "UpGrade"
 };
