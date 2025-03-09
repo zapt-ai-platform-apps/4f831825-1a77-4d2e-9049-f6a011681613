@@ -108,8 +108,8 @@ export function calculateMonthLimits(preferences, exams) {
       const examDates = exams.map(exam => parseISO(exam.examDate));
       const latestExam = new Date(Math.max(...examDates));
       
-      // Add 1 month buffer after the latest exam
-      maxDate = addMonths(latestExam, 1);
+      // Set max date to the latest exam date (removed the +1 month buffer)
+      maxDate = latestExam;
     } catch (error) {
       console.error('Error finding latest exam date:', error);
       Sentry.captureException(error);

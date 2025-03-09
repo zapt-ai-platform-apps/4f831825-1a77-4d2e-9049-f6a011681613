@@ -57,7 +57,7 @@ export function useExamForm(editExam, onExamSaved) {
         examDate: editExam.examDate || '',
         timeOfDay: editExam.timeOfDay || 'Morning',
         board: editExam.board || '',
-        examColour: editExam.examColour || '#FF0000', // Preserve existing color for edits
+        examColour: editExam.examColour || generateRandomNonRedColor(), // Use existing color or generate one
       });
     } else {
       setFormData({

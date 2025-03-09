@@ -10,6 +10,27 @@ import React from 'react';
  * @returns {React.ReactElement} Form fields
  */
 function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
+  // Common color options for exams
+  const colorOptions = [
+    { value: '#4285F4', label: 'Blue' },
+    { value: '#0F9D58', label: 'Green' },
+    { value: '#F4B400', label: 'Yellow' },
+    { value: '#9C27B0', label: 'Purple' },
+    { value: '#00BCD4', label: 'Cyan' },
+    { value: '#3F51B5', label: 'Indigo' },
+    { value: '#009688', label: 'Teal' },
+    { value: '#795548', label: 'Brown' },
+    { value: '#607D8B', label: 'Blue Grey' },
+    { value: '#673AB7', label: 'Deep Purple' },
+    { value: '#2196F3', label: 'Light Blue' },
+    { value: '#00796B', label: 'Dark Teal' },
+    { value: '#E91E63', label: 'Pink' },
+    { value: '#FFA000', label: 'Amber' },
+    { value: '#4CAF50', label: 'Light Green' },
+    { value: '#8BC34A', label: 'Lime' },
+    { value: '#FF5722', label: 'Deep Orange' },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
@@ -71,6 +92,23 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           placeholder="e.g., AQA, OCR"
           className="w-full px-3 py-2 rounded bg-input text-black box-border"
         />
+      </div>
+
+      <div className="space-y-2 md:col-span-2">
+        <label className="block text-sm font-medium">Subject Color</label>
+        <div className="flex flex-wrap gap-2">
+          {colorOptions.map((color) => (
+            <div 
+              key={color.value} 
+              className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
+                formData.examColour === color.value ? 'border-white' : 'border-transparent'
+              }`}
+              style={{ backgroundColor: color.value }}
+              onClick={() => onChange('examColour', color.value)}
+              title={color.label}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -57,7 +57,7 @@ function App() {
       <ChatWidget />
       
       {/* ZAPT Attribution */}
-      <div className="fixed bottom-2 right-2 text-xs text-gray-400 select-none z-50">
+      <div className="fixed bottom-2 left-2 text-xs text-gray-400 select-none z-50">
         Made on <a href="https://www.zapt.ai" target="_blank" rel="noopener noreferrer" className="underline">ZAPT</a>
       </div>
     </div>
