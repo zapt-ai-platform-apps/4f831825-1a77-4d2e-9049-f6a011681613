@@ -4,6 +4,7 @@ import Logo from './Logo';
 import DesktopNav from './DesktopNav';
 import MonthNavigation from '../../modules/timetable/ui/MonthNavigation';
 import { useMonthNavigation } from '../../modules/timetable/ui/MonthNavigationContext';
+import { useAuth } from '../../modules/auth/ui/useAuth';
 
 /**
  * Header component with navigation
@@ -15,6 +16,7 @@ import { useMonthNavigation } from '../../modules/timetable/ui/MonthNavigationCo
 function Header({ menuOpen, setMenuOpen }) {
   const location = useLocation();
   const isTimetable = location.pathname === '/timetable';
+  const { user } = useAuth();
   
   // Only try to access month navigation context when on the timetable page
   let monthNavProps = {};
@@ -34,23 +36,27 @@ function Header({ menuOpen, setMenuOpen }) {
       </div>
       
       {/* Month navigation in the middle for timetable page */}
-      {isTimetable && monthNavProps.currentMonth && (
+      {isTimetable && user && monthNavProps.currentMonth && (
         <div className="flex-1 flex justify-center">
           <MonthNavigation {...monthNavProps} />
         </div>
       )}
       
-      <DesktopNav />
+      {/* Only show navigation when user is logged in */}
+      {user && <DesktopNav />}
       
-      <button
-        className="md:hidden text-white cursor-pointer"
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Toggle menu"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-      </button>
+      {/* Only show mobile menu toggle when user is logged in */}
+      {user && (
+        <button
+          className="md:hidden text-white cursor-pointer"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      )}
     </header>
   );
 }
