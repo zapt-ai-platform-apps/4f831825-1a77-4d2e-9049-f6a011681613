@@ -45,9 +45,10 @@ export function getEligibleSubjects(date, block, exams, subjectCounts, examSlots
     
     // For exams on the same day as the session
     if (exam.examDate === date) {  // Use direct string comparison instead of isSameDay
-      // Only include subjects where the exam is earlier in the day than the current block
+      // Only include subjects where the exam is LATER in the day than the current block
+      // This fixes the previous logic which incorrectly included subjects with exams earlier in the day
       const examBlockOrder = timeOrder[exam.timeOfDay || 'Morning'];
-      return examBlockOrder < currentBlockOrder;
+      return examBlockOrder > currentBlockOrder;  // Changed from < to >
     }
     
     // For exams on other days:
