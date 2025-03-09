@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
-import AppLayout from '../../../app/AppLayout';
 
 /**
  * Protected route component that redirects to login if user is not authenticated
@@ -24,7 +23,8 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
   
-  return <AppLayout>{children}</AppLayout>;
+  // Just return the children directly, no AppLayout wrapper
+  return children;
 }
 
 export default ProtectedRoute;
