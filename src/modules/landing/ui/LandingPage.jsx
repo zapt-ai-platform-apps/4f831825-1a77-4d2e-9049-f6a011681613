@@ -163,17 +163,17 @@ function LandingPage() {
         </div>
       </section>
       
-      {/* Footer */}
-      <footer className="py-8 px-6 bg-white/80 backdrop-blur-lg border-t border-gray-200">
+      {/* Footer links section */}
+      <section className="py-8 px-6 bg-white/80 backdrop-blur-lg border-t border-gray-200">
         <div className="max-w-7xl mx-auto text-center text-sm text-gray-500">
           <p className="mb-4">© {new Date().getFullYear()} UpGrade - Empowering students to reach their potential</p>
           <p>
-            <a href="#" className="text-primary hover:underline mx-2">Privacy Policy</a>
-            <a href="#" className="text-primary hover:underline mx-2">Terms of Service</a>
-            <a href="#" className="text-primary hover:underline mx-2">Contact Us</a>
+            <Link to="/privacy-policy" className="text-primary hover:underline mx-2">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-primary hover:underline mx-2">Terms of Service</Link>
+            <a href="mailto:support@zapt.ai" className="text-primary hover:underline mx-2">Contact Us</a>
           </p>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }

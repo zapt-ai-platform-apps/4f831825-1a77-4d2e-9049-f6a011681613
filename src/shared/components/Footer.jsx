@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * Footer component
@@ -25,9 +26,9 @@ function Footer() {
           </a>
         </div>
         <div className="flex space-x-6">
-          <a href="#" className="text-gray-600 hover:text-gray-800 text-sm">Privacy Policy</a>
-          <a href="#" className="text-gray-600 hover:text-gray-800 text-sm">Terms of Service</a>
-          <a href="#" className="text-gray-600 hover:text-gray-800 text-sm">Contact Support</a>
+          <Link to="/privacy-policy" className="text-gray-600 hover:text-gray-800 text-sm">Privacy Policy</Link>
+          <Link to="/terms-of-service" className="text-gray-600 hover:text-gray-800 text-sm">Terms of Service</Link>
+          <a href="mailto:support@zapt.ai" className="text-gray-600 hover:text-gray-800 text-sm">Contact Support</a>
         </div>
       </div>
     </footer>

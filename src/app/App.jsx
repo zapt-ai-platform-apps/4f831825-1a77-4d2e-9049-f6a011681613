@@ -7,6 +7,8 @@ import PreferencesScreen from '../modules/preferences/ui/PreferencesScreen';
 import ExamsScreen from '../modules/exams/ui/ExamsScreen';
 import TimetableScreen from '../modules/timetable/ui/TimetableScreen';
 import TimetableLogicPage from '../modules/timetable/ui/TimetableLogicPage';
+import PrivacyPolicy from '../modules/legal/ui/PrivacyPolicy';
+import TermsOfService from '../modules/legal/ui/TermsOfService';
 import ChatWidget from '../modules/support/ui/ChatWidget';
 import { useAuth } from '../modules/auth/ui/useAuth';
 import AppLayout from './AppLayout';
@@ -34,6 +36,8 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={user ? <Navigate to="/preferences" replace /> : <LandingPage />} />
           <Route path="/login" element={user ? <Navigate to="/preferences" replace /> : <Login />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           
           {/* Protected routes */}
           <Route path="/preferences" element={
