@@ -69,7 +69,7 @@ function MonthNavigation({ currentMonth, onPrevMonth, onNextMonth, minDate, maxD
         <FaChevronLeft className="w-4 h-4" />
       </button>
       
-      <div className="text-sm sm:text-base font-semibold text-white">
+      <div className="text-sm sm:text-base font-semibold text-gray-800">
         {monthYear}
       </div>
       
