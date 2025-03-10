@@ -25,13 +25,13 @@ export default {
           DEFAULT: '#FF4757',
           foreground: '#ffffff',
         },
-        background: '#2d3436',
-        foreground: '#ffffff',
+        background: '#f5f5f7', // Changed from dark #2d3436 to light gray
+        foreground: '#333333', // Changed from white to dark gray for contrast
         muted: {
-          DEFAULT: '#636e72',
-          foreground: '#dfe6e9',
+          DEFAULT: '#8c9396', // Lightened muted color
+          foreground: '#333333', // Darkened foreground for contrast
         },
-        border: '#b2bec3',
+        border: '#d1d8dc', // Lightened border color
         ring: '#81ecec',
       },
       fontFamily: {

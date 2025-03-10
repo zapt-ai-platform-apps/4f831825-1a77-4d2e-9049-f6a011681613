@@ -27,12 +27,12 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
 
   return (
     <div
-      className={`relative border border-white/20 cursor-pointer bg-background hover:bg-white/5 transition duration-200 ${
+      className={`relative border border-gray-200 cursor-pointer bg-white hover:bg-gray-50 transition duration-200 ${
         isSelected ? 'border-2 border-primary ring-2 ring-primary/20' : ''
       } min-h-[80px] md:min-h-[100px] p-1`}
       onClick={() => onDateClick(day)}
     >
-      <div className="absolute top-1 left-1 font-sans font-semibold text-xs md:text-sm text-white/80">
+      <div className="absolute top-1 left-1 font-sans font-semibold text-xs md:text-sm text-gray-700">
         {day.getDate()}
       </div>
       {hasData && (

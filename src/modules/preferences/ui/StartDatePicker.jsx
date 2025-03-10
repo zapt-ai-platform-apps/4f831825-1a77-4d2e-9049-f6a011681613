@@ -10,7 +10,7 @@ import React from 'react';
 function StartDatePicker({ startDate, onChange }) {
   return (
     <div>
-      <h3 className="text-xl font-semibold mb-2 text-center">Start Date</h3>
+      <h3 className="text-xl font-semibold mb-2 text-center text-gray-800">Start Date</h3>
       <input
         type="date"
         value={startDate || ''}

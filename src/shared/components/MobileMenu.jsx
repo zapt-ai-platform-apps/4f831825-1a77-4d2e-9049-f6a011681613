@@ -17,9 +17,9 @@ function MobileMenu({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-background p-6 w-3/4 max-w-xs relative rounded-lg shadow-xl backdrop-blur-md">
+      <div className="bg-white p-6 w-3/4 max-w-xs relative rounded-lg shadow-xl">
         <button
-          className="absolute top-2 right-2 text-white hover:text-gray-300 cursor-pointer"
+          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 cursor-pointer"
           onClick={onClose}
           aria-label="Close menu"
         >
@@ -28,8 +28,8 @@ function MobileMenu({ isOpen, onClose }) {
         <nav className="flex flex-col space-y-4">
           <Link
             to="/preferences"
-            className={`text-xl text-white hover:underline cursor-pointer ${
-              location.pathname === '/preferences' ? 'font-bold' : ''
+            className={`text-xl text-gray-800 hover:underline cursor-pointer ${
+              location.pathname === '/preferences' ? 'font-bold text-primary' : ''
             }`}
             onClick={onClose}
           >
@@ -37,8 +37,8 @@ function MobileMenu({ isOpen, onClose }) {
           </Link>
           <Link
             to="/exams"
-            className={`text-xl text-white hover:underline cursor-pointer ${
-              location.pathname === '/exams' ? 'font-bold' : ''
+            className={`text-xl text-gray-800 hover:underline cursor-pointer ${
+              location.pathname === '/exams' ? 'font-bold text-secondary' : ''
             }`}
             onClick={onClose}
           >
@@ -46,15 +46,15 @@ function MobileMenu({ isOpen, onClose }) {
           </Link>
           <Link
             to="/timetable"
-            className={`text-xl text-white hover:underline cursor-pointer ${
-              location.pathname === '/timetable' ? 'font-bold' : ''
+            className={`text-xl text-gray-800 hover:underline cursor-pointer ${
+              location.pathname === '/timetable' ? 'font-bold text-accent' : ''
             }`}
             onClick={onClose}
           >
             Timetable
           </Link>
           <button
-            className="btn btn-destructive w-full px-6 py-3 transform hover:scale-105 cursor-pointer mt-4"
+            className="btn bg-primary text-white w-full px-6 py-3 rounded-full transform hover:scale-105 cursor-pointer mt-4"
             onClick={() => {
               signOut();
               onClose();

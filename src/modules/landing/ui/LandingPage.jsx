@@ -30,7 +30,7 @@ function LandingPage() {
           <span className="gradient-text">UpGrade</span> Your Study Game 🚀
         </h1>
         
-        <p className="text-lg sm:text-xl max-w-2xl mx-auto text-muted-foreground">
+        <p className="text-lg sm:text-xl max-w-2xl mx-auto text-gray-600">
           Turn exam stress into success with our smart planner! Get personalized revision schedules tailored to your needs.
         </p>
 

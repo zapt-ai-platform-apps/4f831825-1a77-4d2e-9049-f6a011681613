@@ -21,10 +21,10 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
-      <div className="w-full max-w-md p-8 space-y-6 bg-foreground/5 rounded-2xl backdrop-blur-lg border-2 border-primary/30 fun-shadow">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg border border-primary/30">
         <div className="space-y-2 text-center">
           <h2 className="text-3xl font-bold text-primary">Welcome to UpGrade! 🎉</h2>
-          <p className="text-muted-foreground">Sign in with ZAPT to get started</p>
+          <p className="text-gray-600">Sign in with ZAPT to get started</p>
         </div>
         
         <Auth
@@ -36,11 +36,11 @@ function Login() {
                 colors: {
                   brand: '#FF6B6B',
                   brandAccent: '#FF4757',
-                  inputText: '#ffffff',
-                  inputBackground: '#2d3436',
+                  inputText: '#333333',
+                  inputBackground: '#ffffff',
                   inputBorder: '#4ECDC4',
-                  inputLabelText: '#dfe6e9',
-                  messageText: '#4a5568', // Changed from '#FFE66D' to a darker gray color
+                  inputLabelText: '#555555',
+                  messageText: '#4a5568',
                 },
                 radii: {
                   borderRadiusButton: '12px',
@@ -56,7 +56,7 @@ function Login() {
           view="magic_link"
         />
         
-        <div className="text-center text-muted-foreground">
+        <div className="text-center text-gray-600">
           <span className="mr-2">Powered by</span>
           <a
             href="https://www.zapt.ai"

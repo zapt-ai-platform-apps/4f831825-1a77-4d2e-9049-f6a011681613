@@ -30,7 +30,7 @@ function Header({ menuOpen, setMenuOpen }) {
   }
 
   return (
-    <header className="flex items-center justify-between px-6 py-2 bg-background/80 backdrop-blur-md border-b border-white/10 fixed w-full top-0 z-50">
+    <header className="flex items-center justify-between px-6 py-2 bg-white/90 backdrop-blur-md border-b border-gray-200 fixed w-full top-0 z-50 shadow-sm">
       <div className="flex items-center space-x-4">
         <Logo />
       </div>
@@ -48,7 +48,7 @@ function Header({ menuOpen, setMenuOpen }) {
       {/* Only show mobile menu toggle when user is logged in */}
       {user && (
         <button
-          className="md:hidden text-white cursor-pointer"
+          className="md:hidden text-gray-600 cursor-pointer"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >

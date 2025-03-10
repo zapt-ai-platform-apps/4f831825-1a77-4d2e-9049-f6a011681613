@@ -39,22 +39,22 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
   return (
     <div className="h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-        <h3 className="text-xl font-semibold text-white">Your Exams</h3>
-        <div className="flex space-x-2 bg-white/5 p-1 rounded-lg">
+        <h3 className="text-xl font-semibold text-gray-800">Your Exams</h3>
+        <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
           <button 
-            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'all' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'all' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-200'}`}
             onClick={() => setFilter('all')}
           >
             All Exams
           </button>
           <button 
-            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'upcoming' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'upcoming' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-200'}`}
             onClick={() => setFilter('upcoming')}
           >
             Upcoming
           </button>
           <button 
-            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'past' ? 'bg-primary text-white' : 'bg-input/50 text-white hover:bg-input'}`}
+            className={`px-3 py-1 text-sm rounded-full transition cursor-pointer ${filter === 'past' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-200'}`}
             onClick={() => setFilter('past')}
           >
             Past
@@ -63,7 +63,7 @@ function ExamList({ exams = [], onExamDeleted, onEditExam }) {
       </div>
       
       {filteredExams.length === 0 ? (
-        <p className="text-muted-foreground">
+        <p className="text-gray-600">
           {filter === 'all' 
             ? 'No exams added yet' 
             : filter === 'upcoming' 
