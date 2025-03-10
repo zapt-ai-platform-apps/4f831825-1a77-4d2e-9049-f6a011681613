@@ -20,66 +20,112 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
   const preExamSessions = [];
   const reservedSlots = new Set(); // Track slots that are reserved for pre-exam sessions
   
-  // Process each exam to create a pre-exam session
-  for (const exam of sortedExams) {
-    const examDate = parseISO(exam.examDate);
-    const examSubject = exam.subject;
-    const examBlock = exam.timeOfDay || 'Morning';
-    
-    // Try to find a session on the day before the exam first
-    const dayBefore = addDays(examDate, -1);
-    const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
-    const dayOfWeek = getDayOfWeek(dayBefore);
-    
-    // Check if the previous day has an evening block available for revision
-    if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
-      // Check if this slot is not already an exam slot or reserved
-      const slotKey = `${dayBeforeStr}-Evening`;
-      
-      if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
-        // Create evening session on the day before
-        const session = createSession(dayBeforeStr, 'Evening', examSubject, blockTimes);
-        preExamSessions.push(session);
-        reservedSlots.add(slotKey);
-        console.log(`Created pre-exam evening session on ${dayBeforeStr} for ${examSubject}`);
-        continue; // Continue to next exam after creating session
-      }
+  // Group exams by date to handle consecutive exams
+  const examsByDate = {};
+  sortedExams.forEach(exam => {
+    const examDate = exam.examDate;
+    if (!examsByDate[examDate]) {
+      examsByDate[examDate] = [];
     }
-    
-    // If we couldn't create a session on the previous day, try earlier blocks on the exam day
-    if (examBlock !== 'Morning' || !revisionTimes[dayOfWeek]?.includes('Evening')) {
+    examsByDate[examDate].push(exam);
+  });
+  
+  // Process exams by date, handling consecutive exams in reverse order
+  for (const [examDate, dateExams] of Object.entries(examsByDate)) {
+    if (dateExams.length > 1) {
+      // For dates with multiple exams, sort by time of day
       const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-      const examBlockOrder = blockOrder[examBlock];
+      dateExams.sort((a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']);
       
-      // Only consider blocks that come BEFORE the exam block
-      const earlierBlocks = Object.keys(blockOrder).filter(b => blockOrder[b] < examBlockOrder);
-      
-      // Try each earlier block in reverse order (closest to exam first)
-      const blocksToTry = earlierBlocks.reverse();
-      
-      const examDayStr = exam.examDate;
-      const examDayOfWeek = getDayOfWeek(examDate);
-      
-      for (const block of blocksToTry) {
-        // Check if this block is available for revision
-        if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
-          // Check if this slot is not already an exam slot or reserved
-          const slotKey = `${examDayStr}-${block}`;
-          
-          if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
-            // Create session on exam day in an earlier block
-            const session = createSession(examDayStr, block, examSubject, blockTimes);
-            preExamSessions.push(session);
-            reservedSlots.add(slotKey);
-            console.log(`Created pre-exam ${block} session on ${examDayStr} for ${examSubject}`);
-            break; // Break after creating first available session
-          }
-        }
+      // Process exams in REVERSE order - critical for handling consecutive exams
+      for (let i = dateExams.length - 1; i >= 0; i--) {
+        const exam = dateExams[i];
+        createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots, 
+                                    preExamSessions, reservedSlots);
       }
+    } else {
+      // For single exams, process normally
+      createPreExamSessionForExam(dateExams[0], revisionTimes, blockTimes, examSlots, 
+                                  preExamSessions, reservedSlots);
     }
   }
   
   return { preExamSessions, reservedSlots };
+}
+
+/**
+ * Creates a pre-exam session for a specific exam
+ */
+function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots, 
+                                  preExamSessions, reservedSlots) {
+  const examDate = parseISO(exam.examDate);
+  const examSubject = exam.subject;
+  const examBlock = exam.timeOfDay || 'Morning';
+  
+  // Try to find a session on the day before the exam first
+  const dayBefore = addDays(examDate, -1);
+  const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
+  const dayOfWeek = getDayOfWeek(dayBefore);
+  
+  // Check if the previous day has an evening block available for revision
+  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
+    // Check if this slot is not already an exam slot or reserved
+    const slotKey = `${dayBeforeStr}-Evening`;
+    
+    if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
+      // Create evening session on the day before
+      const session = createSession(dayBeforeStr, 'Evening', examSubject, blockTimes);
+      preExamSessions.push(session);
+      reservedSlots.add(slotKey);
+      console.log(`Created pre-exam evening session on ${dayBeforeStr} for ${examSubject}`);
+      return; // Continue to next exam after creating session
+    }
+  }
+  
+  // Try Afternoon slot on the day before
+  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Afternoon')) {
+    const slotKey = `${dayBeforeStr}-Afternoon`;
+    
+    if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
+      const session = createSession(dayBeforeStr, 'Afternoon', examSubject, blockTimes);
+      preExamSessions.push(session);
+      reservedSlots.add(slotKey);
+      console.log(`Created pre-exam afternoon session on ${dayBeforeStr} for ${examSubject}`);
+      return;
+    }
+  }
+  
+  // If we couldn't create a session on the previous day, try earlier blocks on the exam day
+  if (examBlock !== 'Morning') {
+    const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+    const examBlockOrder = blockOrder[examBlock];
+    
+    // Only consider blocks that come BEFORE the exam block
+    const earlierBlocks = Object.keys(blockOrder).filter(b => blockOrder[b] < examBlockOrder);
+    
+    // Try each earlier block in reverse order (closest to exam first)
+    const blocksToTry = earlierBlocks.reverse();
+    
+    const examDayStr = exam.examDate;
+    const examDayOfWeek = getDayOfWeek(examDate);
+    
+    for (const block of blocksToTry) {
+      // Check if this block is available for revision
+      if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
+        // Check if this slot is not already an exam slot or reserved
+        const slotKey = `${examDayStr}-${block}`;
+        
+        if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
+          // Create session on exam day in an earlier block
+          const session = createSession(examDayStr, block, examSubject, blockTimes);
+          preExamSessions.push(session);
+          reservedSlots.add(slotKey);
+          console.log(`Created pre-exam ${block} session on ${examDayStr} for ${examSubject}`);
+          break; // Break after creating first available session
+        }
+      }
+    }
+  }
 }
 
 /**
