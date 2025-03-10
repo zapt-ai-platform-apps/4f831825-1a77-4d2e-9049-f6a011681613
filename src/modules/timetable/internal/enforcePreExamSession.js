@@ -45,6 +45,7 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       dateExams.sort((a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']);
       
       // Process exams in REVERSE order for consecutive exams
+      // This is critical - we need to handle the last exam first, then work backwards
       for (let i = dateExams.length - 1; i >= 0; i--) {
         const exam = dateExams[i];
         // Always create a new session for consecutive exams, don't update existing ones
