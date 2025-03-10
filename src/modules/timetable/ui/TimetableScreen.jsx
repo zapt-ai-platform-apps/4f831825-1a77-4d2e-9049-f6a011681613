@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTimetable } from './useTimetable';
 import { TimetableProvider } from './TimetableContext';
 import CalendarGrid from './CalendarGrid';
@@ -56,6 +57,15 @@ function TimetableScreen() {
             subjectColours={subjectColours}
           />
         )}
+        
+        <div className="text-center mt-4">
+          <Link 
+            to="/timetable-logic" 
+            className="text-secondary hover:text-secondary/90 text-sm underline"
+          >
+            How is my timetable generated?
+          </Link>
+        </div>
       </TimetableProvider>
     </div>
   );

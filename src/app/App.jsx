@@ -6,6 +6,7 @@ import ProtectedRoute from '../modules/auth/ui/ProtectedRoute';
 import PreferencesScreen from '../modules/preferences/ui/PreferencesScreen';
 import ExamsScreen from '../modules/exams/ui/ExamsScreen';
 import TimetableScreen from '../modules/timetable/ui/TimetableScreen';
+import TimetableLogicPage from '../modules/timetable/ui/TimetableLogicPage';
 import ChatWidget from '../modules/support/ui/ChatWidget';
 import { useAuth } from '../modules/auth/ui/useAuth';
 import AppLayout from './AppLayout';
@@ -48,6 +49,11 @@ function App() {
           <Route path="/timetable" element={
             <ProtectedRoute>
               <TimetableScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/timetable-logic" element={
+            <ProtectedRoute>
+              <TimetableLogicPage />
             </ProtectedRoute>
           } />
           
