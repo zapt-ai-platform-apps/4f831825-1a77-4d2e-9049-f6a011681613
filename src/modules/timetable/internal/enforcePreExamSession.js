@@ -245,15 +245,17 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
           return true;
         }
         
-        // If this is a non-consecutive exam, we can potentially update existing session
         // Find the existing entry to update it
         const existingIndex = updatedEntries.findIndex(
           entry => entry.date === dayBeforeStr && entry.block === block
         );
         
         if (existingIndex >= 0) {
-          // Instead of updating, create a new session in a different slot
-          continue; // Try next block instead of updating
+          // Update the existing session to this subject
+          updatedEntries[existingIndex].subject = examSubject;
+          usedSlots.set(slotKey, examSubject);
+          console.log(`Updated existing session on ${dayBeforeStr} ${block} from ${existingSubject} to ${examSubject}`);
+          return true;
         }
       }
       
@@ -294,8 +296,18 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
             return true;
           }
           
-          // Try next block instead of updating
-          continue;
+          // Find the existing entry to update it
+          const existingIndex = updatedEntries.findIndex(
+            entry => entry.date === examDayStr && entry.block === block
+          );
+          
+          if (existingIndex >= 0) {
+            // Update the existing session to this subject
+            updatedEntries[existingIndex].subject = examSubject;
+            usedSlots.set(slotKey, examSubject);
+            console.log(`Updated existing session on ${examDayStr} ${block} from ${existingSubject} to ${examSubject}`);
+            return true;
+          }
         } else {
           // Create new session
           const newSession = createSession(examDayStr, block, examSubject, blockTimes);
@@ -326,8 +338,18 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
           return true;
         }
         
-        // Try next block instead of updating
-        continue;
+        // Find the existing entry to update it
+        const existingIndex = updatedEntries.findIndex(
+          entry => entry.date === twoDaysBeforeStr && entry.block === block
+        );
+        
+        if (existingIndex >= 0) {
+          // Update the existing session to this subject
+          updatedEntries[existingIndex].subject = examSubject;
+          usedSlots.set(slotKey, examSubject);
+          console.log(`Updated existing session on ${twoDaysBeforeStr} ${block} from ${existingSubject} to ${examSubject}`);
+          return true;
+        }
       } else {
         const newSession = createSession(twoDaysBeforeStr, block, examSubject, blockTimes);
         updatedEntries.push(newSession);
