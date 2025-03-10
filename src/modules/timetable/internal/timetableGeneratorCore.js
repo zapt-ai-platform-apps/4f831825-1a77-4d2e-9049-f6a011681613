@@ -30,23 +30,23 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
     examsByDate[examDate].push(exam);
   });
   
-  // Process exams by date, handling consecutive exams in reverse order
+  // Process exams by date, handling consecutive exams in forward order
   for (const [examDate, dateExams] of Object.entries(examsByDate)) {
     if (dateExams.length > 1) {
       // For dates with multiple exams, sort by time of day
       const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
       dateExams.sort((a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']);
       
-      // Process exams in REVERSE order - critical for handling consecutive exams
-      for (let i = dateExams.length - 1; i >= 0; i--) {
+      // Process exams in FORWARD order to prioritize EARLIER exams for BETTER slots
+      for (let i = 0; i < dateExams.length; i++) {
         const exam = dateExams[i];
         createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots, 
-                                    preExamSessions, reservedSlots);
+                                  preExamSessions, reservedSlots);
       }
     } else {
       // For single exams, process normally
       createPreExamSessionForExam(dateExams[0], revisionTimes, blockTimes, examSlots, 
-                                  preExamSessions, reservedSlots);
+                                preExamSessions, reservedSlots);
     }
   }
   
