@@ -4,6 +4,7 @@ import MobileMenu from '../shared/components/MobileMenu';
 import Footer from '../shared/components/Footer';
 import { MonthNavigationProvider } from '../modules/timetable/ui/MonthNavigationContext';
 import { useAuth } from '../modules/auth/ui/useAuth';
+import { useLocation } from 'react-router-dom';
 
 /**
  * Layout wrapper for the application
@@ -14,9 +15,11 @@ import { useAuth } from '../modules/auth/ui/useAuth';
 function AppLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuth();
-
-  // No more hack needed - we've fixed the root cause of duplicate footers
+  const location = useLocation();
   
+  // Don't show the standard footer on the landing page
+  const isLandingPage = location.pathname === '/';
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <MonthNavigationProvider>
@@ -25,7 +28,7 @@ function AppLayout({ children }) {
         <main className="flex-grow pt-14">
           {children}
         </main>
-        <Footer />
+        {!isLandingPage && <Footer />}
       </MonthNavigationProvider>
     </div>
   );

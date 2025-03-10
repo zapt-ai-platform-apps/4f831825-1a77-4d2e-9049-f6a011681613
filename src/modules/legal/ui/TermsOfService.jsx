@@ -6,7 +6,7 @@ function TermsOfService() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
         <h1 className="text-3xl font-bold mb-6 text-center">Terms of Service</h1>
-        <p className="text-gray-600 mb-6 text-center">Last updated: July 1, 2023</p>
+        <p className="text-gray-600 mb-6 text-center">Last updated: March 10, 2025</p>
 
         <div className="prose max-w-none text-gray-700">
           <h2 className="text-2xl font-semibold mt-6 mb-3">1. Acceptance of Terms</h2>
