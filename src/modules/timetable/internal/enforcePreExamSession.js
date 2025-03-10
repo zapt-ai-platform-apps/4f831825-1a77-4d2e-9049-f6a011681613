@@ -131,8 +131,21 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
           return true;
         }
         
-        // If the slot is used for a different subject, try the next block
-        continue;
+        // Update existing session for consecutive exams logic
+        const existingIndex = updatedEntries.findIndex(
+          entry => entry.date === dayBeforeStr && entry.block === block
+        );
+        
+        if (existingIndex >= 0) {
+          // Update the existing session
+          updatedEntries[existingIndex] = {
+            ...updatedEntries[existingIndex],
+            subject: examSubject
+          };
+          usedSlots.set(slotKey, examSubject); // Update usedSlots map
+          console.log(`Updated existing session: ${existingSubject} -> ${examSubject} on ${dayBeforeStr} ${block}`);
+          return true;
+        }
       }
       
       // Slot is available, create a new session
@@ -162,13 +175,16 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
       if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
         const slotKey = `${examDayStr}-${block}`;
         
-        // Skip if slot is already used for a different subject
-        if (usedSlots.has(slotKey) && usedSlots.get(slotKey) !== examSubject) {
-          continue;
-        }
-        
-        // Create or update session
+        // Check if this slot is already used
         if (usedSlots.has(slotKey)) {
+          const existingSubject = usedSlots.get(slotKey);
+          
+          // If the slot is already used for this subject, we can consider it done
+          if (existingSubject === examSubject) {
+            console.log(`Slot ${examDayStr} ${block} already has session for ${examSubject}`);
+            return true;
+          }
+          
           // Find and update existing session
           const existingIndex = updatedEntries.findIndex(
             entry => entry.date === examDayStr && entry.block === block
@@ -179,6 +195,7 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
               ...updatedEntries[existingIndex],
               subject: examSubject
             };
+            usedSlots.set(slotKey, examSubject); // Update usedSlots map
             console.log(`Updated same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
             return true;
           }
@@ -203,7 +220,30 @@ function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSl
     if (revisionTimes[twoDaysBeforeDayOfWeek] && revisionTimes[twoDaysBeforeDayOfWeek].includes(block)) {
       const slotKey = `${twoDaysBeforeStr}-${block}`;
       
-      if (!usedSlots.has(slotKey)) {
+      if (usedSlots.has(slotKey)) {
+        const existingSubject = usedSlots.get(slotKey);
+        
+        // If the slot is already used for this subject, we can consider it done
+        if (existingSubject === examSubject) {
+          console.log(`Slot ${twoDaysBeforeStr} ${block} already has session for ${examSubject}`);
+          return true;
+        }
+        
+        // Update existing session as a last resort
+        const existingIndex = updatedEntries.findIndex(
+          entry => entry.date === twoDaysBeforeStr && entry.block === block
+        );
+        
+        if (existingIndex >= 0) {
+          updatedEntries[existingIndex] = {
+            ...updatedEntries[existingIndex],
+            subject: examSubject
+          };
+          usedSlots.set(slotKey, examSubject); // Update usedSlots map
+          console.log(`Updated session two days before: ${existingSubject} -> ${examSubject} on ${twoDaysBeforeStr} ${block}`);
+          return true;
+        }
+      } else {
         const newSession = createSession(twoDaysBeforeStr, block, examSubject, blockTimes);
         updatedEntries.push(newSession);
         usedSlots.set(slotKey, examSubject);
