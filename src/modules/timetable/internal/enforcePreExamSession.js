@@ -31,10 +31,10 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
     examsByDate[exam.examDate].push(exam);
   });
   
-  // Track which slots are already used
-  const usedSlots = new Set();
+  // Track which slots are already used and by which subject
+  const usedSlots = new Map(); // Changed from Set to Map to track subject
   updatedEntries.forEach(entry => {
-    usedSlots.add(`${entry.date}-${entry.block}`);
+    usedSlots.set(`${entry.date}-${entry.block}`, entry.subject);
   });
   
   // Process exams by date, handling consecutive exams in reverse order
@@ -48,51 +48,12 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
       // This ensures first exam gets last revision slot, second exam gets earlier slot, etc.
       for (let i = dateExams.length - 1; i >= 0; i--) {
         const exam = dateExams[i];
-        const examBlock = exam.timeOfDay || 'Morning';
-        
-        // Try to find a session on the day before the exam
-        const prevDay = addDays(parseISO(exam.examDate), -1);
-        const prevDayStr = formatDateToString(prevDay);
-        const prevDayOfWeek = getDayOfWeek(prevDay);
-        
-        // Try blocks in preference order
-        const blocksToTry = ['Evening', 'Afternoon', 'Morning'];
-        
-        for (const block of blocksToTry) {
-          // Check if this block is available according to revision times
-          if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes(block)) {
-            // Check if this slot already has a session
-            const existingSessionIndex = updatedEntries.findIndex(
-              entry => entry.date === prevDayStr && entry.block === block
-            );
-            
-            if (existingSessionIndex >= 0) {
-              // Update existing session to this exam's subject
-              updatedEntries[existingSessionIndex] = {
-                ...updatedEntries[existingSessionIndex],
-                subject: exam.subject
-              };
-              console.log(`Updated pre-exam session for consecutive exam: ${exam.subject} on ${prevDayStr} ${block}`);
-              break; // Stop after finding a slot
-            } else {
-              // Check if this slot is free
-              const slotKey = `${prevDayStr}-${block}`;
-              if (!usedSlots.has(slotKey)) {
-                // Create a pre-exam session for this exam
-                const newSession = createSession(prevDayStr, block, exam.subject, blockTimes);
-                updatedEntries.push(newSession);
-                usedSlots.add(slotKey);
-                console.log(`Created pre-exam session for consecutive exam: ${exam.subject} on ${prevDayStr} ${block}`);
-                break; // Stop after finding a slot
-              }
-            }
-          }
-        }
+        findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSlots, blockTimes);
       }
     } else {
-      // For single exams on a day, use the original approach
+      // For single exams, process normally
       const exam = dateExams[0];
-      processExam(exam, updatedEntries, usedSlots, revisionTimes, blockTimes);
+      findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSlots, blockTimes);
     }
   }
   
@@ -135,108 +96,123 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
 }
 
 /**
- * Process a single exam to ensure it has a pre-exam session
+ * Helper function to find an available slot and create a pre-exam session
+ * @param {Object} exam - The exam to create a pre-exam session for
+ * @param {Array} updatedEntries - Array of timetable entries to update
+ * @param {Object} revisionTimes - Available revision times by day of week
+ * @param {Map} usedSlots - Map of used slots to their subjects
+ * @param {Object} blockTimes - User block time preferences
+ * @returns {boolean} Whether a session was created
  */
-function processExam(exam, updatedEntries, usedSlots, revisionTimes, blockTimes) {
+function findAndCreatePreExamSession(exam, updatedEntries, revisionTimes, usedSlots, blockTimes) {
   const examDate = parseISO(exam.examDate);
   const examSubject = exam.subject;
-  const examBlock = exam.timeOfDay || 'Morning';
   
   // Try to find a session on the day before the exam first
   const dayBefore = addDays(examDate, -1);
   const dayBeforeStr = formatDateToString(dayBefore);
   const dayOfWeek = getDayOfWeek(dayBefore);
   
-  // Check if the previous day has an evening block available
-  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
-    // Check if this slot already has a session
-    const existingSessionIndex = updatedEntries.findIndex(
-      entry => entry.date === dayBeforeStr && entry.block === 'Evening'
-    );
-    
-    if (existingSessionIndex >= 0) {
-      // Update existing session to this exam's subject
-      updatedEntries[existingSessionIndex] = {
-        ...updatedEntries[existingSessionIndex],
-        subject: examSubject
-      };
-      console.log(`Updated pre-exam session: ${examSubject} on ${dayBeforeStr} Evening`);
-      return;
-    } else {
-      // Check if this slot is free
-      const slotKey = `${dayBeforeStr}-Evening`;
-      if (!usedSlots.has(slotKey)) {
-        const newSession = createSession(dayBeforeStr, 'Evening', examSubject, blockTimes);
-        updatedEntries.push(newSession);
-        usedSlots.add(slotKey);
-        console.log(`Created pre-exam session: ${examSubject} on ${dayBeforeStr} Evening`);
-        return;
+  // Try blocks in preference order
+  const blocksToTry = ['Evening', 'Afternoon', 'Morning'];
+  
+  for (const block of blocksToTry) {
+    // Check if this block is available according to revision times
+    if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes(block)) {
+      const slotKey = `${dayBeforeStr}-${block}`;
+      
+      // Check if this slot is already used
+      if (usedSlots.has(slotKey)) {
+        const existingSubject = usedSlots.get(slotKey);
+        
+        // If the slot is already used for this subject, we can consider it done
+        if (existingSubject === examSubject) {
+          console.log(`Slot ${dayBeforeStr} ${block} already has session for ${examSubject}`);
+          return true;
+        }
+        
+        // If the slot is used for a different subject, try the next block
+        continue;
       }
+      
+      // Slot is available, create a new session
+      const newSession = createSession(dayBeforeStr, block, examSubject, blockTimes);
+      updatedEntries.push(newSession);
+      usedSlots.set(slotKey, examSubject);
+      console.log(`Created pre-exam session: ${examSubject} on ${dayBeforeStr} ${block}`);
+      return true;
     }
   }
   
-  // If the evening slot is not available, try earlier blocks on the same day
-  if (examBlock !== 'Morning') {
+  // If we couldn't find a slot on the previous day, try earlier blocks on the exam day
+  if (exam.timeOfDay && exam.timeOfDay !== 'Morning') {
     const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+    const examBlock = exam.timeOfDay;
     const examBlockOrder = blockOrder[examBlock];
     
     // Only consider blocks that come BEFORE the exam block
-    const earlierBlocks = Object.keys(blockOrder).filter(b => blockOrder[b] < examBlockOrder);
-    
-    // Try each earlier block in reverse order (closest to exam first)
-    const blocksToTry = earlierBlocks.reverse();
+    const earlierBlocks = Object.keys(blockOrder)
+      .filter(b => blockOrder[b] < examBlockOrder)
+      .sort((a, b) => blockOrder[b] - blockOrder[a]); // Try closest to exam first
     
     const examDayStr = exam.examDate;
     const examDayOfWeek = getDayOfWeek(examDate);
     
-    for (const block of blocksToTry) {
-      // Check if this block is available according to revision times
+    for (const block of earlierBlocks) {
       if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
-        // Check if this slot already has a session
-        const existingSessionIndex = updatedEntries.findIndex(
-          entry => entry.date === examDayStr && entry.block === block
-        );
+        const slotKey = `${examDayStr}-${block}`;
         
-        if (existingSessionIndex >= 0) {
-          // Update existing session to this exam's subject
-          updatedEntries[existingSessionIndex] = {
-            ...updatedEntries[existingSessionIndex],
-            subject: examSubject
-          };
-          console.log(`Updated same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
-          break;
-        } else {
-          // Check if this slot is free
-          const slotKey = `${examDayStr}-${block}`;
-          if (!usedSlots.has(slotKey)) {
-            const newSession = createSession(examDayStr, block, examSubject, blockTimes);
-            updatedEntries.push(newSession);
-            usedSlots.add(slotKey);
-            console.log(`Created same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
-            break;
+        // Skip if slot is already used for a different subject
+        if (usedSlots.has(slotKey) && usedSlots.get(slotKey) !== examSubject) {
+          continue;
+        }
+        
+        // Create or update session
+        if (usedSlots.has(slotKey)) {
+          // Find and update existing session
+          const existingIndex = updatedEntries.findIndex(
+            entry => entry.date === examDayStr && entry.block === block
+          );
+          
+          if (existingIndex >= 0) {
+            updatedEntries[existingIndex] = {
+              ...updatedEntries[existingIndex],
+              subject: examSubject
+            };
+            console.log(`Updated same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
+            return true;
           }
+        } else {
+          // Create new session
+          const newSession = createSession(examDayStr, block, examSubject, blockTimes);
+          updatedEntries.push(newSession);
+          usedSlots.set(slotKey, examSubject);
+          console.log(`Created same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
+          return true;
         }
       }
     }
   }
-}
-
-/**
- * Generates a numeric timestamp for sorting events
- * @param {Date} date - Date object
- * @param {string} block - Block name
- * @returns {number} Timestamp value
- */
-function getTimestamp(date, block) {
-  // Base timestamp from date (days since epoch)
-  const days = Math.floor(date.getTime() / (24 * 60 * 60 * 1000));
   
-  // Add block offset (0-1) to ensure correct order within a day
-  const blockOffset = {
-    'Morning': 0,
-    'Afternoon': 0.33,
-    'Evening': 0.66
-  }[block] || 0;
+  // If we couldn't find a suitable slot, look one more day back
+  const twoDaysBefore = addDays(examDate, -2);
+  const twoDaysBeforeStr = formatDateToString(twoDaysBefore);
+  const twoDaysBeforeDayOfWeek = getDayOfWeek(twoDaysBefore);
   
-  return days + blockOffset;
+  for (const block of blocksToTry) {
+    if (revisionTimes[twoDaysBeforeDayOfWeek] && revisionTimes[twoDaysBeforeDayOfWeek].includes(block)) {
+      const slotKey = `${twoDaysBeforeStr}-${block}`;
+      
+      if (!usedSlots.has(slotKey)) {
+        const newSession = createSession(twoDaysBeforeStr, block, examSubject, blockTimes);
+        updatedEntries.push(newSession);
+        usedSlots.set(slotKey, examSubject);
+        console.log(`Created pre-exam session two days before: ${examSubject} on ${twoDaysBeforeStr} ${block}`);
+        return true;
+      }
+    }
+  }
+  
+  console.warn(`Couldn't find a suitable pre-exam slot for ${examSubject} exam on ${exam.examDate}`);
+  return false;
 }
