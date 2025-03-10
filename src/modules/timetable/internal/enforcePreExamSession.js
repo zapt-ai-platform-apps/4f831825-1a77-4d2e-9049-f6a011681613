@@ -61,15 +61,30 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
         for (const block of blocksToTry) {
           // Check if this block is available according to revision times
           if (revisionTimes[prevDayOfWeek] && revisionTimes[prevDayOfWeek].includes(block)) {
-            // Check if this slot is free
-            const slotKey = `${prevDayStr}-${block}`;
-            if (!usedSlots.has(slotKey)) {
-              // Create a pre-exam session for this exam
-              const newSession = createSession(prevDayStr, block, exam.subject, blockTimes);
-              updatedEntries.push(newSession);
-              usedSlots.add(slotKey);
-              console.log(`Created pre-exam session for consecutive exam: ${exam.subject} on ${prevDayStr} ${block}`);
+            // Check if this slot already has a session
+            const existingSessionIndex = updatedEntries.findIndex(
+              entry => entry.date === prevDayStr && entry.block === block
+            );
+            
+            if (existingSessionIndex >= 0) {
+              // Update existing session to this exam's subject
+              updatedEntries[existingSessionIndex] = {
+                ...updatedEntries[existingSessionIndex],
+                subject: exam.subject
+              };
+              console.log(`Updated pre-exam session for consecutive exam: ${exam.subject} on ${prevDayStr} ${block}`);
               break; // Stop after finding a slot
+            } else {
+              // Check if this slot is free
+              const slotKey = `${prevDayStr}-${block}`;
+              if (!usedSlots.has(slotKey)) {
+                // Create a pre-exam session for this exam
+                const newSession = createSession(prevDayStr, block, exam.subject, blockTimes);
+                updatedEntries.push(newSession);
+                usedSlots.add(slotKey);
+                console.log(`Created pre-exam session for consecutive exam: ${exam.subject} on ${prevDayStr} ${block}`);
+                break; // Stop after finding a slot
+              }
             }
           }
         }
@@ -134,13 +149,29 @@ function processExam(exam, updatedEntries, usedSlots, revisionTimes, blockTimes)
   
   // Check if the previous day has an evening block available
   if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
-    // Check if this slot already has an exam or session
-    const slotKey = `${dayBeforeStr}-Evening`;
-    if (!usedSlots.has(slotKey)) {
-      const newSession = createSession(dayBeforeStr, 'Evening', examSubject, blockTimes);
-      updatedEntries.push(newSession);
-      usedSlots.add(slotKey);
+    // Check if this slot already has a session
+    const existingSessionIndex = updatedEntries.findIndex(
+      entry => entry.date === dayBeforeStr && entry.block === 'Evening'
+    );
+    
+    if (existingSessionIndex >= 0) {
+      // Update existing session to this exam's subject
+      updatedEntries[existingSessionIndex] = {
+        ...updatedEntries[existingSessionIndex],
+        subject: examSubject
+      };
+      console.log(`Updated pre-exam session: ${examSubject} on ${dayBeforeStr} Evening`);
       return;
+    } else {
+      // Check if this slot is free
+      const slotKey = `${dayBeforeStr}-Evening`;
+      if (!usedSlots.has(slotKey)) {
+        const newSession = createSession(dayBeforeStr, 'Evening', examSubject, blockTimes);
+        updatedEntries.push(newSession);
+        usedSlots.add(slotKey);
+        console.log(`Created pre-exam session: ${examSubject} on ${dayBeforeStr} Evening`);
+        return;
+      }
     }
   }
   
@@ -162,12 +193,28 @@ function processExam(exam, updatedEntries, usedSlots, revisionTimes, blockTimes)
       // Check if this block is available according to revision times
       if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
         // Check if this slot already has a session
-        const slotKey = `${examDayStr}-${block}`;
-        if (!usedSlots.has(slotKey)) {
-          const newSession = createSession(examDayStr, block, examSubject, blockTimes);
-          updatedEntries.push(newSession);
-          usedSlots.add(slotKey);
+        const existingSessionIndex = updatedEntries.findIndex(
+          entry => entry.date === examDayStr && entry.block === block
+        );
+        
+        if (existingSessionIndex >= 0) {
+          // Update existing session to this exam's subject
+          updatedEntries[existingSessionIndex] = {
+            ...updatedEntries[existingSessionIndex],
+            subject: examSubject
+          };
+          console.log(`Updated same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
           break;
+        } else {
+          // Check if this slot is free
+          const slotKey = `${examDayStr}-${block}`;
+          if (!usedSlots.has(slotKey)) {
+            const newSession = createSession(examDayStr, block, examSubject, blockTimes);
+            updatedEntries.push(newSession);
+            usedSlots.add(slotKey);
+            console.log(`Created same-day pre-exam session: ${examSubject} on ${examDayStr} ${block}`);
+            break;
+          }
         }
       }
     }
