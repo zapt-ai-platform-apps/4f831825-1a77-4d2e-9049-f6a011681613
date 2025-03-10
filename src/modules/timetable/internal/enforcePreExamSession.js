@@ -109,15 +109,22 @@ export function enforcePreExamSession(exams, timetableEntries, revisionTimes, st
 function createDedicatedPreExamSession(exam, updatedEntries, revisionTimes, usedSlots, blockTimes) {
   const examDate = parseISO(exam.examDate);
   const examSubject = exam.subject;
+  const examTimeOfDay = exam.timeOfDay || 'Morning';
+  
+  // Choose block preference based on exam time
+  let blocksToTry;
+  if (examTimeOfDay === 'Afternoon') {
+    // For afternoon exams, prioritize afternoon slot the day before
+    blocksToTry = ['Afternoon', 'Evening', 'Morning'];
+  } else {
+    // For morning or evening exams, or when time not specified
+    blocksToTry = ['Evening', 'Afternoon', 'Morning'];
+  }
   
   // Try to find a session on the day before the exam first (preferred)
   const dayBefore = addDays(examDate, -1);
   const dayBeforeStr = formatDateToString(dayBefore);
   const dayOfWeek = getDayOfWeek(dayBefore);
-  
-  // Try blocks in reverse preference order to avoid conflicts
-  // This gives each exam a different time slot when possible
-  const blocksToTry = ['Evening', 'Afternoon', 'Morning'];
   
   for (const block of blocksToTry) {
     // Check if this block is available according to revision times
