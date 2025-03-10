@@ -45,7 +45,7 @@ function TimetableLogicPage() {
         <div className="mb-4">
           <h3 className="text-xl font-medium mb-2">Consecutive Exams</h3>
           <p className="text-muted-foreground">
-            If you have multiple exams on the same day, we'll prioritize revision for the later exam in the evening before, and the earlier exam on the day before that. This optimizes your preparation for back-to-back exams.
+            For multiple exams on the same day, we prioritize the earliest exam for the best available revision slot, followed by later exams. This means the earliest exam gets priority for the last revision session before exam day, the second-earliest exam gets the next-best slot, and so on.
           </p>
         </div>
         
