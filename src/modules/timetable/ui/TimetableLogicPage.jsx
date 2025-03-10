@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 function TimetableLogicPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">How Your Timetable is Generated</h1>
+    <div className="container mx-auto px-4 py-8 pt-16 max-w-3xl">
+      <h1 className="text-3xl font-bold mb-6 text-center mt-4">How Your Timetable is Generated</h1>
       
       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">Core Principles</h2>
