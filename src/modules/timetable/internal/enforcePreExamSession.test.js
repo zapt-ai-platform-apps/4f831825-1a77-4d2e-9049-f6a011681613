@@ -130,4 +130,50 @@ describe('enforcePreExamSession', () => {
       subject: 'Math'
     }));
   });
+
+  it('should handle consecutive exams correctly', () => {
+    const exams = [
+      { subject: 'Maths', examDate: '2023-06-21', timeOfDay: 'Morning' },
+      { subject: 'Chemistry', examDate: '2023-06-21', timeOfDay: 'Afternoon' }
+    ];
+    
+    const timetableEntries = [];
+    
+    const revisionTimes = {
+      monday: ['Morning', 'Afternoon', 'Evening'], // June 20, 2023 is a Monday
+      tuesday: ['Morning', 'Afternoon', 'Evening']  // June 21, 2023 is a Tuesday
+    };
+    
+    // Mock getDayOfWeek to return appropriate days
+    vi.mocked(getDayOfWeek).mockImplementation(date => {
+      if (date instanceof Date) {
+        const dateString = date.toISOString().split('T')[0];
+        if (dateString === '2023-06-20') return 'monday';
+        if (dateString === '2023-06-21') return 'tuesday';
+      } else if (typeof date === 'string') {
+        if (date === '2023-06-20') return 'monday';
+        if (date === '2023-06-21') return 'tuesday';
+      }
+      return 'monday';
+    });
+    
+    const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
+    
+    // We should create revision sessions for both exams
+    expect(result.length).toBe(2);
+    
+    // The Afternoon revision on the day before should be for Chemistry
+    const chemistrySession = result.find(
+      session => session.date === '2023-06-20' && session.block === 'Afternoon'
+    );
+    expect(chemistrySession).toBeTruthy();
+    expect(chemistrySession.subject).toBe('Chemistry');
+    
+    // The Evening revision on the day before should be for Maths
+    const mathsSession = result.find(
+      session => session.date === '2023-06-20' && session.block === 'Evening'
+    );
+    expect(mathsSession).toBeTruthy();
+    expect(mathsSession.subject).toBe('Maths');
+  });
 });
