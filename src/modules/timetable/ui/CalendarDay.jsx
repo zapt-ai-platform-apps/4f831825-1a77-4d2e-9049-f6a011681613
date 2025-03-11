@@ -16,14 +16,38 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
   const isSelected =
     selectedDate && new Date(selectedDate).toDateString() === day.toDateString();
 
-  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+  const blockOrder = ['Morning', 'Afternoon', 'Evening'];
 
-  let sortedSessions = [];
-  if (hasData) {
-    sortedSessions = hasData.sessions
-      .slice()
-      .sort((a, b) => blockOrder[a.block] - blockOrder[b.block]);
-  }
+  // Organize items by time block
+  const getItemsByBlock = () => {
+    if (!hasData) return {};
+    
+    // Create object to store items by block
+    const blockItems = {
+      Morning: { exams: [], sessions: [] },
+      Afternoon: { exams: [], sessions: [] },
+      Evening: { exams: [], sessions: [] }
+    };
+    
+    // Categorize exams by time of day
+    if (hasData.exams) {
+      hasData.exams.forEach(exam => {
+        const block = exam.timeOfDay || 'Morning';
+        blockItems[block].exams.push(exam);
+      });
+    }
+    
+    // Categorize sessions by block
+    if (hasData.sessions) {
+      hasData.sessions.forEach(session => {
+        blockItems[session.block].sessions.push(session);
+      });
+    }
+    
+    return blockItems;
+  };
+  
+  const itemsByBlock = getItemsByBlock();
 
   return (
     <div
@@ -37,8 +61,21 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
       </div>
       {hasData && (
         <div className="mt-3 md:mt-4 px-0.5">
-          {hasData.exams.length > 0 && <ExamItems exams={hasData.exams} />}
-          <SessionItems sortedSessions={sortedSessions} subjectColours={subjectColours} />
+          {blockOrder.map(block => (
+            (itemsByBlock[block]?.exams.length > 0 || itemsByBlock[block]?.sessions.length > 0) && (
+              <div key={block} className="mb-0.5">
+                {itemsByBlock[block]?.exams.length > 0 && (
+                  <ExamItems exams={itemsByBlock[block].exams} />
+                )}
+                {itemsByBlock[block]?.sessions.length > 0 && (
+                  <SessionItems 
+                    sortedSessions={itemsByBlock[block].sessions} 
+                    subjectColours={subjectColours} 
+                  />
+                )}
+              </div>
+            )
+          ))}
         </div>
       )}
     </div>
