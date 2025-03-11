@@ -48,7 +48,7 @@ function CalendarGrid({ currentMonth, selectedDate, onDateClick }) {
       <CalendarHeader />
       <div className="grid grid-cols-7 auto-rows-[minmax(80px,auto)] md:auto-rows-[minmax(100px,auto)] gap-[2px] sm:gap-1">
         {Array.from({ length: dayOffset }).map((_, index) => (
-          <div key={`empty-${index}`}></div>
+          <div key={`empty-${index}`} className="dark:bg-gray-800"></div>
         ))}
         {monthDays.map((day) => {
           const dateStr = format(day, 'yyyy-MM-dd');

@@ -60,28 +60,32 @@ function MonthNavigation({ currentMonth, onPrevMonth, onNextMonth, minDate, maxD
     <div className="flex items-center justify-between w-full max-w-xs px-2">
       <button
         className={`flex items-center justify-center w-9 h-9 rounded-full transition cursor-pointer ${
-          disabledPrev ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+          disabledPrev 
+            ? 'bg-gray-500 dark:bg-gray-600 cursor-not-allowed' 
+            : 'bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 active:bg-blue-700 dark:active:bg-blue-800'
         }`}
         onClick={onPrevMonth}
         disabled={disabledPrev}
         aria-label={`Previous month (${prevMonthName})`}
       >
-        <FaChevronLeft className="w-4 h-4" />
+        <FaChevronLeft className="w-4 h-4 text-white" />
       </button>
       
-      <div className="text-sm sm:text-base font-semibold text-gray-800">
+      <div className="text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200">
         {monthYear}
       </div>
       
       <button
         className={`flex items-center justify-center w-9 h-9 rounded-full transition cursor-pointer ${
-          disabledNext ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+          disabledNext 
+            ? 'bg-gray-500 dark:bg-gray-600 cursor-not-allowed' 
+            : 'bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 active:bg-blue-700 dark:active:bg-blue-800'
         }`}
         onClick={onNextMonth}
         disabled={disabledNext}
         aria-label={`Next month (${nextMonthName})`}
       >
-        <FaChevronRight className="w-4 h-4" />
+        <FaChevronRight className="w-4 h-4 text-white" />
       </button>
     </div>
   );

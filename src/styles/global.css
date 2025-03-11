@@ -11,12 +11,16 @@ html {
 
 @layer base {
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased dark:bg-gray-900 dark:text-gray-100;
   }
   
   h1, h2, h3, h4 {
     @apply font-display tracking-wide;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .dark h1, .dark h2, .dark h3, .dark h4 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
   }
 }
 
@@ -25,8 +29,16 @@ html {
     @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
   }
   
+  .dark .gradient-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent brightness-110;
+  }
+  
   .fun-shadow {
     @apply shadow-[0_10px_20px_rgba(255,107,107,0.3)];
+  }
+  
+  .dark .fun-shadow {
+    @apply shadow-[0_10px_20px_rgba(255,107,107,0.4)];
   }
   
   .hover-scale {

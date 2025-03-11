@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
  */
 function Footer() {
   return (
-    <footer className="bg-gray-100 border-t border-gray-200 mt-auto py-6">
+    <footer className="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-6">
       <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center space-x-4 mb-4 md:mb-0">
           <img
@@ -15,20 +15,20 @@ function Footer() {
             alt="ZAPT Logo"
             className="w-8 h-8 opacity-80 hover:opacity-100 transition-opacity"
           />
-          <span className="text-gray-600 text-sm">Powered by</span>
+          <span className="text-gray-600 dark:text-gray-400 text-sm">Powered by</span>
           <a
             href="https://www.zapt.ai"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-cyan-600 hover:text-cyan-700 font-medium text-sm"
+            className="text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 font-medium text-sm"
           >
             ZAPT
           </a>
         </div>
         <div className="flex space-x-6">
-          <Link to="/privacy-policy" className="text-gray-600 hover:text-gray-800 text-sm">Privacy Policy</Link>
-          <Link to="/terms-of-service" className="text-gray-600 hover:text-gray-800 text-sm">Terms of Service</Link>
-          <a href="mailto:support@zapt.ai" className="text-gray-600 hover:text-gray-800 text-sm">Contact Support</a>
+          <Link to="/privacy-policy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 text-sm">Privacy Policy</Link>
+          <Link to="/terms-of-service" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 text-sm">Terms of Service</Link>
+          <a href="mailto:support@zapt.ai" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 text-sm">Contact Support</a>
         </div>
       </div>
     </footer>

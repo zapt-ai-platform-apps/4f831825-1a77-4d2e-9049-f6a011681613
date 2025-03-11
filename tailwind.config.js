@@ -3,6 +3,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx}"
   ],
+  darkMode: 'class', // Use class strategy for dark mode
   theme: {
     extend: {
       screens: {
@@ -25,8 +26,8 @@ export default {
           DEFAULT: '#FF4757',
           foreground: '#ffffff',
         },
-        background: '#f5f5f7', // Changed from dark #2d3436 to light gray
-        foreground: '#333333', // Changed from white to dark gray for contrast
+        background: '#f5f5f7', // Light mode background
+        foreground: '#333333', // Light mode text
         muted: {
           DEFAULT: '#8c9396', // Lightened muted color
           foreground: '#333333', // Darkened foreground for contrast

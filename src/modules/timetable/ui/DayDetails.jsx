@@ -21,7 +21,7 @@ function DayDetails({ date, datesWithData, subjectColours }) {
   });
 
   return (
-    <div className="bg-white text-black p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 mx-1 sm:mx-0 shadow-lg">
+    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 mx-1 sm:mx-0 shadow-lg">
       <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center">
         {new Date(date).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}
       </h3>
@@ -34,7 +34,7 @@ function DayDetails({ date, datesWithData, subjectColours }) {
           />
         )}
         {dataForDay.exams.length === 0 && sortedSessions.length === 0 && (
-          <p className="text-center text-sm sm:text-base">No events for this day</p>
+          <p className="text-center text-sm sm:text-base dark:text-gray-300">No events for this day</p>
         )}
       </div>
     </div>

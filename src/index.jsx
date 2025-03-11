@@ -4,6 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import App from './app/App';
 import * as Sentry from '@sentry/browser';
 import { initializeModules } from './modules';
+import { ThemeProvider } from './modules/core/ui/ThemeContext';
 import './styles/global.css';
 
 // Initialize Sentry
@@ -45,7 +46,9 @@ initializeModules().then(() => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <Router>
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </Router>
     </React.StrictMode>
   );

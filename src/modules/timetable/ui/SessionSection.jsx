@@ -26,7 +26,7 @@ function SessionSection({ sessions, subjectColours }) {
 
   return (
     <div>
-      <h4 className="text-base sm:text-lg font-semibold mb-2">Revision Sessions</h4>
+      <h4 className="text-base sm:text-lg font-semibold mb-2 dark:text-white">Revision Sessions</h4>
       <div className="space-y-3">
         {sessions.map((session, index) => {
           const startTime =
@@ -38,17 +38,17 @@ function SessionSection({ sessions, subjectColours }) {
           return (
             <div
               key={index}
-              className="p-3 rounded-lg border-l-4 relative"
+              className="p-3 rounded-lg border-l-4 relative dark:bg-gray-700/30"
               style={{ borderColor: subjectColours[session.subject] }}
             >
-              <p className="font-semibold text-black flex items-center text-sm sm:text-base">
+              <p className="font-semibold text-black dark:text-white flex items-center text-sm sm:text-base">
                 <span
                   className="w-3 h-3 rounded-full mr-2"
                   style={{ backgroundColor: subjectColours[session.subject] }}
                 ></span>
                 {session.block}{blockTimeDisplay}
               </p>
-              <p className="text-black text-xs sm:text-sm truncate">
+              <p className="text-black dark:text-white text-xs sm:text-sm truncate">
                 {capitalizeFirstLetter(session.subject)}
               </p>
             </div>

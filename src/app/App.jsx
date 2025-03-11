@@ -23,8 +23,8 @@ function App() {
   // Render a simple loading indicator during initial auth check
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="h-full flex items-center justify-center dark:bg-gray-900">
+        <div className="w-8 h-8 border-4 border-primary dark:border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -70,7 +70,7 @@ function App() {
       <ChatWidget />
       
       {/* ZAPT Attribution */}
-      <div className="fixed bottom-2 left-2 text-xs text-gray-400 select-none z-50">
+      <div className="fixed bottom-2 left-2 text-xs text-gray-400 dark:text-gray-500 select-none z-50">
         Made on <a href="https://www.zapt.ai" target="_blank" rel="noopener noreferrer" className="underline">ZAPT</a>
       </div>
     </div>

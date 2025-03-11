@@ -21,7 +21,7 @@ function AppLayout({ children }) {
   const isLandingPage = location.pathname === '/';
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900 text-foreground dark:text-gray-100">
       <MonthNavigationProvider>
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
         {user && <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />}

@@ -5,6 +5,7 @@ import DesktopNav from './DesktopNav';
 import MonthNavigation from '../../modules/timetable/ui/MonthNavigation';
 import { useMonthNavigation } from '../../modules/timetable/ui/MonthNavigationContext';
 import { useAuth } from '../../modules/auth/ui/useAuth';
+import ThemeToggle from '../../modules/core/ui/ThemeToggle';
 
 /**
  * Header component with navigation
@@ -30,7 +31,7 @@ function Header({ menuOpen, setMenuOpen }) {
   }
 
   return (
-    <header className="flex items-center justify-between px-6 py-2 bg-white/90 backdrop-blur-md border-b border-gray-200 fixed w-full top-0 z-50 shadow-sm">
+    <header className="flex items-center justify-between px-6 py-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 fixed w-full top-0 z-50 shadow-sm">
       <div className="flex items-center space-x-4">
         <Logo />
       </div>
@@ -42,21 +43,26 @@ function Header({ menuOpen, setMenuOpen }) {
         </div>
       )}
       
-      {/* Only show navigation when user is logged in */}
-      {user && <DesktopNav />}
-      
-      {/* Only show mobile menu toggle when user is logged in */}
-      {user && (
-        <button
-          className="md:hidden text-gray-600 cursor-pointer"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-      )}
+      <div className="flex items-center space-x-4">
+        {/* Theme toggle */}
+        <ThemeToggle />
+        
+        {/* Only show navigation when user is logged in */}
+        {user && <DesktopNav />}
+        
+        {/* Only show mobile menu toggle when user is logged in */}
+        {user && (
+          <button
+            className="md:hidden text-gray-600 dark:text-gray-300 cursor-pointer"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        )}
+      </div>
     </header>
   );
 }

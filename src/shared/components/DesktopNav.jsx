@@ -17,8 +17,8 @@ function DesktopNav() {
           to="/preferences"
           className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/preferences' 
-              ? 'bg-primary text-white shadow-lg' 
-              : 'hover:bg-primary/20 text-gray-600 hover:text-primary'
+              ? 'bg-primary dark:bg-primary text-white shadow-lg' 
+              : 'hover:bg-primary/20 dark:hover:bg-primary/20 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary'
           }`}
         >
           ⚙️ Preferences
@@ -27,8 +27,8 @@ function DesktopNav() {
           to="/exams"
           className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/exams' 
-              ? 'bg-secondary text-white shadow-lg' 
-              : 'hover:bg-secondary/20 text-gray-600 hover:text-secondary'
+              ? 'bg-secondary dark:bg-secondary text-white shadow-lg' 
+              : 'hover:bg-secondary/20 dark:hover:bg-secondary/20 text-gray-600 dark:text-gray-300 hover:text-secondary dark:hover:text-secondary'
           }`}
         >
           📝 Exams
@@ -37,8 +37,8 @@ function DesktopNav() {
           to="/timetable"
           className={`px-4 py-2 rounded-full transition-all ${
             location.pathname === '/timetable' 
-              ? 'bg-accent text-black shadow-lg' 
-              : 'hover:bg-accent/20 text-gray-600 hover:text-accent'
+              ? 'bg-accent dark:bg-accent text-black shadow-lg' 
+              : 'hover:bg-accent/20 dark:hover:bg-accent/20 text-gray-600 dark:text-gray-300 hover:text-accent dark:hover:text-accent'
           }`}
         >
           🗓️ Timetable
@@ -46,7 +46,7 @@ function DesktopNav() {
       </nav>
       <button
         onClick={signOut}
-        className="px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+        className="px-4 py-2 bg-gradient-to-r from-primary to-secondary dark:from-primary dark:to-secondary text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
       >
         👋 Sign Out
       </button>
