@@ -13,11 +13,11 @@ export const api = {
   async getTimetable() {
     try {
       const response = await makeAuthenticatedRequest('/api/getTimetable');
-      const { data } = await handleApiResponse(response, 'Fetching timetable');
+      const result = await handleApiResponse(response, 'Fetching timetable');
       
       console.log('[Timetable API] Retrieved timetable data');
       
-      return data || {};
+      return result || { data: {}, periodAvailability: [] };
     } catch (error) {
       console.error('Error fetching timetable:', error);
       throw error;
@@ -59,20 +59,23 @@ export const api = {
   
   /**
    * Delete a timetable entry
-   * @param {Object} entryId - ID of the entry to delete
+   * @param {Object} entry - Entry with date and block to delete
    * @returns {Promise<Object>} Result message
    */
-  async deleteTimetableEntry(entryId) {
+  async deleteTimetableEntry(entry) {
     try {
       const response = await makeAuthenticatedRequest('/api/deleteTimetableEntry', {
         method: 'DELETE',
-        body: JSON.stringify({ id: entryId })
+        body: JSON.stringify({ 
+          date: entry.date,
+          block: entry.block
+        })
       });
       
       const result = await handleApiResponse(response, 'Deleting timetable entry');
       
       // Publish timetable updated event
-      eventBus.publish(events.TIMETABLE_UPDATED, { deletedEntryId: entryId });
+      eventBus.publish(events.TIMETABLE_UPDATED, { deletedEntry: entry });
       
       return result;
     } catch (error) {
@@ -82,14 +85,91 @@ export const api = {
   },
   
   /**
+   * Update a timetable entry
+   * @param {Object} entry - Entry with date, block and fields to update
+   * @returns {Promise<Object>} Result message
+   */
+  async updateTimetableEntry(entry) {
+    try {
+      const response = await makeAuthenticatedRequest('/api/updateTimetableEntry', {
+        method: 'PUT',
+        body: JSON.stringify(entry)
+      });
+      
+      const result = await handleApiResponse(response, 'Updating timetable entry');
+      
+      // Publish timetable updated event
+      eventBus.publish(events.TIMETABLE_UPDATED, { updatedEntry: entry });
+      
+      return result;
+    } catch (error) {
+      console.error('Error updating timetable entry:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Swap two timetable entries
+   * @param {Object} entry1 - First entry with date, block, and subject
+   * @param {Object} entry2 - Second entry with date, block, and subject
+   * @returns {Promise<Object>} Result message
+   */
+  async swapTimetableEntries(entry1, entry2) {
+    try {
+      const response = await makeAuthenticatedRequest('/api/swapTimetableEntries', {
+        method: 'POST',
+        body: JSON.stringify({ entry1, entry2 })
+      });
+      
+      const result = await handleApiResponse(response, 'Swapping timetable entries');
+      
+      // Publish timetable updated event
+      eventBus.publish(events.TIMETABLE_UPDATED, { swappedEntries: { entry1, entry2 } });
+      
+      return result;
+    } catch (error) {
+      console.error('Error swapping timetable entries:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Set availability for a specific period
+   * @param {string} startDate - Start date string in YYYY-MM-DD format
+   * @param {string} endDate - End date string in YYYY-MM-DD format
+   * @param {Array} availability - Array of availability objects
+   * @returns {Promise<Object>} Result message
+   */
+  async setPeriodAvailability(startDate, endDate, availability) {
+    try {
+      const response = await makeAuthenticatedRequest('/api/setPeriodAvailability', {
+        method: 'POST',
+        body: JSON.stringify({ startDate, endDate, availability })
+      });
+      
+      const result = await handleApiResponse(response, 'Setting period availability');
+      
+      // Publish timetable updated event
+      eventBus.publish(events.TIMETABLE_UPDATED, { 
+        periodAvailability: { startDate, endDate, availability } 
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Error setting period availability:', error);
+      throw error;
+    }
+  },
+  
+  /**
    * Generate timetable
    * @param {Array} exams - Array of exam objects
-   * @param {string} startDate - Start date string
-   * @param {Object} revisionTimes - Revision times configuration
-   * @param {Object} blockTimes - Block times configuration
+   * @param {string} startDate - Start date string in YYYY-MM-DD format
+   * @param {Object} revisionTimes - Available revision times by day of week
+   * @param {Object} blockTimes - User block time preferences
    * @returns {Promise<Array>} Generated timetable entries
    */
-  async generateTimetable(exams, startDate, revisionTimes, blockTimes) {
+  async generateTimetable(exams, startDate, revisionTimes, blockTimes = {}) {
     // Import the generator dynamically to avoid circular dependencies
     const { generateTimetable } = await import('../timetable/internal/timetableGeneratorCore');
     

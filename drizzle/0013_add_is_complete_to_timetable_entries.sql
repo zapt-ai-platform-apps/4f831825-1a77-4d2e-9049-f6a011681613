@@ -1,0 +1,2 @@
+ALTER TABLE "timetable_entries" 
+ADD COLUMN IF NOT EXISTS "is_complete" BOOLEAN DEFAULT FALSE;

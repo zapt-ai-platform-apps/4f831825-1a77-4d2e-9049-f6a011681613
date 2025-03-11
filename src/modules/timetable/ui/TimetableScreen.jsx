@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTimetable } from './useTimetable';
 import { TimetableProvider } from './TimetableContext';
 import CalendarGrid from './CalendarGrid';
 import DayDetails from './DayDetails';
 import LoadingOverlay from '../../../shared/components/LoadingOverlay';
+import PeriodAvailabilityModal from './PeriodAvailabilityModal';
 
 /**
  * Main timetable screen component
@@ -23,8 +24,12 @@ function TimetableScreen() {
     handleDateClick,
     minDate,
     maxDate,
-    refreshTimetable
+    refreshTimetable,
+    preferences,
+    periodAvailability
   } = useTimetable();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch timetable data once on mount with empty dependency array
   // This prevents the infinite refresh loop
@@ -32,6 +37,14 @@ function TimetableScreen() {
     console.log("TimetableScreen mounted, refreshing timetable data...");
     refreshTimetable();
   }, []); // Empty dependency array ensures this only runs once on mount
+
+  const openAvailabilityModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeAvailabilityModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return <LoadingOverlay message="Loading your timetable..." />;
@@ -43,7 +56,24 @@ function TimetableScreen() {
 
   return (
     <div className="container mx-auto px-1 sm:px-4 py-2 sm:py-4 max-w-full">
-      <TimetableProvider value={{ datesWithData, subjectColours, preferences: {} }}>
+      <TimetableProvider 
+        value={{ 
+          datesWithData, 
+          subjectColours, 
+          preferences,
+          periodAvailability,
+          refreshTimetable
+        }}
+      >
+        <div className="text-right mb-2">
+          <button
+            onClick={openAvailabilityModal}
+            className="text-sm bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary px-3 py-1.5 rounded cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30"
+          >
+            Set Period Availability
+          </button>
+        </div>
+        
         <CalendarGrid
           currentMonth={currentMonth}
           selectedDate={selectedDate}
@@ -66,6 +96,14 @@ function TimetableScreen() {
             How is my timetable generated?
           </Link>
         </div>
+        
+        {isModalOpen && (
+          <PeriodAvailabilityModal
+            onClose={closeAvailabilityModal}
+            onSave={refreshTimetable}
+            existingPeriods={periodAvailability || []}
+          />
+        )}
       </TimetableProvider>
     </div>
   );

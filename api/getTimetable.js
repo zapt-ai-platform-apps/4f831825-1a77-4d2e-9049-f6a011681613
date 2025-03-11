@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import { timetableEntries } from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
 import { db } from "./_dbClient.js";
+import { timetableEntries, periodSpecificAvailability } from "../drizzle/schema.js";
+import { eq } from "drizzle-orm";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -24,37 +24,56 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    const result = await db
+    // Get all timetable entries for the user
+    const entries = await db
       .select()
       .from(timetableEntries)
       .where(eq(timetableEntries.userId, user.id));
 
-    if (!result.length) {
-      // Return empty object instead of null so it doesn't trigger an error on the frontend
-      return res.status(200).json({ data: {} });
-    }
+    console.log(`Retrieved ${entries.length} timetable entries for user ${user.id}`);
 
-    // Group timetable entries by date
-    const timetableData = {};
-    result.forEach((entry) => {
-      if (!timetableData[entry.date]) {
-        timetableData[entry.date] = [];
+    // Get period-specific availability if any
+    const specificAvailability = await db
+      .select()
+      .from(periodSpecificAvailability)
+      .where(eq(periodSpecificAvailability.userId, user.id));
+
+    console.log(`Retrieved ${specificAvailability.length} period-specific availability settings for user ${user.id}`);
+
+    // Group entries by date for easier consumption in the UI
+    const groupedEntries = entries.reduce((acc, entry) => {
+      if (!acc[entry.date]) {
+        acc[entry.date] = [];
       }
-      timetableData[entry.date].push({
-        block: entry.block,
-        subject: entry.subject,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
-        isUserCreated: entry.isUserCreated,
-      });
-    });
+      acc[entry.date].push(entry);
+      return acc;
+    }, {});
 
-    res.status(200).json({ data: timetableData });
+    // Group availability settings by period for easier consumption in the UI
+    const groupedAvailability = specificAvailability.reduce((acc, availability) => {
+      const periodKey = `${availability.startDate}_${availability.endDate}`;
+      if (!acc[periodKey]) {
+        acc[periodKey] = {
+          startDate: availability.startDate,
+          endDate: availability.endDate,
+          settings: []
+        };
+      }
+      acc[periodKey].settings.push({
+        dayOfWeek: availability.dayOfWeek,
+        block: availability.block,
+        isAvailable: availability.isAvailable
+      });
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      data: groupedEntries,
+      periodAvailability: Object.values(groupedAvailability)
+    });
   } catch (error) {
     Sentry.captureException(error);
     console.error("Error fetching timetable:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Internal Server Error" });
+    res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 }

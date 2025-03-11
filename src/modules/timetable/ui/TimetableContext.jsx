@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 
 /**
- * Context for sharing timetable state across components
+ * Context for sharing timetable data between components
  */
 const TimetableContext = createContext(null);
 
@@ -13,8 +13,14 @@ const TimetableContext = createContext(null);
  * @returns {React.ReactElement} Provider component
  */
 export function TimetableProvider({ children, value }) {
+  // Ensure value always includes a refreshTimetable property, even if it's a no-op
+  const finalValue = {
+    ...value,
+    refreshTimetable: value.refreshTimetable || (() => console.log('refreshTimetable not provided'))
+  };
+  
   return (
-    <TimetableContext.Provider value={value}>
+    <TimetableContext.Provider value={finalValue}>
       {children}
     </TimetableContext.Provider>
   );

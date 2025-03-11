@@ -26,9 +26,14 @@ function SessionItems({ sortedSessions, subjectColours }) {
         return (
           <div
             key={idx}
-            className="py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer leading-tight"
-            style={{ backgroundColor: subjectColours[session.subject] || '#ccc' }}
-            title={`${session.block} Block${timeDisplay}`}
+            className={`py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer leading-tight ${
+              session.isComplete ? 'opacity-60' : ''
+            }`}
+            style={{ 
+              backgroundColor: subjectColours[session.subject] || '#ccc',
+              textDecoration: session.isComplete ? 'line-through' : 'none' 
+            }}
+            title={`${session.block} Block${timeDisplay} ${session.isComplete ? '(Completed)' : ''}`}
           >
             <p className="font-semibold truncate">
               <span className="inline xs:hidden">{session.block.charAt(0)}</span>

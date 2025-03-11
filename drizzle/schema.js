@@ -50,6 +50,7 @@ export const timetableEntries = pgTable(
     startTime: time("start_time"),
     endTime: time("end_time"),
     isUserCreated: boolean("is_user_created").default(false),
+    isComplete: boolean("is_complete").default(false),
   },
   (table) => ({
     pk: primaryKey(table.userId, table.date, table.block),
@@ -66,5 +67,20 @@ export const blockTimes = pgTable(
   },
   (table) => ({
     pk: primaryKey(table.userId, table.blockName),
+  })
+);
+
+export const periodSpecificAvailability = pgTable(
+  "period_specific_availability",
+  {
+    userId: uuid("user_id").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    dayOfWeek: text("day_of_week").notNull(),
+    block: text("block").notNull(),
+    isAvailable: boolean("is_available").default(true),
+  },
+  (table) => ({
+    pk: primaryKey(table.userId, table.startDate, table.endDate, table.dayOfWeek, table.block),
   })
 );
