@@ -89,67 +89,90 @@ export async function exportToPdf(datesWithData, subjectColours) {
         willDrawCell: function(data) {
           // Customize cell appearance
           if (data.section === 'body') {
-            // Get cell text content
-            const cellText = data.cell.text;
-            
-            // If it's an empty cell or just containing day number
-            if (!cellText || cellText.length <= 1) {
-              return;
-            }
-            
-            // Extract day number (always the first item)
-            const dayNumber = cellText[0];
-            
-            // Clear existing text - we'll redraw it with proper formatting
-            data.cell.text = [];
-            
-            // Draw day number
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(dayNumber, data.cell.x + 2, data.cell.y + 5);
-            
-            // Draw session and exam blocks
-            let blockY = data.cell.y + 8;
-            for (let i = 1; i < cellText.length; i++) {
-              const item = cellText[i];
+            try {
+              // Get cell text content
+              const cellText = data.cell.text;
               
-              // Check if this is an exam
-              if (item.startsWith('[EXAM]')) {
-                const examText = item.replace('[EXAM]', '').trim();
-                
-                // Draw exam block with red background
-                doc.setFillColor(255, 150, 150);
-                doc.roundedRect(data.cell.x + 2, blockY, data.cell.width - 4, 6, 1, 1, 'F');
-                
-                doc.setFontSize(7);
-                doc.setTextColor(150, 0, 0);
-                doc.text(examText, data.cell.x + 3, blockY + 4);
+              // If it's an empty cell or just containing day number
+              if (!cellText || cellText.length <= 1) {
+                return;
               }
-              // Otherwise it's a revision session
-              else {
-                const sessionParts = item.split(':');
-                if (sessionParts.length >= 2) {
-                  const block = sessionParts[0].trim();
-                  const subject = sessionParts[1].trim();
+              
+              // Extract day number (always the first item)
+              const dayNumber = cellText[0];
+              
+              // Clear existing text - we'll redraw everything manually
+              data.cell.text = [];
+              
+              // Draw white background to ensure clean slate
+              doc.setFillColor(255, 255, 255);
+              doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+              
+              // Draw day number
+              doc.setFontSize(10);
+              doc.setTextColor(100, 100, 100);
+              doc.text(dayNumber, data.cell.x + 2, data.cell.y + 5);
+              
+              // Draw session and exam blocks
+              let blockY = data.cell.y + 8;
+              for (let i = 1; i < cellText.length; i++) {
+                const item = cellText[i];
+                
+                // Check if this is an exam
+                if (item.startsWith('[EXAM]')) {
+                  const examText = item.replace('[EXAM]', '').trim();
                   
-                  // Get subject color
-                  let fillColor = [240, 240, 240]; // Default gray
-                  if (subjectColours[subject]) {
-                    const rgb = hexToRgb(subjectColours[subject]);
-                    fillColor = [rgb.r, rgb.g, rgb.b];
-                  }
-                  
-                  // Draw session block
-                  doc.setFillColor(...fillColor);
+                  // Draw exam block with lighter red background
+                  doc.setFillColor(255, 200, 200); // Lighter red background
                   doc.roundedRect(data.cell.x + 2, blockY, data.cell.width - 4, 6, 1, 1, 'F');
                   
                   doc.setFontSize(7);
-                  doc.setTextColor(0, 0, 0);
-                  doc.text(`${block}: ${subject}`, data.cell.x + 3, blockY + 4);
+                  doc.setTextColor(150, 0, 0); // Dark red text
+                  doc.text(examText, data.cell.x + 3, blockY + 4);
                 }
+                // Otherwise it's a revision session
+                else {
+                  const sessionParts = item.split(':');
+                  if (sessionParts.length >= 2) {
+                    const block = sessionParts[0].trim();
+                    const subject = sessionParts[1].trim();
+                    
+                    // Get subject color
+                    let fillColor = [240, 240, 240]; // Default gray
+                    if (subjectColours[subject]) {
+                      try {
+                        const rgb = hexToRgb(subjectColours[subject]);
+                        // Make colors lighter for better readability in PDF
+                        fillColor = [
+                          Math.min(255, rgb.r + 60),  // Lighten red
+                          Math.min(255, rgb.g + 60),  // Lighten green
+                          Math.min(255, rgb.b + 60)   // Lighten blue
+                        ];
+                      } catch (error) {
+                        console.error('Error processing color:', error);
+                      }
+                    }
+                    
+                    // Draw session block
+                    doc.setFillColor(...fillColor);
+                    doc.roundedRect(data.cell.x + 2, blockY, data.cell.width - 4, 6, 1, 1, 'F');
+                    
+                    doc.setFontSize(7);
+                    doc.setTextColor(0, 0, 0); // Black text for contrast
+                    doc.text(`${block}: ${subject}`, data.cell.x + 3, blockY + 4);
+                  }
+                }
+                
+                blockY += 7; // Move down for next block
               }
-              
-              blockY += 7; // Move down for next block
+            } catch (error) {
+              console.error('Error rendering cell:', error);
+              // Don't let one cell error break the whole PDF
+              // Just render the day number
+              if (data.cell.text && data.cell.text.length > 0) {
+                const dayNumber = data.cell.text[0];
+                data.cell.text = [dayNumber];
+              }
             }
           }
         }
@@ -170,7 +193,7 @@ export async function exportToPdf(datesWithData, subjectColours) {
     doc.text('Timetable Legend', 14, 20);
     
     // Exam legend
-    doc.setFillColor(255, 150, 150);
+    doc.setFillColor(255, 200, 200);
     doc.roundedRect(14, 30, 15, 8, 1, 1, 'F');
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
@@ -195,14 +218,24 @@ export async function exportToPdf(datesWithData, subjectColours) {
         const x = 14 + column * 140;
         const y = 60 + row * 10;
         
-        const rgb = hexToRgb(color);
-        
-        doc.setFillColor(rgb.r, rgb.g, rgb.b);
-        doc.roundedRect(x, y, 15, 8, 1, 1, 'F');
-        
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.text(subject, x + 20, y + 5);
+        try {
+          const rgb = hexToRgb(color);
+          
+          // Draw color swatch with lighter color
+          doc.setFillColor(
+            Math.min(255, rgb.r + 60),
+            Math.min(255, rgb.g + 60),
+            Math.min(255, rgb.b + 60)
+          );
+          doc.roundedRect(x, y, 15, 8, 1, 1, 'F');
+          
+          // Draw subject name
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
+          doc.text(subject, x + 20, y + 5);
+        } catch (error) {
+          console.error(`Error rendering legend for ${subject}:`, error);
+        }
       }
     } else {
       doc.setFontSize(10);
@@ -398,7 +431,7 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
   // Add exams
   if (dayData.exams && dayData.exams.length > 0) {
     dayData.exams.forEach(exam => {
-      content.push(`[EXAM] ${exam.timeOfDay}: ${exam.subject}`);
+      content.push(`[EXAM] ${exam.timeOfDay || 'Morning'}: ${exam.subject}`);
     });
   }
   
@@ -418,19 +451,34 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
   return content;
 }
 
-// Helper function to convert hex color to RGB
+// Helper function to convert hex color to RGB with enhanced error handling
 function hexToRgb(hex) {
-  hex = hex.replace(/^#/, '');
-  
-  // Handle shorthand hex
-  if (hex.length === 3) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  // Check if hex is a valid color
+  if (!hex || typeof hex !== 'string') {
+    return { r: 240, g: 240, b: 240 }; // Default to light gray
   }
   
-  const bigint = parseInt(hex, 16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  
-  return { r, g, b };
+  try {
+    hex = hex.replace(/^#/, '');
+    
+    // Handle shorthand hex
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    
+    // Validate hex format
+    if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
+      return { r: 240, g: 240, b: 240 }; // Default to light gray
+    }
+    
+    const bigint = parseInt(hex, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    
+    return { r, g, b };
+  } catch (error) {
+    console.error('Error parsing hex color:', error);
+    return { r: 240, g: 240, b: 240 }; // Default to light gray
+  }
 }
