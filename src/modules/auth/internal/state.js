@@ -4,6 +4,9 @@ import { eventBus } from '../../core/events';
 import { events } from '../events';
 import * as Sentry from '@sentry/browser';
 
+// Module-level singleton to track login recording
+let hasRecordedLoginGlobally = false;
+
 /**
  * Auth state management hook
  * @returns {Object} Authentication state and controls
@@ -11,7 +14,6 @@ import * as Sentry from '@sentry/browser';
 export function useAuthState() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [hasRecordedLogin, setHasRecordedLogin] = useState(false);
   const hasSessionRef = useRef(false);
   
   // Use this function to update session so we also update our ref
@@ -44,18 +46,13 @@ export function useAuthState() {
     
     // Set up auth state change listener
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log('Auth event:', event, 'Has session:', hasSessionRef.current);
-      
       // For SIGNED_IN, only update session if we don't have one
       if (event === 'SIGNED_IN') {
         if (!hasSessionRef.current) {
           updateSession(newSession);
           if (newSession?.user?.email) {
             eventBus.publish(events.SIGNED_IN, { user: newSession.user });
-            setHasRecordedLogin(false);
           }
-        } else {
-          console.log('Already have session, ignoring SIGNED_IN event');
         }
       }
       // For TOKEN_REFRESHED, always update the session
@@ -66,7 +63,7 @@ export function useAuthState() {
       else if (event === 'SIGNED_OUT') {
         updateSession(null);
         eventBus.publish(events.SIGNED_OUT, {});
-        setHasRecordedLogin(false);
+        hasRecordedLoginGlobally = false; // Reset for next login
       }
     });
     
@@ -75,20 +72,26 @@ export function useAuthState() {
     };
   }, []);
   
-  // Handle login recording
+  // Handle login recording - only once per session across the app
   useEffect(() => {
-    if (session?.user?.email && !hasRecordedLogin) {
-      recordLogin(session.user.email, import.meta.env.VITE_PUBLIC_APP_ENV)
-        .then(() => {
-          setHasRecordedLogin(true);
-          console.log('Login recorded for:', session.user.email);
-        })
-        .catch(error => {
+    const recordUserLogin = async () => {
+      if (session?.user?.email && !hasRecordedLoginGlobally) {
+        try {
+          // Set flag before API call to prevent race conditions
+          hasRecordedLoginGlobally = true;
+          
+          await recordLogin(session.user.email, import.meta.env.VITE_PUBLIC_APP_ENV);
+          console.log('Login recorded for user:', session.user.email);
+        } catch (error) {
           console.error('Failed to record login:', error);
           Sentry.captureException(error);
-        });
-    }
-  }, [session, hasRecordedLogin]);
+          // Don't reset the flag on error - we don't want to keep trying
+        }
+      }
+    };
+    
+    recordUserLogin();
+  }, [session]);
   
   const signOut = async () => {
     try {

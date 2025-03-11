@@ -1,53 +1,46 @@
 import { initializeZapt } from '@zapt/zapt-js';
 
-/**
- * Supabase client initialized with ZAPT
- * This is the main integration point with Supabase services
- */
-export const { supabase, recordLogin } = initializeZapt(import.meta.env.VITE_PUBLIC_APP_ID);
+// Initialize Zapt and get supabase client and recordLogin function
+const { supabase, recordLogin: zapRecordLogin } = initializeZapt(import.meta.env.VITE_PUBLIC_APP_ID);
+
+// Track login attempts to prevent duplicate recordings
+let pendingLoginRecords = {};
 
 /**
- * Makes an authenticated request to a backend API endpoint
- * @param {string} url - The endpoint URL
- * @param {Object} options - Fetch options
- * @returns {Promise<Response>} - Fetch response
+ * Record a user login with rate limiting to prevent duplicates
+ * @param {string} email - User email
+ * @param {string} environment - App environment 
+ * @returns {Promise<void>}
  */
-export async function makeAuthenticatedRequest(url, options = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session?.access_token) {
-    throw new Error('No active session found');
+async function recordLogin(email, environment) {
+  if (!email) {
+    console.error('Cannot record login: No email provided');
+    return;
   }
   
-  const headers = {
-    'Authorization': `Bearer ${session.access_token}`,
-    'Content-Type': 'application/json',
-    ...options.headers
-  };
+  // Check if we're already recording this login
+  const key = `${email}-${environment}`;
+  if (pendingLoginRecords[key]) {
+    console.log('Login recording already in progress for:', email);
+    return;
+  }
   
-  return fetch(url, {
-    ...options,
-    headers
-  });
+  // Mark as in progress
+  pendingLoginRecords[key] = true;
+  
+  try {
+    await zapRecordLogin(email, environment);
+    console.log('@zapt package - User login recorded once');
+  } catch (error) {
+    console.error('Failed to record login:', error);
+    throw error;
+  } finally {
+    // Clear the pending flag
+    delete pendingLoginRecords[key];
+  }
 }
 
-/**
- * Handles API response, parsing JSON and checking for errors
- * @param {Response} response - Fetch response object
- * @param {string} errorContext - Context for error message
- * @returns {Promise<any>} - Response data
- */
-export async function handleApiResponse(response, errorContext = 'API request') {
-  if (!response.ok) {
-    let errorMessage;
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.error || `${errorContext} failed: ${response.status}`;
-    } catch (e) {
-      errorMessage = `${errorContext} failed: ${response.status}`;
-    }
-    throw new Error(errorMessage);
-  }
-  
-  return response.json();
-}
+export { 
+  supabase,
+  recordLogin
+};
