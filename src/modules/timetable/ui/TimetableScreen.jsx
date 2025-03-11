@@ -4,6 +4,7 @@ import { useTimetable } from './useTimetable';
 import { TimetableProvider } from './TimetableContext';
 import CalendarGrid from './CalendarGrid';
 import DayDetails from './DayDetails';
+import ExportTimetable from './ExportTimetable';
 import LoadingOverlay from '../../../shared/components/LoadingOverlay';
 
 /**
@@ -42,6 +43,8 @@ function TimetableScreen() {
     return <div className="p-4 text-center text-destructive">{error}</div>;
   }
 
+  const hasTimetableData = Object.keys(datesWithData).length > 0;
+
   return (
     <div className="container mx-auto px-1 sm:px-4 py-2 sm:py-4 max-w-full">
       <TimetableProvider 
@@ -63,6 +66,14 @@ function TimetableScreen() {
             date={selectedDate}
             datesWithData={datesWithData}
             subjectColours={subjectColours}
+          />
+        )}
+        
+        {/* Export functionality */}
+        {hasTimetableData && (
+          <ExportTimetable 
+            datesWithData={datesWithData} 
+            subjectColours={subjectColours} 
           />
         )}
         

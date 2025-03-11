@@ -18,6 +18,8 @@
     "@zapt/zapt-js": "^1.0.21",
     "date-fns": "^2.30.0",
     "drizzle-orm": "^0.33.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.28",
     "postgres": "^3.4.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,6 +27,7 @@
     "react-router-dom": "^6.14.1",
     "stream-chat": "^8.56.0",
     "stream-chat-react": "^12.11.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
