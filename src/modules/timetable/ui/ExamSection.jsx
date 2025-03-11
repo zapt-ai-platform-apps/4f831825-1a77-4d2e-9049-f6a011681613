@@ -14,23 +14,23 @@ function ExamSection({ exams }) {
 
   return (
     <div>
-      <h4 className="text-lg font-semibold mb-2 dark:text-white">Exams</h4>
-      <div className="space-y-3">
+      <h4 className="text-base font-semibold mb-1.5 dark:text-white">Exams</h4>
+      <div className="space-y-2">
         {exams.map((exam) => (
           <div
             key={exam.id}
-            className="p-3 rounded-lg border-l-4 bg-red-100 dark:bg-red-900/30"
+            className="p-2 rounded-lg border-l-4 bg-red-100 dark:bg-red-900/30"
             style={{ borderColor: 'red' }}
           >
-            <p className="font-semibold flex items-center text-sm sm:text-base dark:text-white">
+            <p className="font-semibold flex items-center text-xs sm:text-sm dark:text-white">
               <span
-                className="w-3 h-3 rounded-full mr-2"
+                className="w-2.5 h-2.5 rounded-full mr-1.5"
                 style={{ backgroundColor: 'red' }}
               ></span>
               {exam.timeOfDay} Exam
             </p>
-            <p className="text-black dark:text-white text-base sm:text-lg font-bold">{exam.subject}</p>
-            {exam.board && <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">Board: {exam.board}</p>}
+            <p className="text-black dark:text-white text-sm sm:text-base font-bold">{exam.subject}</p>
+            {exam.board && <p className="text-gray-600 dark:text-gray-300 text-xs">Board: {exam.board}</p>}
           </div>
         ))}
       </div>

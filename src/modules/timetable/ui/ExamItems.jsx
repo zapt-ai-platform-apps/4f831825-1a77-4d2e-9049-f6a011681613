@@ -14,18 +14,18 @@ function ExamItems({ exams }) {
   exams.sort((a, b) => blockOrder[a.timeOfDay] - blockOrder[b.timeOfDay]);
 
   return (
-    <div className="mb-1 space-y-1">
+    <div className="mb-0.5 space-y-0.5">
       {exams.map((exam) => (
         <div
           key={exam.id}
-          className="p-1 rounded text-[10px] xs:text-xs sm:text-sm cursor-pointer font-bold border border-red-700 shadow-md"
+          className="py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer font-bold border border-red-700 shadow-sm"
           style={{ backgroundColor: '#ff0000', color: 'white' }}
         >
-          <span className="font-semibold block truncate">
+          <span className="font-semibold block truncate leading-tight">
             <span className="inline xs:hidden">{exam.timeOfDay.charAt(0)}</span>
             <span className="hidden xs:inline">{exam.timeOfDay}</span>
           </span>
-          <span className="block truncate">{exam.subject}</span>
+          <span className="block truncate leading-tight">{exam.subject}</span>
         </div>
       ))}
     </div>

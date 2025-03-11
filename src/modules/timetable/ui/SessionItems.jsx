@@ -20,13 +20,13 @@ function SessionItems({ sortedSessions, subjectColours }) {
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {sortedSessions.map((session, idx) => {
         const timeDisplay = getTimeInfo(session);
         return (
           <div
             key={idx}
-            className="p-1 rounded text-[10px] xs:text-xs sm:text-sm cursor-pointer"
+            className="py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer leading-tight"
             style={{ backgroundColor: subjectColours[session.subject] || '#ccc' }}
             title={`${session.block} Block${timeDisplay}`}
           >

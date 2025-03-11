@@ -42,7 +42,7 @@ function TimetableScreen() {
   }
 
   return (
-    <div className="container mx-auto px-1 sm:px-4 py-4 sm:py-8 max-w-full">
+    <div className="container mx-auto px-1 sm:px-4 py-2 sm:py-4 max-w-full">
       <TimetableProvider value={{ datesWithData, subjectColours, preferences: {} }}>
         <CalendarGrid
           currentMonth={currentMonth}
@@ -58,10 +58,10 @@ function TimetableScreen() {
           />
         )}
         
-        <div className="text-center mt-4">
+        <div className="text-center mt-2">
           <Link 
             to="/timetable-logic" 
-            className="text-secondary hover:text-secondary/90 text-sm underline"
+            className="text-secondary hover:text-secondary/90 text-xs underline"
           >
             How is my timetable generated?
           </Link>

@@ -21,11 +21,11 @@ function DayDetails({ date, datesWithData, subjectColours }) {
   });
 
   return (
-    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 mx-1 sm:mx-0 shadow-lg">
-      <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center">
+    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-2 sm:p-3 rounded-lg mt-2 sm:mt-3 mx-1 sm:mx-0 shadow-lg">
+      <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-center">
         {new Date(date).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}
       </h3>
-      <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-2 sm:space-y-3">
         {dataForDay.exams.length > 0 && <ExamSection exams={dataForDay.exams} />}
         {sortedSessions.length > 0 && (
           <SessionSection

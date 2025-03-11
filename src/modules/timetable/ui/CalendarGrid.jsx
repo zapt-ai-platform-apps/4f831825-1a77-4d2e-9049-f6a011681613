@@ -46,7 +46,7 @@ function CalendarGrid({ currentMonth, selectedDate, onDateClick }) {
   return (
     <div className="w-full px-1 sm:px-2 md:px-5 lg:px-10 box-border">
       <CalendarHeader />
-      <div className="grid grid-cols-7 auto-rows-[minmax(80px,auto)] md:auto-rows-[minmax(100px,auto)] gap-[2px] sm:gap-1">
+      <div className="grid grid-cols-7 auto-rows-[minmax(50px,auto)] md:auto-rows-[minmax(60px,auto)] gap-[1px] sm:gap-[2px]">
         {Array.from({ length: dayOffset }).map((_, index) => (
           <div key={`empty-${index}`} className="dark:bg-gray-800"></div>
         ))}
