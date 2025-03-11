@@ -10,10 +10,10 @@ function TermsOfService() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 sm:p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">Terms of Service</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">Terms of Service</h1>
         <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">Last updated: March 10, 2025</p>
 
-        <div className="prose max-w-none text-gray-700 dark:text-gray-100">
+        <div className="prose max-w-none text-gray-700 dark:text-gray-200">
           <h2 className="text-2xl font-semibold mt-6 mb-3 dark:text-white">1. Acceptance of Terms</h2>
           <p>
             By accessing or using UpGrade ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Service.
@@ -92,7 +92,7 @@ function TermsOfService() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link to="/" className="text-primary hover:text-primary/80 font-medium dark:text-primary dark:hover:text-primary/80">
+          <Link to="/" className="text-primary hover:text-primary/80 font-medium">
             Return to Home
           </Link>
         </div>

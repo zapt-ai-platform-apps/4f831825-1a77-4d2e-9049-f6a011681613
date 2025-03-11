@@ -22,7 +22,7 @@ function LandingPage() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+    <div className="min-h-screen bg-background dark:bg-gray-900 text-foreground dark:text-gray-100 relative overflow-hidden">
       <AnimatedBackground />
       
       {/* Hero Section */}
@@ -102,19 +102,19 @@ function LandingPage() {
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
-              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">1</div>
+              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 dark:bg-primary/20 text-primary rounded-full mx-auto mb-4">1</div>
               <h3 className="text-xl font-bold mb-2 dark:text-white">Set Your Preferences</h3>
               <p className="text-gray-600 dark:text-gray-300">Enter your available days, study time preferences, and revision start date.</p>
             </div>
             
             <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
-              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">2</div>
+              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 dark:bg-primary/20 text-primary rounded-full mx-auto mb-4">2</div>
               <h3 className="text-xl font-bold mb-2 dark:text-white">Add Your Exams</h3>
               <p className="text-gray-600 dark:text-gray-300">Input details about your upcoming exams including subjects, dates, and time of day.</p>
             </div>
             
             <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
-              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">3</div>
+              <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 dark:bg-primary/20 text-primary rounded-full mx-auto mb-4">3</div>
               <h3 className="text-xl font-bold mb-2 dark:text-white">Generate & Use Timetable</h3>
               <p className="text-gray-600 dark:text-gray-300">Get your personalized study plan and start revising with confidence.</p>
             </div>
@@ -145,7 +145,7 @@ function LandingPage() {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 px-6 bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 z-10 relative">
+      <section className="py-16 px-6 bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/5 dark:to-secondary/5 z-10 relative">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white">
             Ready to Transform Your Study Routine?
