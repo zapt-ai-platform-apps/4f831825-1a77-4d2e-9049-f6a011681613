@@ -25,7 +25,7 @@ function PreferencesForm({
       />
       
       <div>
-        <h3 className="text-xl font-semibold mb-2 text-center text-gray-800">
+        <h3 className="text-xl font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">
           Set Block Times
         </h3>
         <BlockTimeForm
@@ -43,7 +43,7 @@ function PreferencesForm({
       
       <button
         className={`btn w-full px-6 py-3 mt-4 cursor-pointer ${
-          loading ? 'bg-primary/50 cursor-not-allowed' : 'bg-primary text-white'
+          loading ? 'bg-primary/50 cursor-not-allowed' : 'bg-primary text-white dark:bg-primary dark:text-white'
         } transition duration-300 ease-in-out transform hover:scale-105 rounded-lg`}
         onClick={handleSave}
         disabled={loading}

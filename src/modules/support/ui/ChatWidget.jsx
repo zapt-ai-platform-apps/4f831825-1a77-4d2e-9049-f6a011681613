@@ -9,6 +9,7 @@ import {
 import { useChatClient } from '../internal/useChatClient';
 import { useAuth } from '../../auth/ui/useAuth';
 import * as Sentry from '@sentry/browser';
+import { useTheme } from '../../core/ui/ThemeContext';
 
 import 'stream-chat-react/dist/css/v2/index.css';
 
@@ -28,6 +29,8 @@ function ChatLoading() {
  * Custom channel header component
  */
 function CustomChannelHeader() {
+  const { isDarkMode } = useTheme();
+  
   return (
     <div style={{ 
       padding: '12px', 
@@ -46,6 +49,7 @@ function CustomChannelHeader() {
  */
 function ChatWidget() {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const { client, channel, connecting, error, connectChat, disconnectChat } = useChatClient();
   const [isOpen, setIsOpen] = useState(false);
   const chatContainerRef = useRef(null);
@@ -131,20 +135,20 @@ function ChatWidget() {
       {isOpen && client && channel && (
         <div 
           ref={chatContainerRef}
-          className="chat-container"
+          className={`chat-container ${isDarkMode ? 'dark' : ''}`}
           style={{
             position: 'absolute',
             bottom: '70px',
             right: '0',
             width: '350px',
             height: '500px',
-            backgroundColor: 'white',
+            backgroundColor: isDarkMode ? '#1f2937' : 'white',
             borderRadius: '10px',
             overflow: 'hidden',
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <Chat client={client} theme="messaging light">
+          <Chat client={client} theme={isDarkMode ? "messaging dark" : "messaging light"}>
             <Channel channel={channel}>
               <Window>
                 <CustomChannelHeader />

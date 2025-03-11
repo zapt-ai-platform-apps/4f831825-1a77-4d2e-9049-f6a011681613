@@ -20,7 +20,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
   };
 
   return (
-    <form onSubmit={onFormSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg shadow-sm">
+    <form onSubmit={onFormSubmit} className="space-y-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
       <ExamFormFields
         formData={formData}
         onChange={handleChange}
@@ -38,7 +38,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           <button
             type="button"
             onClick={onCancelEdit}
-            className="btn px-4 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg cursor-pointer"
+            className="btn px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-lg cursor-pointer"
           >
             Cancel
           </button>
@@ -48,7 +48,7 @@ function ExamForm({ onExamSaved, editExam, onCancelEdit }) {
           onClick={handleSubmit}
           disabled={submitting}
           className={`btn text-white cursor-pointer ${
-            editExam ? 'bg-primary' : 'bg-primary hover:bg-primary/90'
+            editExam ? 'bg-primary dark:bg-primary' : 'bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90'
           } px-4 py-2 transition-transform duration-300 transform hover:scale-[1.02] rounded-lg ${
             submitting ? 'opacity-50 cursor-not-allowed' : ''
           }`}

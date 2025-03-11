@@ -34,7 +34,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Subject <span className="text-red-500">*</span>
         </label>
         <input
@@ -42,7 +42,7 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
           value={formData.subject || ''}
           onChange={(e) => onChange('subject', e.target.value)}
           placeholder="e.g., Mathematics"
-          className={`w-full px-3 py-2 rounded bg-white border border-gray-300 text-black box-border ${
+          className={`w-full px-3 py-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 box-border ${
             errors.subject ? 'border border-red-500' : ''
           }`}
           required
@@ -53,14 +53,14 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Exam Date <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           value={formData.examDate || ''}
           onChange={(e) => onChange('examDate', e.target.value)}
-          className={`w-full px-3 py-2 rounded bg-white border border-gray-300 text-black box-border ${
+          className={`w-full px-3 py-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 box-border ${
             errors.examDate ? 'border border-red-500' : ''
           }`}
           required
@@ -71,11 +71,11 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">Time of Day</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Time of Day</label>
         <select
           value={formData.timeOfDay || 'Morning'}
           onChange={(e) => onChange('timeOfDay', e.target.value)}
-          className="w-full px-3 py-2 rounded bg-white border border-gray-300 text-black box-border"
+          className="w-full px-3 py-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 box-border"
         >
           <option value="Morning">Morning</option>
           <option value="Afternoon">Afternoon</option>
@@ -84,24 +84,24 @@ function ExamFormFields({ formData, onChange, editExam, errors = {} }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">Exam Board (Optional)</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Exam Board (Optional)</label>
         <input
           type="text"
           value={formData.board || ''}
           onChange={(e) => onChange('board', e.target.value)}
           placeholder="e.g., AQA, OCR"
-          className="w-full px-3 py-2 rounded bg-white border border-gray-300 text-black box-border"
+          className="w-full px-3 py-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 box-border"
         />
       </div>
 
       <div className="space-y-2 md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700">Subject Color</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject Color</label>
         <div className="flex flex-wrap gap-2">
           {colorOptions.map((color) => (
             <div 
               key={color.value} 
               className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
-                formData.examColour === color.value ? 'border-gray-800' : 'border-transparent'
+                formData.examColour === color.value ? 'border-gray-800 dark:border-gray-200' : 'border-transparent'
               }`}
               style={{ backgroundColor: color.value }}
               onClick={() => onChange('examColour', color.value)}

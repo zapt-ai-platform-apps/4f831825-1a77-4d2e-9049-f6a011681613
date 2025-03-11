@@ -15,12 +15,24 @@ html {
   }
   
   h1, h2, h3, h4 {
-    @apply font-display tracking-wide;
+    @apply font-display tracking-wide dark:text-gray-100;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   }
   
   .dark h1, .dark h2, .dark h3, .dark h4 {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  input, select, textarea {
+    @apply dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600;
+  }
+
+  input[type="date"] {
+    @apply dark:text-gray-100 dark:bg-gray-700;
+  }
+
+  input[type="time"] {
+    @apply dark:text-gray-100 dark:bg-gray-700;
   }
 }
 
@@ -70,4 +82,34 @@ html {
     right: -10px !important;
     bottom: 60px !important;
   }
+}
+
+/* Dark mode improvements for Stream Chat */
+.dark .str-chat {
+  --str-chat__primary-color: theme('colors.primary.DEFAULT');
+  --str-chat__primary-surface-color: theme('colors.gray.800');
+  --str-chat__background-color: theme('colors.gray.900');
+  --str-chat__disabled-color: theme('colors.gray.700');
+  --str-chat__border-radius: 8px;
+}
+
+.dark .str-chat__message-list {
+  background-color: theme('colors.gray.800');
+}
+
+.dark .str-chat__message-input {
+  background-color: theme('colors.gray.700');
+}
+
+.dark .str-chat__input-flat {
+  background-color: theme('colors.gray.700');
+}
+
+.dark .str-chat__message-input-container {
+  background-color: theme('colors.gray.700');
+}
+
+.dark .str-chat__input-flat .str-chat__textarea textarea {
+  background-color: theme('colors.gray.700');
+  color: theme('colors.gray.100');
 }

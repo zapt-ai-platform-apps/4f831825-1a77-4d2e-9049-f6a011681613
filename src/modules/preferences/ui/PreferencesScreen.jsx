@@ -29,13 +29,13 @@ function PreferencesScreen() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-gray-800">
+    <div className="min-h-screen flex flex-col text-gray-800 dark:text-gray-200">
       {saving && <LoadingOverlay message="Saving Preferences..." />}
       {loading && !saving && <LoadingOverlay message="Loading your preferences..." />}
 
       <div className="flex-grow p-4 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-full sm:max-w-4xl">
-          <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-full sm:max-w-4xl">
+          <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">
             Set Your Revision Preferences
           </h2>
           

@@ -57,17 +57,17 @@ function ExamsScreen() {
   };
 
   return (
-    <div className="h-full flex flex-col text-gray-800">
+    <div className="h-full flex flex-col text-gray-800 dark:text-gray-200">
       {(loading || generating) && (
         <LoadingOverlay message={generating ? "Generating your new timetable..." : "Loading exams..."} />
       )}
       
       <div className="flex-grow p-4">
-        <div className="bg-white p-4 md:p-8 rounded-lg shadow-md w-full md:max-w-screen-xl mx-auto">
-          <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">Manage Your Exams</h2>
+        <div className="bg-white dark:bg-gray-800 p-4 md:p-8 rounded-lg shadow-md w-full md:max-w-screen-xl mx-auto">
+          <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Manage Your Exams</h2>
           
           {error && (
-            <div className="bg-red-100 border border-red-500 text-red-700 p-3 rounded-md mb-4">
+            <div className="bg-red-100 dark:bg-red-900/30 border border-red-500 dark:border-red-500/50 text-red-700 dark:text-red-300 p-3 rounded-md mb-4">
               <p className="font-medium">Error: {error}</p>
             </div>
           )}
@@ -86,7 +86,7 @@ function ExamsScreen() {
             />
             
             <button
-              className={`btn btn-primary w-full px-6 py-3 transition-transform duration-300 ease-in-out transform hover:scale-[1.02] cursor-pointer bg-primary text-white rounded-lg ${
+              className={`btn btn-primary w-full px-6 py-3 transition-transform duration-300 ease-in-out transform hover:scale-[1.02] cursor-pointer bg-primary dark:bg-primary text-white dark:text-white rounded-lg ${
                 loading || generating ? 'opacity-50 cursor-not-allowed' : ''
               } text-sm md:text-base`}
               onClick={onGenerateTimetable}
