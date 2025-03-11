@@ -42,7 +42,8 @@ html {
   }
   
   .dark .gradient-text {
-    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent brightness-110;
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent brightness-125;
+    text-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
   }
   
   .fun-shadow {
