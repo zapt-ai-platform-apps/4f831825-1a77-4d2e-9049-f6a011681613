@@ -86,94 +86,15 @@ export async function exportToPdf(datesWithData, subjectColours) {
           0: { fillColor: [245, 245, 245] }, // Sunday
           6: { fillColor: [245, 245, 245] }  // Saturday
         },
-        willDrawCell: function(data) {
-          // Customize cell appearance
-          if (data.section === 'body') {
-            try {
-              // Get cell text content
-              const cellText = data.cell.text;
-              
-              // If it's an empty cell or just containing day number
-              if (!cellText || cellText.length <= 1) {
-                return;
-              }
-              
-              // Extract day number (always the first item)
-              const dayNumber = cellText[0];
-              
-              // Clear existing text - we'll redraw everything manually
-              data.cell.text = [];
-              
-              // Draw white background to ensure clean slate
-              doc.setFillColor(255, 255, 255);
-              doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
-              
-              // Draw day number
-              doc.setFontSize(10);
-              doc.setTextColor(100, 100, 100);
-              doc.text(dayNumber, data.cell.x + 2, data.cell.y + 5);
-              
-              // Draw session and exam blocks
-              let blockY = data.cell.y + 8;
-              for (let i = 1; i < cellText.length; i++) {
-                const item = cellText[i];
-                
-                // Check if this is an exam
-                if (item.startsWith('[EXAM]')) {
-                  const examText = item.replace('[EXAM]', '').trim();
-                  
-                  // Draw exam block with lighter red background
-                  doc.setFillColor(255, 200, 200); // Lighter red background
-                  doc.roundedRect(data.cell.x + 2, blockY, data.cell.width - 4, 6, 1, 1, 'F');
-                  
-                  doc.setFontSize(7);
-                  doc.setTextColor(150, 0, 0); // Dark red text
-                  doc.text(examText, data.cell.x + 3, blockY + 4);
-                }
-                // Otherwise it's a revision session
-                else {
-                  const sessionParts = item.split(':');
-                  if (sessionParts.length >= 2) {
-                    const block = sessionParts[0].trim();
-                    const subject = sessionParts[1].trim();
-                    
-                    // Get subject color
-                    let fillColor = [240, 240, 240]; // Default gray
-                    if (subjectColours[subject]) {
-                      try {
-                        const rgb = hexToRgb(subjectColours[subject]);
-                        // Make colors lighter for better readability in PDF
-                        fillColor = [
-                          Math.min(255, rgb.r + 60),  // Lighten red
-                          Math.min(255, rgb.g + 60),  // Lighten green
-                          Math.min(255, rgb.b + 60)   // Lighten blue
-                        ];
-                      } catch (error) {
-                        console.error('Error processing color:', error);
-                      }
-                    }
-                    
-                    // Draw session block
-                    doc.setFillColor(...fillColor);
-                    doc.roundedRect(data.cell.x + 2, blockY, data.cell.width - 4, 6, 1, 1, 'F');
-                    
-                    doc.setFontSize(7);
-                    doc.setTextColor(0, 0, 0); // Black text for contrast
-                    doc.text(`${block}: ${subject}`, data.cell.x + 3, blockY + 4);
-                  }
-                }
-                
-                blockY += 7; // Move down for next block
-              }
-            } catch (error) {
-              console.error('Error rendering cell:', error);
-              // Don't let one cell error break the whole PDF
-              // Just render the day number
-              if (data.cell.text && data.cell.text.length > 0) {
-                const dayNumber = data.cell.text[0];
-                data.cell.text = [dayNumber];
-              }
-            }
+        didDrawCell: function(data) {
+          // Use simpler plain text approach for cell content
+          if (data.section === 'body' && Array.isArray(data.cell.text) && data.cell.text.length > 0) {
+            // Don't modify empty cells or cells with just day numbers
+            if (data.cell.text.length <= 1) return;
+            
+            // Let jsPDF-AutoTable handle the rendering of plain text automatically
+            // The text is already formatted as an array of strings by getCalendarCellContent
+            // so each item will be rendered on a new line
           }
         }
       });
@@ -428,14 +349,21 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
     return content;
   }
   
-  // Add exams
+  // Add exams with EXAM prefix
   if (dayData.exams && dayData.exams.length > 0) {
-    dayData.exams.forEach(exam => {
-      content.push(`[EXAM] ${exam.timeOfDay || 'Morning'}: ${exam.subject}`);
+    const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+    
+    // Sort exams by block
+    const sortedExams = [...dayData.exams].sort(
+      (a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']
+    );
+    
+    sortedExams.forEach(exam => {
+      content.push(`EXAM: ${exam.subject} (${exam.timeOfDay || 'Morning'})`);
     });
   }
   
-  // Add sessions
+  // Add sessions with block info
   if (dayData.sessions && dayData.sessions.length > 0) {
     const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
     
@@ -444,7 +372,13 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
       .sort((a, b) => blockOrder[a.block] - blockOrder[b.block]);
     
     sortedSessions.forEach(session => {
-      content.push(`${session.block}: ${session.subject}`);
+      // Include time details if available
+      let timeInfo = '';
+      if (session.startTime && session.endTime) {
+        timeInfo = ` (${session.startTime.slice(0, 5)}-${session.endTime.slice(0, 5)})`;
+      }
+      
+      content.push(`${session.block}: ${session.subject}${timeInfo}`);
     });
   }
   
