@@ -20,7 +20,6 @@ export function useTimetable() {
   const [datesWithData, setDatesWithData] = useState({});
   const [subjectColours, setSubjectColours] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
-  const [periodAvailability, setPeriodAvailability] = useState([]);
 
   // Get month navigation from context
   const monthNavigation = useMonthNavigation();
@@ -42,11 +41,6 @@ export function useTimetable() {
       setExams(examsResult || []);
       setPreferences(preferencesResult || null);
       
-      // Extract period-specific availability if available
-      if (timetableResult.periodAvailability) {
-        setPeriodAvailability(timetableResult.periodAvailability);
-      }
-
       // Format dates with data and build subject colors
       const { datesWithData: formattedDates, subjectsSet } = formatDatesWithData(
         timetableResult.data || {},
@@ -82,9 +76,9 @@ export function useTimetable() {
     datesWithData,
     subjectColours,
     selectedDate,
-    periodAvailability,
     fetchTimetable,
     handleDateClick,
+    refreshTimetable: fetchTimetable,
     
     // Month navigation properties from separate context
     currentMonth: monthNavigation.currentMonth,

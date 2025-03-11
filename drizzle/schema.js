@@ -69,18 +69,3 @@ export const blockTimes = pgTable(
     pk: primaryKey(table.userId, table.blockName),
   })
 );
-
-export const periodSpecificAvailability = pgTable(
-  "period_specific_availability",
-  {
-    userId: uuid("user_id").notNull(),
-    startDate: date("start_date").notNull(),
-    endDate: date("end_date").notNull(),
-    dayOfWeek: text("day_of_week").notNull(),
-    block: text("block").notNull(),
-    isAvailable: boolean("is_available").default(true),
-  },
-  (table) => ({
-    pk: primaryKey(table.userId, table.startDate, table.endDate, table.dayOfWeek, table.block),
-  })
-);

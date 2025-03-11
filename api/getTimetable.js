@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { db } from "./_dbClient.js";
-import { timetableEntries, periodSpecificAvailability } from "../drizzle/schema.js";
+import { timetableEntries } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -32,14 +32,6 @@ export default async function handler(req, res) {
 
     console.log(`Retrieved ${entries.length} timetable entries for user ${user.id}`);
 
-    // Get period-specific availability if any
-    const specificAvailability = await db
-      .select()
-      .from(periodSpecificAvailability)
-      .where(eq(periodSpecificAvailability.userId, user.id));
-
-    console.log(`Retrieved ${specificAvailability.length} period-specific availability settings for user ${user.id}`);
-
     // Group entries by date for easier consumption in the UI
     const groupedEntries = entries.reduce((acc, entry) => {
       if (!acc[entry.date]) {
@@ -49,27 +41,8 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
-    // Group availability settings by period for easier consumption in the UI
-    const groupedAvailability = specificAvailability.reduce((acc, availability) => {
-      const periodKey = `${availability.startDate}_${availability.endDate}`;
-      if (!acc[periodKey]) {
-        acc[periodKey] = {
-          startDate: availability.startDate,
-          endDate: availability.endDate,
-          settings: []
-        };
-      }
-      acc[periodKey].settings.push({
-        dayOfWeek: availability.dayOfWeek,
-        block: availability.block,
-        isAvailable: availability.isAvailable
-      });
-      return acc;
-    }, {});
-
     res.status(200).json({
-      data: groupedEntries,
-      periodAvailability: Object.values(groupedAvailability)
+      data: groupedEntries
     });
   } catch (error) {
     Sentry.captureException(error);
