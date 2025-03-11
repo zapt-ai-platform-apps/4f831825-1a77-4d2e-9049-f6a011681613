@@ -64,17 +64,19 @@ export async function exportToPdf(datesWithData, subjectColours) {
       // Create calendar data for this month
       const calendarData = createCalendarData(monthDate, datesWithData);
       
-      // Create calendar table
+      // Create calendar table with increased cell padding
       doc.autoTable({
         startY: currentY,
         head: [['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']],
         body: calendarData,
         theme: 'grid',
         styles: {
-          cellPadding: 2,
+          cellPadding: 4, // Increased padding
           fontSize: 8,
           lineColor: [200, 200, 200],
           lineWidth: 0.1,
+          overflow: 'linebreak', // Handle overflow with line breaks
+          valign: 'top', // Align content to top of cell
         },
         headStyles: {
           fillColor: [78, 205, 196],
@@ -341,7 +343,7 @@ function createCalendarData(monthDate, datesWithData) {
 // Helper function to get cell content for a specific date
 function getCalendarCellContent(day, dateStr, datesWithData) {
   // Start with the day number
-  const content = [String(day)];
+  const content = [String(day), ''];  // Add empty line after day number
   
   // Get data for this date
   const dayData = datesWithData[dateStr];
@@ -358,8 +360,11 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
       (a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']
     );
     
+    content.push(''); // Add blank line before exams
     sortedExams.forEach(exam => {
-      content.push(`EXAM: ${exam.subject} (${exam.timeOfDay || 'Morning'})`);
+      content.push(`EXAM: ${exam.timeOfDay || 'Morning'}`);
+      content.push(`${exam.subject}`);
+      content.push(''); // Add blank line after each exam
     });
   }
   
@@ -371,6 +376,10 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
     const sortedSessions = [...dayData.sessions]
       .sort((a, b) => blockOrder[a.block] - blockOrder[b.block]);
     
+    if (dayData.exams && dayData.exams.length > 0) {
+      content.push(''); // Add extra spacing between exams and sessions
+    }
+    
     sortedSessions.forEach(session => {
       // Include time details if available
       let timeInfo = '';
@@ -378,7 +387,10 @@ function getCalendarCellContent(day, dateStr, datesWithData) {
         timeInfo = ` (${session.startTime.slice(0, 5)}-${session.endTime.slice(0, 5)})`;
       }
       
-      content.push(`${session.block}: ${session.subject}${timeInfo}`);
+      // Put block on one line, subject on the next
+      content.push(`${session.block}${timeInfo}`);
+      content.push(`${session.subject}`);
+      content.push(''); // Add blank line after each session
     });
   }
   
