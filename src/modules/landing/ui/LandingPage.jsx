@@ -33,7 +33,7 @@ function LandingPage() {
               <span className="gradient-text">Ace Your Exams</span> With Smart Revision Planning
             </h1>
             
-            <p className="text-lg sm:text-xl mb-8 text-gray-600 max-w-lg mx-auto md:mx-0">
+            <p className="text-lg sm:text-xl mb-8 text-gray-600 dark:text-gray-300 max-w-lg mx-auto md:mx-0">
               UpGrade creates personalized study timetables that adapt to your exam schedule, 
               learning preferences, and available time.
             </p>
@@ -94,29 +94,29 @@ function LandingPage() {
       </section>
       
       {/* How It Works Section */}
-      <section className="py-16 px-6 bg-white/50 backdrop-blur-lg z-10 relative">
+      <section className="py-16 px-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg z-10 relative">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Simple Steps to <span className="gradient-text">Success</span>
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white shadow-sm">
+            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
               <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">1</div>
-              <h3 className="text-xl font-bold mb-2">Set Your Preferences</h3>
-              <p className="text-gray-600">Enter your available days, study time preferences, and revision start date.</p>
+              <h3 className="text-xl font-bold mb-2 dark:text-white">Set Your Preferences</h3>
+              <p className="text-gray-600 dark:text-gray-300">Enter your available days, study time preferences, and revision start date.</p>
             </div>
             
-            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white shadow-sm">
+            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
               <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">2</div>
-              <h3 className="text-xl font-bold mb-2">Add Your Exams</h3>
-              <p className="text-gray-600">Input details about your upcoming exams including subjects, dates, and time of day.</p>
+              <h3 className="text-xl font-bold mb-2 dark:text-white">Add Your Exams</h3>
+              <p className="text-gray-600 dark:text-gray-300">Input details about your upcoming exams including subjects, dates, and time of day.</p>
             </div>
             
-            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white shadow-sm">
+            <div className="text-center p-6 rounded-xl border border-primary/20 bg-white dark:bg-gray-700 shadow-sm">
               <div className="w-16 h-16 flex items-center justify-center text-2xl bg-primary/10 text-primary rounded-full mx-auto mb-4">3</div>
-              <h3 className="text-xl font-bold mb-2">Generate & Use Timetable</h3>
-              <p className="text-gray-600">Get your personalized study plan and start revising with confidence.</p>
+              <h3 className="text-xl font-bold mb-2 dark:text-white">Generate & Use Timetable</h3>
+              <p className="text-gray-600 dark:text-gray-300">Get your personalized study plan and start revising with confidence.</p>
             </div>
           </div>
           
@@ -136,7 +136,7 @@ function LandingPage() {
       <section className="py-16 px-6 max-w-7xl mx-auto z-10 relative">
         <div className="max-w-3xl mx-auto text-center">
           <div className="text-5xl mb-6">💬</div>
-          <blockquote className="text-xl md:text-2xl italic mb-6 text-gray-700">
+          <blockquote className="text-xl md:text-2xl italic mb-6 text-gray-700 dark:text-gray-300">
             "The smart study planner helped me organize my revision efficiently. 
             I went from feeling overwhelmed to confident and prepared for all my exams!"
           </blockquote>
@@ -145,12 +145,12 @@ function LandingPage() {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 px-6 bg-gradient-to-r from-primary/10 to-secondary/10 z-10 relative">
+      <section className="py-16 px-6 bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 z-10 relative">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white">
             Ready to Transform Your Study Routine?
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 max-w-2xl mx-auto dark:text-gray-300">
             Join students who are using UpGrade to achieve better results with less stress.
           </p>
           <Link
@@ -164,8 +164,8 @@ function LandingPage() {
       </section>
       
       {/* Footer links section */}
-      <section className="py-8 px-6 bg-white/80 backdrop-blur-lg border-t border-gray-200">
-        <div className="max-w-7xl mx-auto text-center text-sm text-gray-500">
+      <section className="py-8 px-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto text-center text-sm text-gray-500 dark:text-gray-400">
           <p className="mb-4">© {new Date().getFullYear()} UpGrade - Empowering students to reach their potential</p>
           <p>
             <Link to="/privacy-policy" className="text-primary hover:underline mx-2">Privacy Policy</Link>
