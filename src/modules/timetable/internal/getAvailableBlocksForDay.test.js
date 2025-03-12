@@ -11,7 +11,10 @@ vi.mock('date-fns', async () => {
   };
 });
 
-// Import the function to test
+// Import the getAvailableBlocksForDay implementation
+/**
+ * Check if a date falls within a period-specific availability range
+ */
 function findPeriodForDate(date, periodSpecificAvailability) {
   if (!periodSpecificAvailability || !Array.isArray(periodSpecificAvailability) || !date) {
     return null;
@@ -38,11 +41,19 @@ function findPeriodForDate(date, periodSpecificAvailability) {
   return null;
 }
 
+/**
+ * Get available blocks for a specific day considering period-specific availability
+ */
 function getAvailableBlocksForDay(date, dayOfWeek, defaultRevisionTimes, periodSpecificAvailability) {
+  // Handle null inputs safely
+  if (!date || !dayOfWeek || !defaultRevisionTimes) {
+    return [];
+  }
+  
   // Check if this date falls within a period-specific availability
   const period = findPeriodForDate(date, periodSpecificAvailability);
   
-  if (period) {
+  if (period && period.revisionTimes) {
     // Use period-specific availability for this date
     return period.revisionTimes[dayOfWeek] || [];
   }

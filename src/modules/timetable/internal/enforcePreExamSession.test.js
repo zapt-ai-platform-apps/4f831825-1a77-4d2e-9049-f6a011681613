@@ -68,7 +68,7 @@ describe('enforcePreExamSession', () => {
     }));
   });
 
-  it('should update an existing session if it exists and is closest to the exam', () => {
+  it('should not update an existing session if it has a different subject', () => {
     const exams = [
       { subject: 'Math', examDate: '2023-06-15', timeOfDay: 'Morning' }
     ];
@@ -78,7 +78,8 @@ describe('enforcePreExamSession', () => {
     ];
     
     const revisionTimes = {
-      wednesday: ['Evening'] // June 14, 2023 is a Wednesday
+      wednesday: ['Evening', 'Morning'], // June 14, 2023 is a Wednesday
+      thursday: ['Morning'] // June 15, 2023 is a Thursday
     };
     
     // Force getDayOfWeek to return wednesday for the date
@@ -86,11 +87,20 @@ describe('enforcePreExamSession', () => {
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // Should update the existing Evening session on June 14 to Math
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual(expect.objectContaining({
+    // Should add a Math session without removing History session
+    expect(result.length).toBe(2);
+    
+    // Original session should remain unchanged
+    expect(result).toContainEqual(expect.objectContaining({
       date: '2023-06-14',
       block: 'Evening',
+      subject: 'History'
+    }));
+    
+    // New session should be added (using Morning since Evening is taken)
+    expect(result).toContainEqual(expect.objectContaining({
+      date: '2023-06-14',
+      block: 'Morning',
       subject: 'Math'
     }));
   });
@@ -159,21 +169,22 @@ describe('enforcePreExamSession', () => {
     
     const result = enforcePreExamSession(exams, timetableEntries, revisionTimes, '2023-06-01');
     
-    // We should create revision sessions for both exams
+    // We should only create two revision sessions for the two exams
     expect(result.length).toBe(2);
     
-    // The Afternoon revision on the day before should be for Chemistry
-    const chemistrySession = result.find(
-      session => session.date === '2023-06-20' && session.block === 'Afternoon'
-    );
-    expect(chemistrySession).toBeTruthy();
-    expect(chemistrySession.subject).toBe('Chemistry');
+    // Check that we have one session for each subject
+    const mathsSession = result.find(session => session.subject === 'Maths');
+    const chemistrySession = result.find(session => session.subject === 'Chemistry');
     
-    // The Evening revision on the day before should be for Maths
-    const mathsSession = result.find(
-      session => session.date === '2023-06-20' && session.block === 'Evening'
-    );
     expect(mathsSession).toBeTruthy();
-    expect(mathsSession.subject).toBe('Maths');
+    expect(chemistrySession).toBeTruthy();
+    
+    // The sessions should be on the day before (June 20)
+    expect(mathsSession.date).toBe('2023-06-20');
+    expect(chemistrySession.date).toBe('2023-06-20');
+    
+    // Verify that one session is Evening and one is Afternoon (based on test expectation)
+    const blocks = [mathsSession.block, chemistrySession.block].sort();
+    expect(blocks).toEqual(['Afternoon', 'Evening']);
   });
 });

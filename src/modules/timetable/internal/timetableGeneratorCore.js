@@ -200,10 +200,15 @@ function findPeriodForDate(date, periodSpecificAvailability) {
  * @returns {Array} Array of available blocks
  */
 function getAvailableBlocksForDay(date, dayOfWeek, defaultRevisionTimes, periodSpecificAvailability) {
+  // Handle null inputs safely
+  if (!date || !dayOfWeek || !defaultRevisionTimes) {
+    return [];
+  }
+  
   // Check if this date falls within a period-specific availability
   const period = findPeriodForDate(date, periodSpecificAvailability);
   
-  if (period) {
+  if (period && period.revisionTimes) {
     // Use period-specific availability for this date
     return period.revisionTimes[dayOfWeek] || [];
   }

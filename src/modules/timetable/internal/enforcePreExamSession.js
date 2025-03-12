@@ -45,10 +45,15 @@ function findPeriodForDate(date, periodSpecificAvailability) {
  * @returns {Array} Array of available blocks
  */
 function getAvailableBlocksForDay(date, dayOfWeek, defaultRevisionTimes, periodSpecificAvailability) {
+  // Handle null inputs safely
+  if (!date || !dayOfWeek || !defaultRevisionTimes) {
+    return [];
+  }
+  
   // Check if this date falls within a period-specific availability
   const period = findPeriodForDate(date, periodSpecificAvailability);
   
-  if (period) {
+  if (period && period.revisionTimes) {
     // Use period-specific availability for this date
     return period.revisionTimes[dayOfWeek] || [];
   }
@@ -79,105 +84,115 @@ export function enforcePreExamSession(exams, timetable, revisionTimes, startDate
     // Extract period-specific availability
     const periodSpecificAvailability = revisionTimes.periodSpecificAvailability || [];
     
-    // For each exam, check if there's a session before the exam
-    for (const exam of exams) {
+    // Group exams by date to handle consecutive exams
+    const examsByDate = {};
+    exams.forEach(exam => {
       const examDate = exam.examDate;
-      const examSubject = exam.subject;
-      const examBlock = exam.timeOfDay || 'Morning';
-      
-      // Check if there's already a session for this subject before the exam
-      const hasPreExamSession = timetable.some(session => {
-        // Same subject
-        if (session.subject !== examSubject) return false;
-        
-        // Before exam date or on exam date but before exam block
-        if (session.date < examDate) return true;
-        
-        if (session.date === examDate) {
-          const blockOrder = { Morning: 1, Afternoon: 2, Evening: 3 };
-          return blockOrder[session.block] < blockOrder[examBlock];
-        }
-        
-        return false;
-      });
-      
-      // Skip if already has a pre-exam session
-      if (hasPreExamSession) {
-        continue;
+      if (!examsByDate[examDate]) {
+        examsByDate[examDate] = [];
       }
-      
-      // Try to find a slot for a pre-exam session
-      
-      // Try day before exam first
-      const examDateObj = parseISO(examDate);
-      const dayBefore = addDays(examDateObj, -1);
-      const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
-      const dayBeforeDayOfWeek = getDayOfWeek(dayBefore);
-      
-      // Get available blocks for day before, considering period-specific availability
-      const dayBeforeBlocks = getAvailableBlocksForDay(
-        dayBeforeStr,
-        dayBeforeDayOfWeek,
-        revisionTimes,
-        periodSpecificAvailability
-      );
-      
-      // Prefer evening, then afternoon, then morning
-      const preferredOrder = ['Evening', 'Afternoon', 'Morning'];
-      
-      // Try each preferred block
-      for (const block of preferredOrder) {
-        // Check if block is available on day before
-        if (dayBeforeBlocks.includes(block)) {
-          // Check if slot is already taken in timetable
-          const isSlotTaken = updatedTimetable.some(session => 
-            session.date === dayBeforeStr && session.block === block
-          );
-          
-          if (!isSlotTaken) {
-            // Create new pre-exam session
-            const session = createSession(dayBeforeStr, block, examSubject, blockTimes);
-            updatedTimetable.push(session);
-            console.log(`Enforced pre-exam session added: ${examSubject} on ${dayBeforeStr} ${block}`);
-            break; // Stop after finding a slot
-          }
-        }
-      }
-      
-      // If couldn't add on day before, try earlier blocks on exam day
-      if (examBlock !== 'Morning') {
-        // Only try blocks before exam
+      examsByDate[examDate].push(exam);
+    });
+
+    // Process exams by date first
+    for (const [examDate, dateExams] of Object.entries(examsByDate)) {
+      // For dates with multiple exams, sort by time of day to prioritize earlier exams
+      if (dateExams.length > 1) {
         const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-        const examBlockOrder = blockOrder[examBlock];
-        const earlierBlocks = Object.keys(blockOrder)
-          .filter(b => blockOrder[b] < examBlockOrder)
-          .reverse(); // Try closest to exam first
+        dateExams.sort((a, b) => blockOrder[a.timeOfDay || 'Morning'] - blockOrder[b.timeOfDay || 'Morning']);
+      }
+      
+      // Process each exam for this date
+      for (const exam of dateExams) {
+        // Skip if already has a pre-exam session
+        const examSubject = exam.subject;
+        const hasPreExamSession = updatedTimetable.some(session => {
+          // Same subject
+          if (session.subject !== examSubject) return false;
+          
+          // Before exam date or on exam date but before exam block
+          if (session.date < examDate) return true;
+          
+          if (session.date === examDate) {
+            const blockOrder = { Morning: 1, Afternoon: 2, Evening: 3 };
+            return blockOrder[session.block] < blockOrder[exam.timeOfDay || 'Morning'];
+          }
+          
+          return false;
+        });
         
-        const examDayOfWeek = getDayOfWeek(examDateObj);
+        if (hasPreExamSession) {
+          console.log(`${examSubject} already has pre-exam session, skipping`);
+          continue;
+        }
+
+        // Try to schedule a session on the day before the exam
+        const examDateObj = parseISO(examDate);
+        const dayBefore = addDays(examDateObj, -1);
+        const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
+        const dayBeforeDayOfWeek = getDayOfWeek(dayBefore);
         
-        // Get available blocks for exam day, considering period-specific availability
-        const examDayBlocks = getAvailableBlocksForDay(
-          examDate,
-          examDayOfWeek,
+        // Get available blocks for day before
+        const dayBeforeBlocks = getAvailableBlocksForDay(
+          dayBeforeStr,
+          dayBeforeDayOfWeek,
           revisionTimes,
           periodSpecificAvailability
         );
         
-        // Try each earlier block
-        for (const block of earlierBlocks) {
-          // Check if block is available on exam day
-          if (examDayBlocks.includes(block)) {
-            // Check if slot is already taken in timetable
+        // Try preferred blocks in this order: Evening, Afternoon, Morning
+        const preferredOrder = ['Evening', 'Afternoon', 'Morning'];
+        let sessionAdded = false;
+        
+        for (const block of preferredOrder) {
+          if (dayBeforeBlocks.includes(block)) {
+            // Check if slot is already taken
             const isSlotTaken = updatedTimetable.some(session => 
-              session.date === examDate && session.block === block
+              session.date === dayBeforeStr && session.block === block
             );
             
             if (!isSlotTaken) {
               // Create new pre-exam session
-              const session = createSession(examDate, block, examSubject, blockTimes);
+              const session = createSession(dayBeforeStr, block, examSubject, blockTimes);
               updatedTimetable.push(session);
-              console.log(`Enforced pre-exam session added: ${examSubject} on ${examDate} ${block}`);
-              break; // Stop after finding a slot
+              console.log(`Created pre-exam session: ${examSubject} on ${dayBeforeStr} ${block}`);
+              sessionAdded = true;
+              break;
+            }
+          }
+        }
+        
+        // If couldn't add on day before, try earlier blocks on exam day
+        if (!sessionAdded && exam.timeOfDay !== 'Morning') {
+          const examDayDayOfWeek = getDayOfWeek(examDateObj);
+          const examDayBlocks = getAvailableBlocksForDay(
+            examDate,
+            examDayDayOfWeek,
+            revisionTimes,
+            periodSpecificAvailability
+          );
+          
+          // Only try blocks before the exam time
+          const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
+          const examBlockOrder = blockOrder[exam.timeOfDay || 'Morning'];
+          const earlierBlocks = Object.keys(blockOrder)
+            .filter(b => blockOrder[b] < examBlockOrder)
+            .reverse(); // Try closest to exam first
+          
+          for (const block of earlierBlocks) {
+            if (examDayBlocks.includes(block)) {
+              // Check if slot is already taken
+              const isSlotTaken = updatedTimetable.some(session => 
+                session.date === examDate && session.block === block
+              );
+              
+              if (!isSlotTaken) {
+                // Create new pre-exam session
+                const session = createSession(examDate, block, examSubject, blockTimes);
+                updatedTimetable.push(session);
+                console.log(`Created pre-exam session on exam day: ${examSubject} on ${examDate} ${block}`);
+                break;
+              }
             }
           }
         }
