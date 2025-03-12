@@ -22,7 +22,8 @@ function findPeriodForDate(date, periodSpecificAvailability) {
 
   const dateObj = parseISO(date);
   
-  for (const period of periodSpecificAvailability) {
+  // Iterate through periods in reverse to match the enforcePreExamSession.js implementation
+  for (const period of [...periodSpecificAvailability].reverse()) {
     if (!period.startDate || !period.endDate) continue;
     
     try {
