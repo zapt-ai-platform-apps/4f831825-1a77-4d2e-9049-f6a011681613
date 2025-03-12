@@ -20,10 +20,17 @@ function findPeriodForDate(date, periodSpecificAvailability) {
     if (!period.startDate || !period.endDate) continue;
     
     try {
-      if (isWithinInterval(dateObj, {
-        start: parseISO(period.startDate),
-        end: parseISO(period.endDate)
-      })) {
+      // Safely parse dates to avoid TypeError
+      const startDate = parseISO(period.startDate);
+      const endDate = parseISO(period.endDate);
+      
+      // Check if both dates are valid before using isWithinInterval
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.warn('Invalid date in period range:', { period });
+        continue;
+      }
+      
+      if (isWithinInterval(dateObj, { start: startDate, end: endDate })) {
         return period;
       }
     } catch (error) {

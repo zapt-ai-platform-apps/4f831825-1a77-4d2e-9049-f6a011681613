@@ -124,8 +124,10 @@ describe('getAvailableBlocksForDay', () => {
   });
 
   it('should handle multiple overlapping periods by returning the first match', () => {
-    // Setup mocks to return true for the first period, false for others
+    // Setup mocks to return true for the first period and false for the second
+    // Fixed the TypeError issue here by checking for interval.start existence
     vi.mocked(isWithinInterval).mockImplementation((date, interval) => {
+      if (!interval || !interval.start) return false;
       return interval.start.getTime() === new Date('2023-06-01').getTime();
     });
     
@@ -135,14 +137,14 @@ describe('getAvailableBlocksForDay', () => {
     
     const periodSpecificAvailability = [
       {
-        startDate: '2023-06-01',
+        startDate: '2023-06-01',  // This one matches and has 'Afternoon' for Monday
         endDate: '2023-06-15',
         revisionTimes: {
           monday: ['Afternoon']
         }
       },
       {
-        startDate: '2023-06-10',
+        startDate: '2023-06-10',  // This one doesn't match
         endDate: '2023-06-20',
         revisionTimes: {
           monday: ['Evening']
