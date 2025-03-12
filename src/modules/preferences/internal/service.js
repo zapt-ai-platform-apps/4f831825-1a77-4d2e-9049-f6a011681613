@@ -25,21 +25,23 @@ export function validatePreferencesInput(preferences) {
 
   // Validate period-specific availability if present
   if (preferences.periodSpecificAvailability && preferences.periodSpecificAvailability.length > 0) {
-    const periodRanges = new Map();
+    const periods = preferences.periodSpecificAvailability;
 
-    for (const period of preferences.periodSpecificAvailability) {
+    for (let i = 0; i < periods.length; i++) {
+      const periodA = periods[i];
+      
       // Check required fields
-      if (!period.startDate || !period.endDate) {
+      if (!periodA.startDate || !periodA.endDate) {
         throw new Error('Start and end dates are required for each specific period');
       }
 
       // Check date order
-      if (new Date(period.endDate) < new Date(period.startDate)) {
+      if (new Date(periodA.endDate) < new Date(periodA.startDate)) {
         throw new Error('End date must be after or equal to start date for each specific period');
       }
 
       // Check if at least one block is selected
-      const hasPeriodBlock = Object.values(period.revisionTimes).some(
+      const hasPeriodBlock = Object.values(periodA.revisionTimes).some(
         (blocks) => blocks.length > 0
       );
 
@@ -47,17 +49,21 @@ export function validatePreferencesInput(preferences) {
         throw new Error('Please select at least one revision time for each specific period');
       }
 
-      // Check for overlapping date ranges
-      const startDate = new Date(period.startDate);
-      const endDate = new Date(period.endDate);
-      const periodKey = `${period.startDate}-${period.endDate}`;
-      periodRanges.set(periodKey, { startDate, endDate });
+      // Check for overlapping date ranges with all other periods
+      const startDateA = new Date(periodA.startDate);
+      const endDateA = new Date(periodA.endDate);
 
-      // Check if this period overlaps with another period
-      for (const [otherKey, otherRange] of periodRanges.entries()) {
-        if (otherKey === periodKey) continue; // Skip comparing to self
-
-        if (startDate <= otherRange.endDate && endDate >= otherRange.startDate) {
+      for (let j = 0; j < periods.length; j++) {
+        if (i === j) continue; // Skip comparing to self
+        
+        const periodB = periods[j];
+        if (!periodB.startDate || !periodB.endDate) continue;
+        
+        const startDateB = new Date(periodB.startDate);
+        const endDateB = new Date(periodB.endDate);
+        
+        // Check if periods overlap
+        if (startDateA <= endDateB && endDateA >= startDateB) {
           throw new Error('Period-specific availability dates cannot overlap');
         }
       }
