@@ -1,11 +1,12 @@
 import { db } from "./_dbClient.js";
-import { preferences, revisionTimes, timetableEntries, blockTimes } from "../drizzle/schema.js";
+import { preferences, revisionTimes, timetableEntries, blockTimes, periodSpecificAvailability } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 export async function deleteUserData(userId) {
   await db.delete(preferences).where(eq(preferences.userId, userId));
   await db.delete(revisionTimes).where(eq(revisionTimes.userId, userId));
   await db.delete(blockTimes).where(eq(blockTimes.userId, userId));
+  await db.delete(periodSpecificAvailability).where(eq(periodSpecificAvailability.userId, userId));
   await db.delete(timetableEntries).where(eq(timetableEntries.userId, userId));
 }
 
@@ -59,4 +60,42 @@ export async function insertBlockTimes(userId, data) {
     }
   }
   await db.insert(blockTimes).values(blockTimesDataArr);
+}
+
+export async function insertPeriodSpecificAvailability(userId, periodData) {
+  if (!periodData || !Array.isArray(periodData) || periodData.length === 0) {
+    return;
+  }
+  
+  const periodAvailabilityData = [];
+  
+  for (const period of periodData) {
+    // Skip invalid periods
+    if (!period.startDate || !period.endDate || !period.revisionTimes) {
+      continue;
+    }
+    
+    // Process each day of the week
+    for (const [day, blocks] of Object.entries(period.revisionTimes)) {
+      // For each day, we store which blocks are available
+      const validBlocks = ['Morning', 'Afternoon', 'Evening'];
+      
+      for (const block of validBlocks) {
+        const isAvailable = blocks.includes(block);
+        
+        periodAvailabilityData.push({
+          userId: userId,
+          startDate: period.startDate,
+          endDate: period.endDate,
+          dayOfWeek: day,
+          block: block,
+          isAvailable: isAvailable
+        });
+      }
+    }
+  }
+  
+  if (periodAvailabilityData.length > 0) {
+    await db.insert(periodSpecificAvailability).values(periodAvailabilityData);
+  }
 }

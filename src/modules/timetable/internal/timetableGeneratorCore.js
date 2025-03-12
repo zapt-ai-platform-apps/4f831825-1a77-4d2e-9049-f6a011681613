@@ -5,7 +5,7 @@ import { createSession } from './sessionUtils';
 import { sortSessionsByBlock } from './utils/sessionSorter';
 import { createExamSlotsMap, sortExamsByDate } from './utils/examUtils';
 import * as Sentry from '@sentry/browser';
-import { addDays, parseISO, format } from 'date-fns';
+import { addDays, parseISO, format, isWithinInterval } from 'date-fns';
 
 /**
  * Creates pre-exam revision sessions for each exam
@@ -129,6 +129,52 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
 }
 
 /**
+ * Check if a given date falls within any period-specific availability
+ * @param {string} date - Date in YYYY-MM-DD format
+ * @param {Array} periodSpecificAvailability - Array of period-specific availability objects
+ * @returns {Object|null} The period object if found, null otherwise
+ */
+function findPeriodForDate(date, periodSpecificAvailability) {
+  if (!periodSpecificAvailability || !Array.isArray(periodSpecificAvailability) || !date) {
+    return null;
+  }
+
+  const dateObj = parseISO(date);
+  
+  for (const period of periodSpecificAvailability) {
+    if (isWithinInterval(dateObj, {
+      start: parseISO(period.startDate),
+      end: parseISO(period.endDate)
+    })) {
+      return period;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Get available blocks for a specific day considering period-specific availability
+ * @param {string} date - Date in YYYY-MM-DD format
+ * @param {string} dayOfWeek - Day of week (monday, tuesday, etc.)
+ * @param {Object} defaultRevisionTimes - Default revision times configuration
+ * @param {Array} periodSpecificAvailability - Array of period-specific availability objects
+ * @returns {Array} Array of available blocks
+ */
+function getAvailableBlocksForDay(date, dayOfWeek, defaultRevisionTimes, periodSpecificAvailability) {
+  // Check if this date falls within a period-specific availability
+  const period = findPeriodForDate(date, periodSpecificAvailability);
+  
+  if (period) {
+    // Use period-specific availability for this date
+    return period.revisionTimes[dayOfWeek] || [];
+  }
+  
+  // Otherwise use default availability
+  return defaultRevisionTimes[dayOfWeek] || [];
+}
+
+/**
  * Core timetable generation function
  * @param {Array} exams - Array of exam objects
  * @param {string} startDate - Start date string in YYYY-MM-DD format
@@ -198,11 +244,21 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
 
     console.log("Initial subject counts after pre-exam sessions:", JSON.stringify(subjectCounts));
 
+    // Extract period-specific availability from revision times object if it exists
+    const periodSpecificAvailability = revisionTimes.periodSpecificAvailability || [];
+
     // Then fill in the rest of the timetable
     // Process each date in the range
     for (const date of dateRange) {
       const dayOfWeek = getDayOfWeek(date);
-      const availableBlocks = revisionTimes[dayOfWeek] || [];
+      
+      // Get available blocks for this day, considering period-specific availability
+      const availableBlocks = getAvailableBlocksForDay(
+        date, 
+        dayOfWeek, 
+        revisionTimes, 
+        periodSpecificAvailability
+      );
 
       // For each available block on this day
       for (const block of availableBlocks) {

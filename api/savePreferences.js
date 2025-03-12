@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
-import { deleteUserData, insertPreferences, insertRevisionTimes, insertBlockTimes } from "./preferencesService.js";
+import { deleteUserData, insertPreferences, insertRevisionTimes, insertBlockTimes, insertPeriodSpecificAvailability } from "./preferencesService.js";
 
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
@@ -44,6 +44,11 @@ export default async function handler(req, res) {
     await insertPreferences(user.id, prefsData);
     await insertRevisionTimes(user.id, prefsData);
     await insertBlockTimes(user.id, prefsData);
+    
+    // Handle period-specific availability if present
+    if (prefsData.periodSpecificAvailability && Array.isArray(prefsData.periodSpecificAvailability)) {
+      await insertPeriodSpecificAvailability(user.id, prefsData.periodSpecificAvailability);
+    }
 
     res.status(200).json({ message: 'Preferences saved and old timetable removed' });
   } catch (error) {

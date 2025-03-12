@@ -22,6 +22,7 @@ const DEFAULT_PREFERENCES = {
     Afternoon: { startTime: '14:00', endTime: '17:00' },
     Evening: { startTime: '19:00', endTime: '21:00' },
   },
+  periodSpecificAvailability: []
 };
 
 /**
@@ -49,7 +50,8 @@ export function usePreferencesState() {
             blockTimes: {
               ...DEFAULT_PREFERENCES.blockTimes,
               ...(data.blockTimes || {})
-            }
+            },
+            periodSpecificAvailability: data.periodSpecificAvailability || []
           });
         }
       } catch (error) {
@@ -98,6 +100,58 @@ export function usePreferencesState() {
       startDate: date,
     });
   };
+
+  // Handle adding period-specific availability
+  const handleAddPeriodAvailability = (periodAvailability) => {
+    setPreferences({
+      ...preferences,
+      periodSpecificAvailability: [
+        ...preferences.periodSpecificAvailability,
+        periodAvailability
+      ]
+    });
+  };
+
+  // Handle removing period-specific availability
+  const handleRemovePeriodAvailability = (index) => {
+    setPreferences({
+      ...preferences,
+      periodSpecificAvailability: preferences.periodSpecificAvailability.filter((_, i) => i !== index)
+    });
+  };
+
+  // Handle updating period-specific availability
+  const handleUpdatePeriodAvailability = (index, updatedPeriod) => {
+    setPreferences({
+      ...preferences,
+      periodSpecificAvailability: preferences.periodSpecificAvailability.map((period, i) => 
+        i === index ? updatedPeriod : period
+      )
+    });
+  };
+
+  // Handle period-specific block selection
+  const handlePeriodBlockSelection = (periodIndex, day, block) => {
+    if (periodIndex < 0 || periodIndex >= preferences.periodSpecificAvailability.length) {
+      return;
+    }
+
+    const period = preferences.periodSpecificAvailability[periodIndex];
+    const dayBlocks = period.revisionTimes[day] || [];
+    const hasBlock = dayBlocks.includes(block);
+    
+    const updatedPeriod = {
+      ...period,
+      revisionTimes: {
+        ...period.revisionTimes,
+        [day]: hasBlock
+          ? dayBlocks.filter((b) => b !== block)
+          : [...dayBlocks, block],
+      },
+    };
+
+    handleUpdatePeriodAvailability(periodIndex, updatedPeriod);
+  };
   
   // Handle save
   const handleSave = async () => {
@@ -132,5 +186,9 @@ export function usePreferencesState() {
     handleBlockSelection,
     handleStartDateChange,
     handleSave,
+    handleAddPeriodAvailability,
+    handleRemovePeriodAvailability,
+    handleUpdatePeriodAvailability,
+    handlePeriodBlockSelection,
   };
 }

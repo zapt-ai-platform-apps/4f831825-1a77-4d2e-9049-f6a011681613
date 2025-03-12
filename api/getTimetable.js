@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { db } from "./_dbClient.js";
-import { timetableEntries } from "../drizzle/schema.js";
+import { timetableEntries, periodSpecificAvailability } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -24,25 +24,70 @@ export default async function handler(req, res) {
 
     const user = await authenticateUser(req);
 
-    // Get all timetable entries for the user
-    const entries = await db
+    // Fetch timetable entries
+    const result = await db
       .select()
       .from(timetableEntries)
       .where(eq(timetableEntries.userId, user.id));
 
-    console.log(`Retrieved ${entries.length} timetable entries for user ${user.id}`);
-
-    // Group entries by date for easier consumption in the UI
-    const groupedEntries = entries.reduce((acc, entry) => {
-      if (!acc[entry.date]) {
-        acc[entry.date] = [];
+    // Format the timetable data by date
+    const timetableByDate = {};
+    for (const entry of result) {
+      if (!timetableByDate[entry.date]) {
+        timetableByDate[entry.date] = [];
       }
-      acc[entry.date].push(entry);
-      return acc;
-    }, {});
+      timetableByDate[entry.date].push({
+        block: entry.block,
+        subject: entry.subject,
+        startTime: entry.startTime ? entry.startTime.slice(0, 5) : null,
+        endTime: entry.endTime ? entry.endTime.slice(0, 5) : null,
+        isUserCreated: entry.isUserCreated,
+        isComplete: entry.isComplete
+      });
+    }
 
-    res.status(200).json({
-      data: groupedEntries
+    // Fetch period-specific availability data
+    const periodAvailabilityResult = await db
+      .select()
+      .from(periodSpecificAvailability)
+      .where(eq(periodSpecificAvailability.userId, user.id));
+
+    // Process period-specific availability data
+    const periodAvailability = [];
+    
+    // Group by start and end dates
+    const periodsByDate = {};
+    for (const row of periodAvailabilityResult) {
+      const key = `${row.startDate}-${row.endDate}`;
+      if (!periodsByDate[key]) {
+        periodsByDate[key] = {
+          startDate: row.startDate,
+          endDate: row.endDate,
+          revisionTimes: {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          }
+        };
+      }
+      
+      if (row.isAvailable) {
+        periodsByDate[key].revisionTimes[row.dayOfWeek].push(row.block);
+      }
+    }
+
+    // Convert to array
+    for (const key in periodsByDate) {
+      periodAvailability.push(periodsByDate[key]);
+    }
+
+    res.status(200).json({ 
+      data: timetableByDate, 
+      periodAvailability 
     });
   } catch (error) {
     Sentry.captureException(error);

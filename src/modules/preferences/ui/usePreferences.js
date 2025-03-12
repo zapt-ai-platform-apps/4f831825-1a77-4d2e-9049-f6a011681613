@@ -16,6 +16,10 @@ export function usePreferences() {
     handleBlockTimesChange: preferencesState.handleBlockTimesChange,
     handleBlockSelection: preferencesState.handleBlockSelection,
     handleStartDateChange: preferencesState.handleStartDateChange,
-    savePreferences: preferencesState.handleSave
+    savePreferences: preferencesState.handleSave,
+    handleAddPeriodAvailability: preferencesState.handleAddPeriodAvailability,
+    handleRemovePeriodAvailability: preferencesState.handleRemovePeriodAvailability,
+    handleUpdatePeriodAvailability: preferencesState.handleUpdatePeriodAvailability,
+    handlePeriodBlockSelection: preferencesState.handlePeriodBlockSelection
   };
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import BlockTimeForm from './BlockTimeForm';
 import RevisionTimesSelector from './RevisionTimesSelector';
 import StartDatePicker from './StartDatePicker';
+import PeriodSpecificAvailability from './PeriodSpecificAvailability';
 
 /**
  * Form for setting preferences
@@ -15,7 +16,11 @@ function PreferencesForm({
   handleSave,
   handleBlockTimesChange,
   handleBlockSelection,
-  handleStartDateChange
+  handleStartDateChange,
+  handleAddPeriodAvailability,
+  handleRemovePeriodAvailability,
+  handleUpdatePeriodAvailability,
+  handlePeriodBlockSelection
 }) {
   return (
     <div className="space-y-12">
@@ -37,6 +42,14 @@ function PreferencesForm({
       <StartDatePicker
         startDate={preferences.startDate}
         onChange={handleStartDateChange}
+      />
+
+      <PeriodSpecificAvailability
+        periodSpecificAvailability={preferences.periodSpecificAvailability}
+        onAdd={handleAddPeriodAvailability}
+        onRemove={handleRemovePeriodAvailability}
+        onUpdate={handleUpdatePeriodAvailability}
+        onBlockSelection={handlePeriodBlockSelection}
       />
       
       {error && <p className="text-destructive text-center">{error}</p>}

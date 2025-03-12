@@ -22,6 +22,30 @@ export function validatePreferencesInput(preferences) {
   if (!hasSelectedBlock) {
     throw new Error('Please select at least one revision time');
   }
+
+  // Validate period-specific availability if present
+  if (preferences.periodSpecificAvailability && preferences.periodSpecificAvailability.length > 0) {
+    for (const period of preferences.periodSpecificAvailability) {
+      // Check required fields
+      if (!period.startDate || !period.endDate) {
+        throw new Error('Start and end dates are required for each specific period');
+      }
+
+      // Check date order
+      if (new Date(period.endDate) < new Date(period.startDate)) {
+        throw new Error('End date must be after or equal to start date for each specific period');
+      }
+
+      // Check if at least one block is selected
+      const hasPeriodBlock = Object.values(period.revisionTimes).some(
+        (blocks) => blocks.length > 0
+      );
+
+      if (!hasPeriodBlock) {
+        throw new Error('Please select at least one revision time for each specific period');
+      }
+    }
+  }
   
   return true;
 }
@@ -51,11 +75,32 @@ export function preparePreferencesForSaving(preferences) {
       filteredBlockTimes[block] = times;
     }
   });
+
+  // Filter and validate period-specific availability
+  const filteredPeriodSpecificAvailability = (preferences.periodSpecificAvailability || [])
+    .filter(period => period.startDate && period.endDate)
+    .map(period => {
+      // Filter revision times for each period
+      const periodRevisionTimes = {};
+      Object.keys(period.revisionTimes).forEach((day) => {
+        const dayBlocks = period.revisionTimes[day];
+        periodRevisionTimes[day] = dayBlocks.filter((block) =>
+          validBlocks.includes(block)
+        );
+      });
+
+      return {
+        startDate: period.startDate,
+        endDate: period.endDate,
+        revisionTimes: periodRevisionTimes
+      };
+    });
   
   return {
     startDate: preferences.startDate,
     revisionTimes: filteredRevisionTimes,
-    blockTimes: filteredBlockTimes
+    blockTimes: filteredBlockTimes,
+    periodSpecificAvailability: filteredPeriodSpecificAvailability
   };
 }
 

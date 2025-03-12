@@ -19,6 +19,10 @@ function PreferencesScreen() {
     handleBlockSelection,
     handleStartDateChange,
     handleSave,
+    handleAddPeriodAvailability,
+    handleRemovePeriodAvailability,
+    handleUpdatePeriodAvailability,
+    handlePeriodBlockSelection,
   } = usePreferencesState();
 
   const handleSavePreferences = async () => {
@@ -49,6 +53,10 @@ function PreferencesScreen() {
                 handleBlockTimesChange={handleBlockTimesChange}
                 handleBlockSelection={handleBlockSelection}
                 handleStartDateChange={handleStartDateChange}
+                handleAddPeriodAvailability={handleAddPeriodAvailability}
+                handleRemovePeriodAvailability={handleRemovePeriodAvailability}
+                handleUpdatePeriodAvailability={handleUpdatePeriodAvailability}
+                handlePeriodBlockSelection={handlePeriodBlockSelection}
               />
             </div>
           )}

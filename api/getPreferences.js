@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
 import { authenticateUser } from "./_apiUtils.js";
 import { db } from "./_dbClient.js";
-import { preferences, revisionTimes, blockTimes } from "../drizzle/schema.js";
+import { preferences, revisionTimes, blockTimes, periodSpecificAvailability } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 Sentry.init({
@@ -71,10 +71,50 @@ export default async function handler(req, res) {
       };
     }
 
+    // Get period-specific availability data
+    const periodAvailabilityResult = await db
+      .select()
+      .from(periodSpecificAvailability)
+      .where(eq(periodSpecificAvailability.userId, user.id));
+
+    // Process period-specific availability data
+    const processedPeriodAvailability = [];
+    
+    // Group by start and end dates
+    const periodsByDate = {};
+    for (const row of periodAvailabilityResult) {
+      const key = `${row.startDate}-${row.endDate}`;
+      if (!periodsByDate[key]) {
+        periodsByDate[key] = {
+          startDate: row.startDate,
+          endDate: row.endDate,
+          revisionTimes: {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          }
+        };
+      }
+      
+      if (row.isAvailable) {
+        periodsByDate[key].revisionTimes[row.dayOfWeek].push(row.block);
+      }
+    }
+
+    // Convert to array
+    for (const key in periodsByDate) {
+      processedPeriodAvailability.push(periodsByDate[key]);
+    }
+
     const data = {
       startDate: userPreferences.startDate,
       revisionTimes: revisionTimesData,
       blockTimes: blockTimesData,
+      periodSpecificAvailability: processedPeriodAvailability,
     };
 
     res.status(200).json({ data: data });
