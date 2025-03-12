@@ -1,46 +1,46 @@
-import * as Sentry from "@sentry/node";
-import { authenticateUser } from "./_apiUtils.js";
-import { db } from "./_dbClient.js";
-import { preferences, revisionTimes, blockTimes, periodSpecificAvailability } from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
-
-Sentry.init({
-  dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
-  environment: process.env.VITE_PUBLIC_APP_ENV,
-  initialScope: {
-    tags: {
-      type: "backend",
-      projectId: process.env.VITE_PUBLIC_APP_ID,
-    },
-  },
-});
+import { authenticateUser } from './_apiUtils.js';
+import * as Sentry from '@sentry/node';
+import { db } from './_dbClient.js';
+import { preferences, revisionTimes, blockTimes, periodSpecificAvailability } from '../drizzle/schema.js';
+import { eq, and } from 'drizzle-orm';
 
 export default async function handler(req, res) {
   try {
-    if (req.method !== "GET") {
-      res.setHeader("Allow", ["GET"]);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    console.log('Getting preferences...');
+    
+    // Check if request method is GET
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed, expected GET' });
     }
-
+    
+    // Get user from auth token
     const user = await authenticateUser(req);
-
-    const preferencesResult = await db
-      .select()
-      .from(preferences)
-      .where(eq(preferences.userId, user.id));
-
-    if (!preferencesResult.length) {
+    if (!user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    console.log(`Getting preferences for user: ${user.id}`);
+    
+    // Get user preferences from database
+    const userPreferences = await db.select().from(preferences).where(eq(preferences.userId, user.id));
+    
+    if (userPreferences.length === 0) {
+      console.log('No preferences found for user');
       return res.status(200).json({ data: null });
     }
-
-    const userPreferences = preferencesResult[0];
-
-    const revisionTimesResult = await db
-      .select()
-      .from(revisionTimes)
-      .where(eq(revisionTimes.userId, user.id));
-
-    const revisionTimesData = {
+    
+    // Get revision times
+    const userRevisionTimes = await db.select().from(revisionTimes).where(eq(revisionTimes.userId, user.id));
+    
+    // Get block times
+    const userBlockTimes = await db.select().from(blockTimes).where(eq(blockTimes.userId, user.id));
+    
+    // Get period-specific availability
+    const userPeriodSpecificAvailability = await db.select().from(periodSpecificAvailability)
+      .where(eq(periodSpecificAvailability.userId, user.id));
+    
+    // Format revision times
+    const formattedRevisionTimes = {
       monday: [],
       tuesday: [],
       wednesday: [],
@@ -49,45 +49,30 @@ export default async function handler(req, res) {
       saturday: [],
       sunday: [],
     };
-
-    for (const row of revisionTimesResult) {
-      if (!revisionTimesData[row.dayOfWeek]) {
-        revisionTimesData[row.dayOfWeek] = [];
-      }
-      revisionTimesData[row.dayOfWeek].push(row.block);
-    }
-
-    const blockTimesResult = await db
-      .select()
-      .from(blockTimes)
-      .where(eq(blockTimes.userId, user.id));
-
-    const blockTimesData = {};
-
-    for (const row of blockTimesResult) {
-      blockTimesData[row.blockName] = {
-        startTime: row.startTime ? row.startTime.slice(0, 5) : '',
-        endTime: row.endTime ? row.endTime.slice(0, 5) : '',
-      };
-    }
-
-    // Get period-specific availability data
-    const periodAvailabilityResult = await db
-      .select()
-      .from(periodSpecificAvailability)
-      .where(eq(periodSpecificAvailability.userId, user.id));
-
-    // Process period-specific availability data
-    const processedPeriodAvailability = [];
     
-    // Group by start and end dates
-    const periodsByDate = {};
-    for (const row of periodAvailabilityResult) {
-      const key = `${row.startDate}-${row.endDate}`;
-      if (!periodsByDate[key]) {
-        periodsByDate[key] = {
-          startDate: row.startDate,
-          endDate: row.endDate,
+    userRevisionTimes.forEach(time => {
+      formattedRevisionTimes[time.dayOfWeek].push(time.block);
+    });
+    
+    // Format block times
+    const formattedBlockTimes = {};
+    userBlockTimes.forEach(block => {
+      formattedBlockTimes[block.blockName] = {
+        startTime: block.startTime,
+        endTime: block.endTime,
+      };
+    });
+    
+    // Group period-specific availability by date ranges
+    const periodRangeMap = new Map();
+    
+    userPeriodSpecificAvailability.forEach(periodItem => {
+      const key = `${periodItem.startDate}-${periodItem.endDate}`;
+      
+      if (!periodRangeMap.has(key)) {
+        periodRangeMap.set(key, {
+          startDate: periodItem.startDate,
+          endDate: periodItem.endDate,
           revisionTimes: {
             monday: [],
             tuesday: [],
@@ -97,30 +82,28 @@ export default async function handler(req, res) {
             saturday: [],
             sunday: [],
           }
-        };
+        });
       }
       
-      if (row.isAvailable) {
-        periodsByDate[key].revisionTimes[row.dayOfWeek].push(row.block);
+      if (periodItem.isAvailable) {
+        periodRangeMap.get(key).revisionTimes[periodItem.dayOfWeek].push(periodItem.block);
       }
-    }
-
-    // Convert to array
-    for (const key in periodsByDate) {
-      processedPeriodAvailability.push(periodsByDate[key]);
-    }
-
-    const data = {
-      startDate: userPreferences.startDate,
-      revisionTimes: revisionTimesData,
-      blockTimes: blockTimesData,
-      periodSpecificAvailability: processedPeriodAvailability,
+    });
+    
+    // Format the complete preferences object
+    const formattedPreferences = {
+      startDate: userPreferences[0].startDate,
+      revisionTimes: formattedRevisionTimes,
+      blockTimes: formattedBlockTimes,
+      periodSpecificAvailability: Array.from(periodRangeMap.values())
     };
-
-    res.status(200).json({ data: data });
+    
+    console.log('Successfully retrieved preferences with period-specific availability');
+    
+    return res.status(200).json({ data: formattedPreferences });
   } catch (error) {
+    console.error('Error getting preferences:', error);
     Sentry.captureException(error);
-    console.error("Error fetching preferences:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
+    return res.status(500).json({ error: 'Failed to get preferences' });
   }
 }

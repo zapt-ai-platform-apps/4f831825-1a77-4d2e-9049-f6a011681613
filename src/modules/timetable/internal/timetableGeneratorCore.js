@@ -67,8 +67,16 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
   const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
   const dayOfWeek = getDayOfWeek(dayBefore);
   
+  // Get available blocks for day before considering period-specific availability
+  const availableBlocks = getAvailableBlocksForDay(
+    dayBeforeStr, 
+    dayOfWeek, 
+    revisionTimes, 
+    revisionTimes.periodSpecificAvailability
+  );
+  
   // Check if the previous day has an evening block available for revision
-  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
+  if (availableBlocks.includes('Evening')) {
     // Check if this slot is not already an exam slot or reserved
     const slotKey = `${dayBeforeStr}-Evening`;
     
@@ -83,7 +91,7 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
   }
   
   // Try Afternoon slot on the day before
-  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Afternoon')) {
+  if (availableBlocks.includes('Afternoon')) {
     const slotKey = `${dayBeforeStr}-Afternoon`;
     
     if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
@@ -109,9 +117,17 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
     const examDayStr = exam.examDate;
     const examDayOfWeek = getDayOfWeek(examDate);
     
+    // Get available blocks for exam day considering period-specific availability
+    const examDayAvailableBlocks = getAvailableBlocksForDay(
+      examDayStr, 
+      examDayOfWeek, 
+      revisionTimes, 
+      revisionTimes.periodSpecificAvailability
+    );
+    
     for (const block of blocksToTry) {
       // Check if this block is available for revision
-      if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
+      if (examDayAvailableBlocks.includes(block)) {
         // Check if this slot is not already an exam slot or reserved
         const slotKey = `${examDayStr}-${block}`;
         

@@ -1,59 +1,145 @@
-import * as Sentry from "@sentry/node";
-import { authenticateUser } from "./_apiUtils.js";
-import { deleteUserData, insertPreferences, insertRevisionTimes, insertBlockTimes, insertPeriodSpecificAvailability } from "./preferencesService.js";
-
-Sentry.init({
-  dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
-  environment: process.env.VITE_PUBLIC_APP_ENV,
-  initialScope: {
-    tags: {
-      type: "backend",
-      projectId: process.env.VITE_PUBLIC_APP_ID,
-    },
-  },
-});
+import { authenticateUser } from './_apiUtils.js';
+import * as Sentry from '@sentry/node';
+import { db } from './_dbClient.js';
+import { preferences, revisionTimes, blockTimes, periodSpecificAvailability } from '../drizzle/schema.js';
+import { eq, and } from 'drizzle-orm';
 
 export default async function handler(req, res) {
   try {
+    console.log('Saving preferences...');
+    
+    // Check if request method is POST
     if (req.method !== 'POST') {
-      res.setHeader('Allow', ['POST']);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).json({ error: 'Method not allowed, expected POST' });
     }
-
+    
+    // Get user from auth token
     const user = await authenticateUser(req);
-    const body = req.body;
-    const { data: prefsData } = body;
-
-    if (!prefsData) {
-      return res.status(400).json({ error: 'Preferences data is required' });
+    if (!user) {
+      return res.status(401).json({ error: 'User not authenticated' });
     }
-
-    if (!prefsData.startDate) {
+    
+    // Parse request body
+    const { data } = req.body;
+    
+    if (!data) {
+      return res.status(400).json({ error: 'No data provided' });
+    }
+    
+    // Validate required fields
+    if (!data.startDate) {
       return res.status(400).json({ error: 'Start date is required' });
     }
-
-    const hasAtLeastOneBlockSelected = Object.values(prefsData.revisionTimes || {}).some(
-      (blocks) => blocks && blocks.length > 0
-    );
-
-    if (!hasAtLeastOneBlockSelected) {
-      return res.status(400).json({ error: 'At least one revision time must be selected.' });
-    }
-
-    await deleteUserData(user.id);
-    await insertPreferences(user.id, prefsData);
-    await insertRevisionTimes(user.id, prefsData);
-    await insertBlockTimes(user.id, prefsData);
     
-    // Handle period-specific availability if present
-    if (prefsData.periodSpecificAvailability && Array.isArray(prefsData.periodSpecificAvailability)) {
-      await insertPeriodSpecificAvailability(user.id, prefsData.periodSpecificAvailability);
+    if (!data.revisionTimes) {
+      return res.status(400).json({ error: 'Revision times are required' });
     }
-
-    res.status(200).json({ message: 'Preferences saved and old timetable removed' });
+    
+    console.log(`Saving preferences for user: ${user.id}`);
+    
+    // Begin a transaction
+    await db.transaction(async (tx) => {
+      // Save or update preferences
+      const existingPrefs = await tx.select()
+        .from(preferences)
+        .where(eq(preferences.userId, user.id));
+      
+      if (existingPrefs.length > 0) {
+        await tx.update(preferences)
+          .set({ startDate: data.startDate })
+          .where(eq(preferences.userId, user.id));
+      } else {
+        await tx.insert(preferences)
+          .values({
+            userId: user.id,
+            startDate: data.startDate,
+          });
+      }
+      
+      // Delete existing revision times
+      await tx.delete(revisionTimes)
+        .where(eq(revisionTimes.userId, user.id));
+      
+      // Insert new revision times
+      const revisionTimesInserts = [];
+      
+      Object.entries(data.revisionTimes).forEach(([dayOfWeek, blocks]) => {
+        blocks.forEach(block => {
+          revisionTimesInserts.push({
+            userId: user.id,
+            dayOfWeek,
+            block,
+          });
+        });
+      });
+      
+      if (revisionTimesInserts.length > 0) {
+        await tx.insert(revisionTimes).values(revisionTimesInserts);
+      }
+      
+      // Save block times
+      if (data.blockTimes) {
+        // Delete existing block times
+        await tx.delete(blockTimes)
+          .where(eq(blockTimes.userId, user.id));
+        
+        // Insert new block times
+        const blockTimesInserts = [];
+        
+        Object.entries(data.blockTimes).forEach(([blockName, times]) => {
+          if (times && times.startTime && times.endTime) {
+            blockTimesInserts.push({
+              userId: user.id,
+              blockName,
+              startTime: times.startTime,
+              endTime: times.endTime,
+            });
+          }
+        });
+        
+        if (blockTimesInserts.length > 0) {
+          await tx.insert(blockTimes).values(blockTimesInserts);
+        }
+      }
+      
+      // Save period-specific availability
+      if (data.periodSpecificAvailability && Array.isArray(data.periodSpecificAvailability)) {
+        // Delete existing period-specific availability for this user
+        await tx.delete(periodSpecificAvailability)
+          .where(eq(periodSpecificAvailability.userId, user.id));
+        
+        // Insert new period-specific availability records
+        const periodAvailabilityInserts = [];
+        
+        data.periodSpecificAvailability.forEach(period => {
+          if (period.startDate && period.endDate && period.revisionTimes) {
+            Object.entries(period.revisionTimes).forEach(([dayOfWeek, blocks]) => {
+              blocks.forEach(block => {
+                periodAvailabilityInserts.push({
+                  userId: user.id,
+                  startDate: period.startDate,
+                  endDate: period.endDate,
+                  dayOfWeek,
+                  block,
+                  isAvailable: true
+                });
+              });
+            });
+          }
+        });
+        
+        if (periodAvailabilityInserts.length > 0) {
+          await tx.insert(periodSpecificAvailability).values(periodAvailabilityInserts);
+        }
+      }
+    });
+    
+    console.log('Successfully saved preferences with period-specific availability');
+    
+    return res.status(200).json({ message: 'Preferences saved successfully' });
   } catch (error) {
-    Sentry.captureException(error);
     console.error('Error saving preferences:', error);
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    Sentry.captureException(error);
+    return res.status(500).json({ error: 'Failed to save preferences' });
   }
 }
