@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
+import { FaTrash, FaEdit, FaPlus, FaClone } from 'react-icons/fa';
 
 /**
  * Component for managing period-specific availability
@@ -62,6 +62,17 @@ function PeriodSpecificAvailability({
     setError('');
   };
 
+  const handleDuplicatePeriod = (index) => {
+    const periodToDuplicate = {...periodSpecificAvailability[index]};
+    setIsAddingPeriod(true);
+    setNewPeriod({
+      ...periodToDuplicate,
+      startDate: '',
+      endDate: ''
+    });
+    setError('');
+  };
+
   const handleSavePeriod = () => {
     // Validate dates
     if (!newPeriod.startDate || !newPeriod.endDate) {
@@ -81,6 +92,27 @@ function PeriodSpecificAvailability({
 
     if (!hasBlock) {
       setError('Select at least one revision time');
+      return;
+    }
+
+    // Check if this period overlaps with existing periods (except the one being edited)
+    const newStartDate = new Date(newPeriod.startDate);
+    const newEndDate = new Date(newPeriod.endDate);
+    
+    const hasOverlap = periodSpecificAvailability.some((period, idx) => {
+      if (idx === editingIndex) return false; // Skip the period being edited
+      
+      const periodStartDate = new Date(period.startDate);
+      const periodEndDate = new Date(period.endDate);
+      
+      // Check for overlap
+      return (
+        (newStartDate <= periodEndDate && newEndDate >= periodStartDate)
+      );
+    });
+    
+    if (hasOverlap) {
+      setError('This period overlaps with an existing time period. Please choose different dates.');
       return;
     }
 
@@ -234,9 +266,18 @@ function PeriodSpecificAvailability({
                     </div>
                     <div className="flex space-x-2">
                       <button
+                        onClick={() => handleDuplicatePeriod(index)}
+                        className="p-1 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 cursor-pointer"
+                        aria-label="Duplicate period"
+                        title="Duplicate period"
+                      >
+                        <FaClone />
+                      </button>
+                      <button
                         onClick={() => handleEditPeriod(index)}
                         className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 cursor-pointer"
                         aria-label="Edit period"
+                        title="Edit period"
                       >
                         <FaEdit />
                       </button>
@@ -244,6 +285,7 @@ function PeriodSpecificAvailability({
                         onClick={() => onRemove(index)}
                         className="p-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 cursor-pointer"
                         aria-label="Remove period"
+                        title="Remove period"
                       >
                         <FaTrash />
                       </button>

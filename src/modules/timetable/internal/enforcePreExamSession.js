@@ -17,11 +17,19 @@ function findPeriodForDate(date, periodSpecificAvailability) {
   const dateObj = parseISO(date);
   
   for (const period of periodSpecificAvailability) {
-    if (isWithinInterval(dateObj, {
-      start: parseISO(period.startDate),
-      end: parseISO(period.endDate)
-    })) {
-      return period;
+    if (!period.startDate || !period.endDate) continue;
+    
+    try {
+      if (isWithinInterval(dateObj, {
+        start: parseISO(period.startDate),
+        end: parseISO(period.endDate)
+      })) {
+        return period;
+      }
+    } catch (error) {
+      console.error('Error checking if date is within interval:', error);
+      Sentry.captureException(error);
+      // Continue to next period
     }
   }
   

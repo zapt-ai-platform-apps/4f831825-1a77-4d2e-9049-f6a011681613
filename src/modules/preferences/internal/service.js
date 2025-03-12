@@ -25,6 +25,8 @@ export function validatePreferencesInput(preferences) {
 
   // Validate period-specific availability if present
   if (preferences.periodSpecificAvailability && preferences.periodSpecificAvailability.length > 0) {
+    const periodRanges = new Map();
+
     for (const period of preferences.periodSpecificAvailability) {
       // Check required fields
       if (!period.startDate || !period.endDate) {
@@ -43,6 +45,21 @@ export function validatePreferencesInput(preferences) {
 
       if (!hasPeriodBlock) {
         throw new Error('Please select at least one revision time for each specific period');
+      }
+
+      // Check for overlapping date ranges
+      const startDate = new Date(period.startDate);
+      const endDate = new Date(period.endDate);
+      const periodKey = `${period.startDate}-${period.endDate}`;
+      periodRanges.set(periodKey, { startDate, endDate });
+
+      // Check if this period overlaps with another period
+      for (const [otherKey, otherRange] of periodRanges.entries()) {
+        if (otherKey === periodKey) continue; // Skip comparing to self
+
+        if (startDate <= otherRange.endDate && endDate >= otherRange.startDate) {
+          throw new Error('Period-specific availability dates cannot overlap');
+        }
       }
     }
   }

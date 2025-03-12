@@ -72,7 +72,7 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
     dayBeforeStr, 
     dayOfWeek, 
     revisionTimes, 
-    revisionTimes.periodSpecificAvailability
+    revisionTimes.periodSpecificAvailability || []
   );
   
   // Check if the previous day has an evening block available for revision
@@ -103,6 +103,19 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
     }
   }
   
+  // Try Morning slot on the day before
+  if (availableBlocks.includes('Morning')) {
+    const slotKey = `${dayBeforeStr}-Morning`;
+    
+    if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
+      const session = createSession(dayBeforeStr, 'Morning', examSubject, blockTimes);
+      preExamSessions.push(session);
+      reservedSlots.add(slotKey);
+      console.log(`Created pre-exam morning session on ${dayBeforeStr} for ${examSubject}`);
+      return;
+    }
+  }
+  
   // If we couldn't create a session on the previous day, try earlier blocks on the exam day
   if (examBlock !== 'Morning') {
     const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
@@ -122,7 +135,7 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
       examDayStr, 
       examDayOfWeek, 
       revisionTimes, 
-      revisionTimes.periodSpecificAvailability
+      revisionTimes.periodSpecificAvailability || []
     );
     
     for (const block of blocksToTry) {
@@ -158,11 +171,20 @@ function findPeriodForDate(date, periodSpecificAvailability) {
   const dateObj = parseISO(date);
   
   for (const period of periodSpecificAvailability) {
-    if (isWithinInterval(dateObj, {
-      start: parseISO(period.startDate),
-      end: parseISO(period.endDate)
-    })) {
-      return period;
+    // Skip invalid periods
+    if (!period.startDate || !period.endDate) continue;
+    
+    try {
+      if (isWithinInterval(dateObj, {
+        start: parseISO(period.startDate),
+        end: parseISO(period.endDate)
+      })) {
+        return period;
+      }
+    } catch (error) {
+      console.error('Error checking date interval:', error, { date, period });
+      Sentry.captureException(error);
+      // Continue to next period
     }
   }
   
@@ -214,7 +236,7 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
 
     // Check if any revision times are selected
     const hasRevisionTimes = Object.values(revisionTimes).some(
-      days => days && days.length > 0
+      days => Array.isArray(days) && days.length > 0
     );
 
     if (!hasRevisionTimes) {
