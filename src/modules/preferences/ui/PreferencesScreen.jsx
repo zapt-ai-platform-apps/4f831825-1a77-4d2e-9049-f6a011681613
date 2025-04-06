@@ -86,6 +86,18 @@ function PreferencesScreen() {
                 handleBlockSelection={handleBlockSelection}
                 handleStartDateChange={handleStartDateChange}
               />
+              
+              {/* Add button to return to calendar if user has already added exams */}
+              {hasExams && preferences?.startDate && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
+                    onClick={() => setShowCalendar(true)}
+                  >
+                    Back to Availability Calendar
+                  </button>
+                </div>
+              )}
             </div>
           )}
           

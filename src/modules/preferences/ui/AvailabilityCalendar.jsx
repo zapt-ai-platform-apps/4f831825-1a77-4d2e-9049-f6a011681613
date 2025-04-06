@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { format, addDays, parseISO, startOfMonth, endOfMonth, getDay, isValid } from 'date-fns';
+import React, { useState, useEffect, useRef } from 'react';
+import { format, addDays, parseISO, startOfMonth, endOfMonth, getDay, isValid, isBefore, isAfter, isSameMonth } from 'date-fns';
 import { api as preferencesApi } from '../api';
 import { api as examsApi } from '../../exams/api';
 import * as Sentry from '@sentry/browser';
@@ -14,6 +14,8 @@ function AvailabilityCalendar({ preferences, onSave }) {
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
   const [error, setError] = useState(null);
   const [calendar, setCalendar] = useState([]);
+  const startDateRef = useRef(null);
+  const lastExamDateRef = useRef(null);
   
   // Fetch exams and period-specific availability
   useEffect(() => {
@@ -32,8 +34,18 @@ function AvailabilityCalendar({ preferences, onSave }) {
         if (preferences?.startDate) {
           const startDate = parseISO(preferences.startDate);
           if (isValid(startDate)) {
+            startDateRef.current = startDate;
             setDisplayedMonth(startDate);
           }
+        }
+
+        // Find the latest exam date
+        if (examsData && examsData.length > 0) {
+          const lastExamDate = examsData.reduce((latest, exam) => {
+            const examDate = parseISO(exam.examDate);
+            return !latest || examDate > latest ? examDate : latest;
+          }, null);
+          lastExamDateRef.current = lastExamDate;
         }
       } catch (error) {
         console.error('Error fetching data for availability calendar:', error);
@@ -52,6 +64,7 @@ function AvailabilityCalendar({ preferences, onSave }) {
     if (!preferences || !preferences.startDate) return;
     
     const startDate = parseISO(preferences.startDate);
+    startDateRef.current = startDate;
     let lastExamDate;
     
     if (exams.length > 0) {
@@ -60,9 +73,11 @@ function AvailabilityCalendar({ preferences, onSave }) {
         const examDate = parseISO(exam.examDate);
         return !latest || examDate > latest ? examDate : latest;
       }, null);
+      lastExamDateRef.current = lastExamDate;
     } else {
       // Default to 30 days if no exams
       lastExamDate = addDays(startDate, 30);
+      lastExamDateRef.current = lastExamDate;
     }
 
     if (isValid(startDate) && isValid(lastExamDate)) {
@@ -132,19 +147,29 @@ function AvailabilityCalendar({ preferences, onSave }) {
   };
 
   const handlePrevMonth = () => {
-    setDisplayedMonth(prevMonth => {
-      const newMonth = new Date(prevMonth);
-      newMonth.setMonth(prevMonth.getMonth() - 1);
-      return newMonth;
-    });
+    // Prevent navigating to months before the start date
+    const prevMonth = new Date(displayedMonth);
+    prevMonth.setMonth(prevMonth.getMonth() - 1);
+    
+    if (startDateRef.current && isBefore(startOfMonth(prevMonth), startOfMonth(startDateRef.current))) {
+      // Don't allow navigation if previous month starts before the start date's month
+      return;
+    }
+    
+    setDisplayedMonth(prevMonth);
   };
 
   const handleNextMonth = () => {
-    setDisplayedMonth(prevMonth => {
-      const newMonth = new Date(prevMonth);
-      newMonth.setMonth(prevMonth.getMonth() + 1);
-      return newMonth;
-    });
+    // Prevent navigating to months after the final exam
+    const nextMonth = new Date(displayedMonth);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    
+    if (lastExamDateRef.current && isAfter(startOfMonth(nextMonth), startOfMonth(lastExamDateRef.current))) {
+      // Don't allow navigation if next month starts after the last exam date's month
+      return;
+    }
+    
+    setDisplayedMonth(nextMonth);
   };
 
   const handleDateClick = (date) => {
@@ -207,6 +232,26 @@ function AvailabilityCalendar({ preferences, onSave }) {
     return getDay(monthStart); // 0 = Sunday, 1 = Monday, etc.
   };
 
+  // Check if previous month button should be disabled
+  const isPrevMonthDisabled = () => {
+    if (!startDateRef.current) return false;
+    
+    const prevMonth = new Date(displayedMonth);
+    prevMonth.setMonth(prevMonth.getMonth() - 1);
+    
+    return isBefore(startOfMonth(prevMonth), startOfMonth(startDateRef.current));
+  };
+
+  // Check if next month button should be disabled
+  const isNextMonthDisabled = () => {
+    if (!lastExamDateRef.current) return false;
+    
+    const nextMonth = new Date(displayedMonth);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    
+    return isAfter(startOfMonth(nextMonth), startOfMonth(lastExamDateRef.current));
+  };
+
   if (loading) {
     return <LoadingOverlay message="Loading your availability calendar..." />;
   }
@@ -230,7 +275,10 @@ function AvailabilityCalendar({ preferences, onSave }) {
       <div className="flex justify-between items-center mb-4 px-2">
         <button
           onClick={handlePrevMonth}
-          className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-2 rounded cursor-pointer"
+          disabled={isPrevMonthDisabled()}
+          className={`bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-2 rounded cursor-pointer ${
+            isPrevMonthDisabled() ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
           &lt; Previous
         </button>
@@ -239,7 +287,10 @@ function AvailabilityCalendar({ preferences, onSave }) {
         </h4>
         <button
           onClick={handleNextMonth}
-          className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-2 rounded cursor-pointer"
+          disabled={isNextMonthDisabled()}
+          className={`bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-2 rounded cursor-pointer ${
+            isNextMonthDisabled() ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
           Next &gt;
         </button>
