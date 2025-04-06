@@ -1,46 +1,38 @@
-import * as Sentry from "@sentry/node";
-import { authenticateUser } from "./_apiUtils.js";
-import { db } from "./_dbClient.js";
-import { preferences, revisionTimes, blockTimes } from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
-
-Sentry.init({
-  dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
-  environment: process.env.VITE_PUBLIC_APP_ENV,
-  initialScope: {
-    tags: {
-      type: "backend",
-      projectId: process.env.VITE_PUBLIC_APP_ID,
-    },
-  },
-});
+import { authenticateUser } from './_apiUtils.js';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { preferences, revisionTimes, blockTimes } from '../drizzle/schema.js';
+import { eq } from 'drizzle-orm';
+import * as Sentry from '@sentry/node';
 
 export default async function handler(req, res) {
   try {
-    if (req.method !== "GET") {
-      res.setHeader("Allow", ["GET"]);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
-
+    // Authenticate user
     const user = await authenticateUser(req);
-
-    const preferencesResult = await db
-      .select()
-      .from(preferences)
-      .where(eq(preferences.userId, user.id));
-
-    if (!preferencesResult.length) {
+    
+    // Connect to database
+    const client = postgres(process.env.COCKROACH_DB_URL);
+    const db = drizzle(client);
+    
+    console.log('[API] Getting preferences for user:', user.id);
+    
+    // Get user preferences
+    const userPreferences = await db.select().from(preferences).where(eq(preferences.userId, user.id));
+    
+    // Get user's revision times
+    const userRevisionTimes = await db.select().from(revisionTimes).where(eq(revisionTimes.userId, user.id));
+    
+    // Get user's block times
+    const userBlockTimes = await db.select().from(blockTimes).where(eq(blockTimes.userId, user.id));
+    
+    // If no preferences found, return empty object
+    if (userPreferences.length === 0) {
+      console.log('[API] No preferences found for user:', user.id);
       return res.status(200).json({ data: null });
     }
-
-    const userPreferences = preferencesResult[0];
-
-    const revisionTimesResult = await db
-      .select()
-      .from(revisionTimes)
-      .where(eq(revisionTimes.userId, user.id));
-
-    const revisionTimesData = {
+    
+    // Format revision times by day of week
+    const formattedRevisionTimes = {
       monday: [],
       tuesday: [],
       wednesday: [],
@@ -49,38 +41,39 @@ export default async function handler(req, res) {
       saturday: [],
       sunday: [],
     };
-
-    for (const row of revisionTimesResult) {
-      if (!revisionTimesData[row.dayOfWeek]) {
-        revisionTimesData[row.dayOfWeek] = [];
+    
+    userRevisionTimes.forEach(time => {
+      const day = time.dayOfWeek.toLowerCase();
+      if (formattedRevisionTimes[day]) {
+        formattedRevisionTimes[day].push(time.block);
       }
-      revisionTimesData[row.dayOfWeek].push(row.block);
-    }
-
-    const blockTimesResult = await db
-      .select()
-      .from(blockTimes)
-      .where(eq(blockTimes.userId, user.id));
-
-    const blockTimesData = {};
-
-    for (const row of blockTimesResult) {
-      blockTimesData[row.blockName] = {
-        startTime: row.startTime ? row.startTime.slice(0, 5) : '',
-        endTime: row.endTime ? row.endTime.slice(0, 5) : '',
+    });
+    
+    // Format block times
+    const formattedBlockTimes = {};
+    userBlockTimes.forEach(time => {
+      formattedBlockTimes[time.blockName] = {
+        startTime: time.startTime.substring(0, 5), // Format time as HH:MM
+        endTime: time.endTime.substring(0, 5),
       };
-    }
-
-    const data = {
-      startDate: userPreferences.startDate,
-      revisionTimes: revisionTimesData,
-      blockTimes: blockTimesData,
+    });
+    
+    console.log('[API] Retrieved startDate:', userPreferences[0].startDate);
+    
+    // Format response
+    const response = {
+      startDate: userPreferences[0].startDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      revisionTimes: formattedRevisionTimes,
+      blockTimes: formattedBlockTimes,
     };
-
-    res.status(200).json({ data: data });
+    
+    console.log('[API] Sending preferences response:', response);
+    
+    // Return formatted preferences
+    return res.status(200).json({ data: response });
   } catch (error) {
+    console.error('Error getting preferences:', error);
     Sentry.captureException(error);
-    console.error("Error fetching preferences:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
+    return res.status(500).json({ error: 'Failed to get preferences' });
   }
 }

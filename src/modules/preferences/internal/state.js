@@ -41,16 +41,22 @@ export function usePreferencesState() {
       try {
         const data = await preferencesApi.getPreferences();
         
+        console.log('[Preferences State] Retrieved data from API:', data);
+        
         if (data) {
-          // Merge with defaults to ensure all properties exist
-          setPreferences({
+          // Ensure startDate is properly preserved
+          const mergedPreferences = {
             ...DEFAULT_PREFERENCES,
             ...data,
             blockTimes: {
               ...DEFAULT_PREFERENCES.blockTimes,
               ...(data.blockTimes || {})
             }
-          });
+          };
+          
+          console.log('[Preferences State] Merged preferences:', mergedPreferences);
+          
+          setPreferences(mergedPreferences);
         }
       } catch (error) {
         console.error('Error fetching preferences:', error);
@@ -93,10 +99,11 @@ export function usePreferencesState() {
   
   // Handle start date change
   const handleStartDateChange = (date) => {
-    setPreferences({
-      ...preferences,
+    console.log('[Preferences State] Setting startDate to:', date);
+    setPreferences(prev => ({
+      ...prev,
       startDate: date,
-    });
+    }));
   };
   
   // Handle save
@@ -107,6 +114,8 @@ export function usePreferencesState() {
     try {
       // Validate first
       validatePreferencesInput(preferences);
+      
+      console.log('[Preferences State] Saving preferences:', preferences);
       
       // Save to server
       await savePreferences(preferences);
