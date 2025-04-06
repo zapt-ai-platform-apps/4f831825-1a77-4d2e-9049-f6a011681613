@@ -1,6 +1,5 @@
-import * as Sentry from "@sentry/node";
+import * as Sentry from '@sentry/node';
 
-// Initialize Sentry for backend error tracking
 Sentry.init({
   dsn: process.env.VITE_PUBLIC_SENTRY_DSN,
   environment: process.env.VITE_PUBLIC_APP_ENV,

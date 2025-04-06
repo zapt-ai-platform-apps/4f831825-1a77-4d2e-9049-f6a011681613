@@ -1,6 +1,7 @@
 import { makeAuthenticatedRequest, handleApiResponse } from '@/modules/core/api';
 import { validateTimetableEntry } from './validators';
 import { eventBus, events } from '@/modules/core/events';
+import { captureTimetableError } from './internal/errorUtils';
 
 /**
  * Timetable module public API
@@ -176,6 +177,15 @@ export const api = {
     try {
       return await generateTimetable(exams, startDate, revisionTimes, blockTimes);
     } catch (error) {
+      // Enhanced error handling with context
+      captureTimetableError(error, {
+        exams,
+        startDate,
+        revisionTimes,
+        blockTimes,
+        location: 'timetable/api.js:generateTimetable'
+      });
+      
       console.error('Error generating timetable:', error);
       throw error;
     }

@@ -4,6 +4,7 @@ import { getEligibleSubjects } from './getEligibleSubjects';
 import { createSession } from './sessionUtils';
 import { sortSessionsByBlock } from './utils/sessionSorter';
 import { createExamSlotsMap, sortExamsByDate } from './utils/examUtils';
+import { captureTimetableError } from './errorUtils';
 import * as Sentry from '@sentry/browser';
 import { addDays, parseISO, format } from 'date-fns';
 
@@ -138,6 +139,14 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
  * @returns {Array} Array of timetable entry objects
  */
 export async function generateTimetableCore(exams, startDate, revisionTimes, blockTimes = {}, idGenerator = null) {
+  const generationContext = {
+    exams: JSON.parse(JSON.stringify(exams || [])), // Deep clone to avoid mutation
+    startDate,
+    revisionTimes: JSON.parse(JSON.stringify(revisionTimes || {})), // Deep clone
+    blockTimes: JSON.parse(JSON.stringify(blockTimes || {})), // Deep clone
+    location: 'timetableGeneratorCore.js'
+  };
+  
   try {
     // Default ID generator if none provided
     const generateId = idGenerator || (() => 
@@ -161,12 +170,28 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
 
     // Sort exams by date
     const sortedExams = sortExamsByDate(exams);
+    
+    // Add sorting information to context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      examSortOrder: sortedExams.map(e => `${e.subject} (${e.examDate})`)
+    };
 
     // Find latest exam date
     const latestExamDate = sortedExams[sortedExams.length - 1].examDate;
 
     // Create date range from start date to latest exam date
     const dateRange = createDateRange(startDate, latestExamDate);
+    
+    // Add date range to context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      dateRange: {
+        start: startDate,
+        end: latestExamDate,
+        totalDays: dateRange.length
+      }
+    };
 
     // Create map of exam slots to avoid scheduling during exams
     const examSlots = createExamSlotsMap(sortedExams);
@@ -197,6 +222,13 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     });
 
     console.log("Initial subject counts after pre-exam sessions:", JSON.stringify(subjectCounts));
+    
+    // Add pre-exam session info to context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      preExamSessions: preExamSessions.length,
+      initialSubjectCounts: { ...subjectCounts }
+    };
 
     // Then fill in the rest of the timetable
     // Process each date in the range
@@ -250,6 +282,12 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     }
 
     console.log("Final subject counts:", JSON.stringify(subjectCounts));
+    
+    // Add final distribution to context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      finalSubjectCounts: { ...subjectCounts }
+    };
 
     // Use enforcePreExamSession as a final check to ensure we didn't miss anything
     let finalTimetable = enforcePreExamSession(
@@ -272,11 +310,25 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     
     // Sort the final timetable by date and block
     const sortedTimetable = sortSessionsByBlock(finalTimetable);
+    
+    // Add final timetable stats to context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      generatedEntries: sortedTimetable.length,
+      successfulGeneration: true
+    };
 
     return sortedTimetable;
   } catch (error) {
-    console.error('Error generating timetable:', error);
-    Sentry.captureException(error);
+    // Enhanced error handling with full context
+    generationContext.additionalData = {
+      ...generationContext.additionalData,
+      errorMessage: error.message,
+      errorStack: error.stack,
+      successfulGeneration: false
+    };
+    
+    captureTimetableError(error, generationContext);
     throw error;
   }
 }
