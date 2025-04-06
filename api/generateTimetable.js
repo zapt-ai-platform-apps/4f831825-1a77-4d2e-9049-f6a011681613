@@ -1,7 +1,7 @@
 import { authenticateUser } from './_apiUtils.js';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { timetableEntries } from '../drizzle/schema.js';
+import { timetableEntries, periodSpecificAvailability } from '../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/node';
 import { parseISO, isValid, isBefore } from 'date-fns';
@@ -48,12 +48,27 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Start date cannot be in the past' });
     }
 
-    // Generate timetable
-    const generatedEntries = await generateTimetableCore(exams, startDate, revisionTimes, blockTimes);
-
     // Initialize database client
     const client = postgres(process.env.COCKROACH_DB_URL);
     const db = drizzle(client);
+
+    // Get period-specific availability for this user
+    const periodSpecificAvailabilityData = await db
+      .select()
+      .from(periodSpecificAvailability)
+      .where(eq(periodSpecificAvailability.userId, user.id));
+
+    console.log(`Retrieved ${periodSpecificAvailabilityData.length} period-specific availability entries for user ${user.id}`);
+
+    // Generate timetable with period-specific availability
+    const generatedEntries = await generateTimetableCore(
+      exams, 
+      startDate, 
+      revisionTimes, 
+      blockTimes,
+      null, // idGenerator
+      periodSpecificAvailabilityData // Pass period-specific availability
+    );
 
     // Delete existing entries
     await db.delete(timetableEntries)

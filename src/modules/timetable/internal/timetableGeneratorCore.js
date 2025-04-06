@@ -7,6 +7,7 @@ import { createExamSlotsMap, sortExamsByDate } from './utils/examUtils';
 import { captureTimetableError } from './errorUtils';
 import * as Sentry from '@sentry/browser';
 import { addDays, parseISO, format, isValid, isBefore } from 'date-fns';
+import { api as preferencesApi } from '../../preferences/api';
 
 /**
  * Creates pre-exam revision sessions for each exam
@@ -15,9 +16,10 @@ import { addDays, parseISO, format, isValid, isBefore } from 'date-fns';
  * @param {Object} revisionTimes - Available revision times by day of week
  * @param {Object} blockTimes - User block time preferences
  * @param {Map} examSlots - Map of exam slots to avoid scheduling during exams
+ * @param {Array} periodSpecificAvailability - Custom availability settings for specific dates
  * @returns {Array} Array of pre-exam timetable entries
  */
-function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes, examSlots) {
+function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes, examSlots, periodSpecificAvailability) {
   const preExamSessions = [];
   const reservedSlots = new Set(); // Track slots that are reserved for pre-exam sessions
   
@@ -31,6 +33,39 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
     examsByDate[examDate].push(exam);
   });
   
+  // Create a map for quickly checking period-specific availability
+  const availabilityMap = new Map();
+  
+  periodSpecificAvailability.forEach(entry => {
+    const key = `${entry.startDate}_${entry.endDate}_${entry.dayOfWeek}-${entry.block}`;
+    availabilityMap.set(key, entry.isAvailable);
+  });
+  
+  // Check if a specific date and block is available based on both default preferences and period-specific settings
+  const isBlockAvailable = (date, block) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayOfWeek = getDayOfWeek(date);
+    
+    // Check for period-specific overrides
+    for (const entry of periodSpecificAvailability) {
+      const entryStartDate = parseISO(entry.startDate);
+      const entryEndDate = parseISO(entry.endDate);
+      
+      if (
+        date >= entryStartDate && 
+        date <= entryEndDate && 
+        dayOfWeek === entry.dayOfWeek.toLowerCase() &&
+        entry.block === block
+      ) {
+        // Found a specific entry for this date/block
+        return entry.isAvailable;
+      }
+    }
+    
+    // If no override found, use default availability
+    return revisionTimes[dayOfWeek]?.includes(block) || false;
+  };
+  
   // Process exams by date, handling consecutive exams in forward order
   for (const [examDate, dateExams] of Object.entries(examsByDate)) {
     if (dateExams.length > 1) {
@@ -41,12 +76,12 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
       // Process exams in FORWARD order to prioritize EARLIER exams for BETTER slots
       for (let i = 0; i < dateExams.length; i++) {
         const exam = dateExams[i];
-        createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots, 
+        createPreExamSessionForExam(exam, isBlockAvailable, blockTimes, examSlots, 
                                   preExamSessions, reservedSlots);
       }
     } else {
       // For single exams, process normally
-      createPreExamSessionForExam(dateExams[0], revisionTimes, blockTimes, examSlots, 
+      createPreExamSessionForExam(dateExams[0], isBlockAvailable, blockTimes, examSlots, 
                                 preExamSessions, reservedSlots);
     }
   }
@@ -57,7 +92,7 @@ function createPreExamSessions(sortedExams, startDate, revisionTimes, blockTimes
 /**
  * Creates a pre-exam session for a specific exam
  */
-function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots, 
+function createPreExamSessionForExam(exam, isBlockAvailable, blockTimes, examSlots, 
                                   preExamSessions, reservedSlots) {
   const examDate = parseISO(exam.examDate);
   const examSubject = exam.subject;
@@ -66,10 +101,9 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
   // Try to find a session on the day before the exam first
   const dayBefore = addDays(examDate, -1);
   const dayBeforeStr = format(dayBefore, 'yyyy-MM-dd');
-  const dayOfWeek = getDayOfWeek(dayBefore);
   
   // Check if the previous day has an evening block available for revision
-  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Evening')) {
+  if (isBlockAvailable(dayBefore, 'Evening')) {
     // Check if this slot is not already an exam slot or reserved
     const slotKey = `${dayBeforeStr}-Evening`;
     
@@ -84,7 +118,7 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
   }
   
   // Try Afternoon slot on the day before
-  if (revisionTimes[dayOfWeek] && revisionTimes[dayOfWeek].includes('Afternoon')) {
+  if (isBlockAvailable(dayBefore, 'Afternoon')) {
     const slotKey = `${dayBeforeStr}-Afternoon`;
     
     if (!examSlots.has(slotKey) && !reservedSlots.has(slotKey)) {
@@ -108,11 +142,10 @@ function createPreExamSessionForExam(exam, revisionTimes, blockTimes, examSlots,
     const blocksToTry = earlierBlocks.reverse();
     
     const examDayStr = exam.examDate;
-    const examDayOfWeek = getDayOfWeek(examDate);
     
     for (const block of blocksToTry) {
       // Check if this block is available for revision
-      if (revisionTimes[examDayOfWeek] && revisionTimes[examDayOfWeek].includes(block)) {
+      if (isBlockAvailable(examDate, block)) {
         // Check if this slot is not already an exam slot or reserved
         const slotKey = `${examDayStr}-${block}`;
         
@@ -212,6 +245,42 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
 
     // Create map of exam slots to avoid scheduling during exams
     const examSlots = createExamSlotsMap(sortedExams);
+    
+    // Fetch period-specific availability to consider custom settings
+    let periodSpecificAvailability = [];
+    try {
+      periodSpecificAvailability = await preferencesApi.getPeriodSpecificAvailability();
+      console.log(`Loaded ${periodSpecificAvailability.length} period-specific availability entries`);
+    } catch (error) {
+      console.error('Failed to fetch period-specific availability:', error);
+      Sentry.captureException(error);
+      // Continue with default preferences if we can't get custom settings
+    }
+
+    // Create a function to check if a date/block is available based on both default preferences and period-specific settings
+    const isBlockAvailable = (date, block) => {
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const dayOfWeek = getDayOfWeek(date);
+      
+      // Check for period-specific overrides
+      for (const entry of periodSpecificAvailability) {
+        const entryStartDate = parseISO(entry.startDate);
+        const entryEndDate = parseISO(entry.endDate);
+        
+        if (
+          date >= entryStartDate && 
+          date <= entryEndDate && 
+          dayOfWeek === entry.dayOfWeek.toLowerCase() &&
+          entry.block === block
+        ) {
+          // Found a specific entry for this date/block
+          return entry.isAvailable;
+        }
+      }
+      
+      // If no override found, use default availability
+      return revisionTimes[dayOfWeek]?.includes(block) || false;
+    };
 
     // First create pre-exam sessions
     const { preExamSessions, reservedSlots } = createPreExamSessions(
@@ -219,7 +288,8 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
       startDate, 
       revisionTimes, 
       blockTimes, 
-      examSlots
+      examSlots,
+      periodSpecificAvailability
     );
     
     // Initialize timetable with pre-exam sessions
@@ -250,8 +320,13 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
     // Then fill in the rest of the timetable
     // Process each date in the range
     for (const date of dateRange) {
+      const dateObj = parseISO(date);
       const dayOfWeek = getDayOfWeek(date);
-      const availableBlocks = revisionTimes[dayOfWeek] || [];
+      
+      // Get available blocks for this day, considering both default preferences and custom settings
+      const availableBlocks = ['Morning', 'Afternoon', 'Evening'].filter(block => 
+        isBlockAvailable(dateObj, block)
+      );
 
       // For each available block on this day
       for (const block of availableBlocks) {
