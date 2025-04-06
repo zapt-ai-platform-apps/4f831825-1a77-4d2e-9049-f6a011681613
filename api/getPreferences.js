@@ -5,6 +5,30 @@ import { preferences, revisionTimes, blockTimes } from '../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/node';
 
+// Helper function to safely format a date to YYYY-MM-DD
+function formatDate(dateValue) {
+  if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // If it's already in YYYY-MM-DD format, return as is
+    return dateValue;
+  }
+  
+  try {
+    // Try to convert to a Date object and format it
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    Sentry.captureException(error, {
+      extra: { dateValue, type: typeof dateValue }
+    });
+  }
+  
+  // Fallback to original value if conversion fails
+  return String(dateValue);
+}
+
 export default async function handler(req, res) {
   try {
     // Authenticate user
@@ -62,7 +86,7 @@ export default async function handler(req, res) {
     
     // Format response
     const response = {
-      startDate: userPreferences[0].startDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      startDate: formatDate(userPreferences[0].startDate), // Use helper function to safely format the date
       revisionTimes: formattedRevisionTimes,
       blockTimes: formattedBlockTimes,
     };
