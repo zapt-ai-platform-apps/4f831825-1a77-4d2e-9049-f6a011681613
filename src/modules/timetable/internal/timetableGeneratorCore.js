@@ -6,7 +6,7 @@ import { sortSessionsByBlock } from './utils/sessionSorter';
 import { createExamSlotsMap, sortExamsByDate } from './utils/examUtils';
 import { captureTimetableError } from './errorUtils';
 import * as Sentry from '@sentry/browser';
-import { addDays, parseISO, format } from 'date-fns';
+import { addDays, parseISO, format, isValid, isBefore } from 'date-fns';
 
 /**
  * Creates pre-exam revision sessions for each exam
@@ -166,6 +166,19 @@ export async function generateTimetableCore(exams, startDate, revisionTimes, blo
 
     if (!hasRevisionTimes) {
       throw new Error('No revision times selected');
+    }
+    
+    // Validate that the start date is not in the past
+    const parsedStartDate = parseISO(startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of today
+    
+    if (!isValid(parsedStartDate)) {
+      throw new Error('Invalid start date format');
+    }
+    
+    if (isBefore(parsedStartDate, today)) {
+      throw new Error('Start date cannot be in the past');
     }
 
     // Sort exams by date

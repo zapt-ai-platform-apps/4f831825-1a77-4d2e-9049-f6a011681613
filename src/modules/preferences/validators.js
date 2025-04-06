@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createValidator } from '../core/validators';
+import { parseISO, isValid, isBefore } from 'date-fns';
 
 // Define the block times schema
 const blockTimeSchema = z.object({
@@ -42,9 +43,19 @@ const blockTimesSchema = z.object({
   Evening: blockTimeSchema.optional()
 });
 
-// Define the preferences schema
+// Define the preferences schema with start date validation
 export const preferencesSchema = z.object({
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  startDate: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+    .refine(date => {
+      const parsedDate = parseISO(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to beginning of today
+      
+      return isValid(parsedDate) && !isBefore(parsedDate, today);
+    }, {
+      message: "Start date cannot be in the past",
+    }),
   revisionTimes: revisionTimesSchema,
   blockTimes: blockTimesSchema
 });
