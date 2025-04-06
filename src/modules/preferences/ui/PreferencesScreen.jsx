@@ -94,7 +94,7 @@ function PreferencesScreen() {
               <AvailabilityCalendar 
                 preferences={preferences} 
                 onSave={() => {
-                  navigate('/timetable');
+                  navigate('/exams');
                 }}
               />
               
