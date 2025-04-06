@@ -1,4 +1,4 @@
-import { makeAuthenticatedRequest, handleApiResponse } from '../../core/api';
+import { makeAuthenticatedRequest, handleApiResponse } from '../core/api';
 
 export const api = {
   /**
