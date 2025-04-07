@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 
 /**
- * Protected route component that redirects to login if user is not authenticated
+ * Protected route component that redirects to home page if user is not authenticated
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components
  * @returns {React.ReactElement} Protected route
@@ -20,7 +20,8 @@ function ProtectedRoute({ children }) {
   }
   
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Changed redirection from "/login" to "/" (home page)
+    return <Navigate to="/" replace />;
   }
   
   // Just return the children directly, no AppLayout wrapper
