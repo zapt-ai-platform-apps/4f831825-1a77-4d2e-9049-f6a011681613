@@ -27,17 +27,29 @@ function PreferencesForm({
           onBlockSelection={handleBlockSelection}
         />
         
-        {/* Availability Calendar Button - only shown if user has stored a start date and saved exams */}
-        {showCalendarButton && (
-          <div className="flex justify-center mt-4">
-            <button
-              className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors cursor-pointer"
-              onClick={onShowCalendar}
-            >
-              Customize Day-Specific Availability
-            </button>
-          </div>
-        )}
+        {/* Availability Calendar Button - always visible but conditionally enabled */}
+        <div className="flex justify-center mt-4 relative group">
+          <button
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              showCalendarButton 
+                ? "bg-secondary text-white hover:bg-secondary/90 cursor-pointer" 
+                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            }`}
+            onClick={showCalendarButton ? onShowCalendar : undefined}
+            disabled={!showCalendarButton}
+            aria-label="Customize Day-Specific Availability"
+          >
+            Customize Day-Specific Availability
+          </button>
+          
+          {/* Tooltip that appears on hover when button is disabled */}
+          {!showCalendarButton && (
+            <div className="absolute invisible group-hover:visible bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-lg">
+              Enter exam info and/or revision start date to access custom availability
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+            </div>
+          )}
+        </div>
       </div>
       
       <div>
