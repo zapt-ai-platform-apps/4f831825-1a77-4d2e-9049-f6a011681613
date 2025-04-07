@@ -61,23 +61,45 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
       </div>
       
       {hasData && (
-        <div className="mt-3 md:mt-4 px-0.5 flex flex-col h-[calc(100%-16px)]">
-          {blockOrder.map(block => (
-            <div 
-              key={block} 
-              className={`mb-0.5 ${block !== 'Morning' ? 'mt-auto' : ''}`}
-            >
-              {itemsByBlock[block]?.exams.length > 0 && (
-                <ExamItems exams={itemsByBlock[block].exams} />
-              )}
-              {itemsByBlock[block]?.sessions.length > 0 && (
-                <SessionItems 
-                  sortedSessions={itemsByBlock[block].sessions} 
-                  subjectColours={subjectColours} 
-                />
-              )}
-            </div>
-          ))}
+        <div className="mt-3 md:mt-4 px-0.5 grid grid-rows-3 h-[calc(100%-16px)]">
+          {/* Morning Block */}
+          <div className="row-start-1">
+            {itemsByBlock['Morning']?.exams.length > 0 && (
+              <ExamItems exams={itemsByBlock['Morning'].exams} />
+            )}
+            {itemsByBlock['Morning']?.sessions.length > 0 && (
+              <SessionItems 
+                sortedSessions={itemsByBlock['Morning'].sessions} 
+                subjectColours={subjectColours} 
+              />
+            )}
+          </div>
+          
+          {/* Afternoon Block */}
+          <div className="row-start-2">
+            {itemsByBlock['Afternoon']?.exams.length > 0 && (
+              <ExamItems exams={itemsByBlock['Afternoon'].exams} />
+            )}
+            {itemsByBlock['Afternoon']?.sessions.length > 0 && (
+              <SessionItems 
+                sortedSessions={itemsByBlock['Afternoon'].sessions} 
+                subjectColours={subjectColours} 
+              />
+            )}
+          </div>
+          
+          {/* Evening Block */}
+          <div className="row-start-3">
+            {itemsByBlock['Evening']?.exams.length > 0 && (
+              <ExamItems exams={itemsByBlock['Evening'].exams} />
+            )}
+            {itemsByBlock['Evening']?.sessions.length > 0 && (
+              <SessionItems 
+                sortedSessions={itemsByBlock['Evening'].sessions} 
+                subjectColours={subjectColours} 
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
