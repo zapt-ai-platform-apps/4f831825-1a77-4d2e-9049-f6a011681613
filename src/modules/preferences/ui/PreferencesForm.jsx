@@ -15,14 +15,30 @@ function PreferencesForm({
   handleSave,
   handleBlockTimesChange,
   handleBlockSelection,
-  handleStartDateChange
+  handleStartDateChange,
+  showCalendarButton,
+  onShowCalendar
 }) {
   return (
     <div className="space-y-12">
-      <RevisionTimesSelector
-        revisionTimes={preferences.revisionTimes}
-        onBlockSelection={handleBlockSelection}
-      />
+      <div className="space-y-4">
+        <RevisionTimesSelector
+          revisionTimes={preferences.revisionTimes}
+          onBlockSelection={handleBlockSelection}
+        />
+        
+        {/* Availability Calendar Button - only shown if user has stored a start date and saved exams */}
+        {showCalendarButton && (
+          <div className="flex justify-center mt-4">
+            <button
+              className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors cursor-pointer"
+              onClick={onShowCalendar}
+            >
+              Customize Day-Specific Availability
+            </button>
+          </div>
+        )}
+      </div>
       
       <div>
         <h3 className="text-xl font-semibold mb-2 text-center text-gray-800 dark:text-gray-200">

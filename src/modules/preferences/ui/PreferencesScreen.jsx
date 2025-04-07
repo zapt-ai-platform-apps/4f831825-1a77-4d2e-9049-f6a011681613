@@ -27,7 +27,7 @@ function PreferencesScreen() {
   const [hasExams, setHasExams] = useState(false);
   const [checkingExams, setCheckingExams] = useState(true);
 
-  // Check if user has exams to determine whether to show the calendar
+  // Check if user has exams to determine whether to show the calendar button
   useEffect(() => {
     const checkExams = async () => {
       try {
@@ -44,14 +44,6 @@ function PreferencesScreen() {
     checkExams();
   }, []);
 
-  // Determine whether to show the calendar once we have loaded preferences and checked exams
-  useEffect(() => {
-    if (!loading && !checkingExams) {
-      // Show calendar if user has preferences saved and has added exams
-      setShowCalendar(preferences?.startDate && hasExams);
-    }
-  }, [preferences, loading, checkingExams, hasExams]);
-
   const handleSavePreferences = async () => {
     const result = await handleSave();
     if (result.success) {
@@ -63,6 +55,9 @@ function PreferencesScreen() {
       }
     }
   };
+
+  // Show calendar button condition - user has start date and exams
+  const showCalendarButton = !loading && !checkingExams && preferences?.startDate && hasExams;
 
   return (
     <div className="min-h-screen flex flex-col text-gray-800 dark:text-gray-200">
@@ -85,19 +80,9 @@ function PreferencesScreen() {
                 handleBlockTimesChange={handleBlockTimesChange}
                 handleBlockSelection={handleBlockSelection}
                 handleStartDateChange={handleStartDateChange}
+                showCalendarButton={showCalendarButton}
+                onShowCalendar={() => setShowCalendar(true)}
               />
-              
-              {/* Add button to return to calendar if user has already added exams */}
-              {hasExams && preferences?.startDate && (
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
-                    onClick={() => setShowCalendar(true)}
-                  >
-                    Back to Availability Calendar
-                  </button>
-                </div>
-              )}
             </div>
           )}
           
