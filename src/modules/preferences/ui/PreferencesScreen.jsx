@@ -26,6 +26,7 @@ function PreferencesScreen() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [hasExams, setHasExams] = useState(false);
   const [checkingExams, setCheckingExams] = useState(true);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Check if user has exams to determine whether to show the calendar button
   useEffect(() => {
@@ -44,12 +45,21 @@ function PreferencesScreen() {
     checkExams();
   }, []);
 
+  // Reset success message after 3 seconds
+  useEffect(() => {
+    if (saveSuccess) {
+      const timer = setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveSuccess]);
+
   const handleSavePreferences = async () => {
     const result = await handleSave();
     if (result.success) {
-      // Always navigate to exams page after successful save
-      // This addresses the issue where users were automatically taken to the calendar
-      navigate('/exams');
+      // Stay on preferences screen instead of navigating to exams
+      setSaveSuccess(true);
     }
   };
 
@@ -67,6 +77,12 @@ function PreferencesScreen() {
             {showCalendar ? 'Customize Your Availability Calendar' : 'Set Your Revision Preferences'}
           </h2>
           
+          {saveSuccess && (
+            <div className="mb-4 p-3 bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 rounded-md text-center transition-opacity">
+              Preferences saved successfully!
+            </div>
+          )}
+          
           {!loading && !showCalendar && (
             <div className="space-y-6">
               <PreferencesForm
@@ -80,6 +96,17 @@ function PreferencesScreen() {
                 showCalendarButton={showCalendarButton}
                 onShowCalendar={() => setShowCalendar(true)}
               />
+              
+              {hasExams && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    className="btn px-6 py-2 cursor-pointer bg-secondary text-white hover:bg-secondary/90 transition duration-300 rounded-lg"
+                    onClick={() => navigate('/exams')}
+                  >
+                    Continue to Exams
+                  </button>
+                </div>
+              )}
             </div>
           )}
           
