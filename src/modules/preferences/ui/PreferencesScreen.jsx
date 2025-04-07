@@ -47,12 +47,9 @@ function PreferencesScreen() {
   const handleSavePreferences = async () => {
     const result = await handleSave();
     if (result.success) {
-      // If user has exams, show the calendar; otherwise, go to exams page
-      if (hasExams) {
-        setShowCalendar(true);
-      } else {
-        navigate('/exams');
-      }
+      // Always navigate to exams page after successful save
+      // This addresses the issue where users were automatically taken to the calendar
+      navigate('/exams');
     }
   };
 
