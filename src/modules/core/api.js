@@ -1,4 +1,5 @@
 import { initializeZapt } from '@zapt/zapt-js';
+import * as Sentry from '@sentry/browser';
 
 // Initialize Zapt and get supabase client and recordLogin function
 const { supabase, recordLogin: zapRecordLogin } = initializeZapt(import.meta.env.VITE_PUBLIC_APP_ID);
@@ -49,10 +50,24 @@ async function recordLogin(email, environment) {
 async function makeAuthenticatedRequest(url, options = {}) {
   try {
     // Get current session to add authentication token
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('Error getting session:', error);
+      Sentry.captureException(error);
+      throw new Error("Failed to get session. Please log in again.");
+    }
     
     if (!session) {
+      console.error('No active session found');
       throw new Error("No active session found. Please log in again.");
+    }
+    
+    // Check if session is expired
+    const expiresAt = new Date(session.expires_at * 1000);
+    if (expiresAt < new Date()) {
+      console.error('Session expired');
+      throw new Error("Your session has expired. Please log in again.");
     }
     
     // Set up headers with authentication token
@@ -69,6 +84,7 @@ async function makeAuthenticatedRequest(url, options = {}) {
     });
   } catch (error) {
     console.error('Error making authenticated request:', error);
+    Sentry.captureException(error);
     throw error;
   }
 }
@@ -88,6 +104,20 @@ async function handleApiResponse(response, actionName = 'API request') {
       errorMessage = errorData.error || `${actionName} failed with status ${response.status}`;
     } catch {
       errorMessage = `${actionName} failed with status ${response.status}`;
+    }
+    
+    if (response.status === 401) {
+      console.error('Authentication error:', errorMessage);
+      // Force a session check on auth errors
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          // Session is gone, try to sign out to clean up
+          await supabase.auth.signOut();
+        }
+      } catch (e) {
+        console.error('Error checking session after 401:', e);
+      }
     }
     
     throw new Error(errorMessage);
