@@ -93,11 +93,13 @@ function AvailabilityCalendar({ preferences, onSave }) {
       const dateString = format(currentDate, 'yyyy-MM-dd');
       const dayOfWeek = format(currentDate, 'EEEE').toLowerCase();
       
-      // Get default availability from preferences
+      // Get default availability from preferences - this applies the weekly pattern
+      // Only for dates on or after the start date
+      const isOnOrAfterStartDate = !isBefore(currentDate, startDate);
       const defaultAvailability = {
-        morning: preferences.revisionTimes[dayOfWeek]?.includes('Morning') || false,
-        afternoon: preferences.revisionTimes[dayOfWeek]?.includes('Afternoon') || false,
-        evening: preferences.revisionTimes[dayOfWeek]?.includes('Evening') || false
+        morning: isOnOrAfterStartDate && preferences.revisionTimes[dayOfWeek]?.includes('Morning') || false,
+        afternoon: isOnOrAfterStartDate && preferences.revisionTimes[dayOfWeek]?.includes('Afternoon') || false,
+        evening: isOnOrAfterStartDate && preferences.revisionTimes[dayOfWeek]?.includes('Evening') || false
       };
       
       // Check if there are any exams on this day
@@ -134,6 +136,7 @@ function AvailabilityCalendar({ preferences, onSave }) {
         date: currentDate,
         dateString,
         dayOfWeek,
+        isBeforeStartDate: isBefore(currentDate, startDate),
         defaultAvailability,
         customAvailability,
         exams: examsOnDay
@@ -142,6 +145,51 @@ function AvailabilityCalendar({ preferences, onSave }) {
       // Move to next day
       currentDate = addDays(currentDate, 1);
     }
+    
+    // Now build the full month view - we need to include days before the start date
+    const monthStart = startOfMonth(displayedMonth);
+    const monthEnd = endOfMonth(displayedMonth);
+    let currentMonthDate = new Date(monthStart);
+    
+    // For days in the current month that are before the start date
+    // These need to be included in the calendar but marked as unavailable
+    while (currentMonthDate < startDate && currentMonthDate <= monthEnd) {
+      const dateString = format(currentMonthDate, 'yyyy-MM-dd');
+      const dayOfWeek = format(currentMonthDate, 'EEEE').toLowerCase();
+      
+      // These days are always unavailable regardless of the day of the week
+      const defaultAvailability = {
+        morning: false,
+        afternoon: false,
+        evening: false
+      };
+      
+      // Check for exams
+      const examsOnDay = exams.filter(exam => exam.examDate === dateString);
+      
+      // Create calendar day object for days before start date
+      if (!calendar.some(day => day.dateString === dateString)) {
+        calendar.push({
+          date: currentMonthDate,
+          dateString,
+          dayOfWeek,
+          isBeforeStartDate: true,
+          defaultAvailability,
+          customAvailability: {
+            morning: null,
+            afternoon: null,
+            evening: null
+          },
+          exams: examsOnDay
+        });
+      }
+      
+      // Move to next day
+      currentMonthDate = addDays(currentMonthDate, 1);
+    }
+    
+    // Sort the calendar by date
+    calendar.sort((a, b) => a.date - b.date);
     
     setCalendar(calendar);
   };
@@ -269,6 +317,9 @@ function AvailabilityCalendar({ preferences, onSave }) {
         <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
           Adjust your available study blocks for specific days by clicking on them. This calendar shows all days from your start date until your last exam.
         </p>
+        <p className="text-sm font-medium text-primary text-center">
+          Note: Days before your start date ({preferences?.startDate}) aren't available for study.
+        </p>
       </div>
       
       {/* Month navigation */}
@@ -307,6 +358,10 @@ function AvailabilityCalendar({ preferences, onSave }) {
           <span className="text-xs">Not Available</span>
         </div>
         <div className="flex items-center">
+          <div className="w-4 h-4 bg-gray-300 dark:bg-gray-700 rounded mr-1"></div>
+          <span className="text-xs">Before Start Date</span>
+        </div>
+        <div className="flex items-center">
           <div className="w-4 h-4 bg-red-500 rounded mr-1"></div>
           <span className="text-xs">Exam</span>
         </div>
@@ -335,17 +390,20 @@ function AvailabilityCalendar({ preferences, onSave }) {
             {/* Calendar days */}
             {currentMonthDays().map(day => {
               // Get effective availability for each block
-              const morningAvailable = day.customAvailability.morning !== null 
-                ? day.customAvailability.morning 
-                : day.defaultAvailability.morning;
+              const morningAvailable = day.isBeforeStartDate ? false : 
+                (day.customAvailability.morning !== null 
+                  ? day.customAvailability.morning 
+                  : day.defaultAvailability.morning);
               
-              const afternoonAvailable = day.customAvailability.afternoon !== null 
-                ? day.customAvailability.afternoon 
-                : day.defaultAvailability.afternoon;
+              const afternoonAvailable = day.isBeforeStartDate ? false :
+                (day.customAvailability.afternoon !== null 
+                  ? day.customAvailability.afternoon 
+                  : day.defaultAvailability.afternoon);
                 
-              const eveningAvailable = day.customAvailability.evening !== null 
-                ? day.customAvailability.evening 
-                : day.defaultAvailability.evening;
+              const eveningAvailable = day.isBeforeStartDate ? false :
+                (day.customAvailability.evening !== null 
+                  ? day.customAvailability.evening 
+                  : day.defaultAvailability.evening);
               
               // Check for exams in each block
               const morningExam = day.exams.some(exam => exam.timeOfDay === 'Morning');
@@ -359,6 +417,10 @@ function AvailabilityCalendar({ preferences, onSave }) {
                 <div 
                   key={day.dateString} 
                   className={`border rounded p-1 cursor-pointer min-h-[80px] ${
+                    day.isBeforeStartDate 
+                      ? 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600' 
+                      : 'bg-white dark:bg-gray-800'
+                  } ${
                     selectedDate && format(selectedDate, 'yyyy-MM-dd') === day.dateString
                       ? 'border-primary dark:border-primary ring-2 ring-primary/20 dark:ring-primary/40'
                       : hasCustomSettings
@@ -368,7 +430,9 @@ function AvailabilityCalendar({ preferences, onSave }) {
                   onClick={() => handleDateClick(day.date)}
                 >
                   <div className="text-xs font-semibold mb-1 flex justify-between">
-                    <span>{format(day.date, 'd')}</span>
+                    <span className={day.isBeforeStartDate ? 'text-gray-500 dark:text-gray-400' : ''}>
+                      {format(day.date, 'd')}
+                    </span>
                     {day.exams.length > 0 && (
                       <span className="text-red-500">
                         {day.exams.length > 1 ? `${day.exams.length} Exams` : "Exam"}
@@ -381,15 +445,17 @@ function AvailabilityCalendar({ preferences, onSave }) {
                     {/* Morning block */}
                     <div 
                       className={`text-center text-xs p-1 rounded ${
-                        morningExam
-                          ? 'bg-red-500 text-white'
-                          : morningAvailable
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                        day.isBeforeStartDate
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                          : morningExam
+                            ? 'bg-red-500 text-white'
+                            : morningAvailable
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!morningExam) {
+                        if (!day.isBeforeStartDate && !morningExam) {
                           handleBlockToggle(day.date, 'Morning', morningAvailable);
                         }
                       }}
@@ -400,15 +466,17 @@ function AvailabilityCalendar({ preferences, onSave }) {
                     {/* Afternoon block */}
                     <div 
                       className={`text-center text-xs p-1 rounded ${
-                        afternoonExam
-                          ? 'bg-red-500 text-white'
-                          : afternoonAvailable
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                        day.isBeforeStartDate
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                          : afternoonExam
+                            ? 'bg-red-500 text-white'
+                            : afternoonAvailable
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!afternoonExam) {
+                        if (!day.isBeforeStartDate && !afternoonExam) {
                           handleBlockToggle(day.date, 'Afternoon', afternoonAvailable);
                         }
                       }}
@@ -419,15 +487,17 @@ function AvailabilityCalendar({ preferences, onSave }) {
                     {/* Evening block */}
                     <div 
                       className={`text-center text-xs p-1 rounded ${
-                        eveningExam
-                          ? 'bg-red-500 text-white'
-                          : eveningAvailable
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                        day.isBeforeStartDate
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                          : eveningExam
+                            ? 'bg-red-500 text-white'
+                            : eveningAvailable
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!eveningExam) {
+                        if (!day.isBeforeStartDate && !eveningExam) {
                           handleBlockToggle(day.date, 'Evening', eveningAvailable);
                         }
                       }}
@@ -446,6 +516,13 @@ function AvailabilityCalendar({ preferences, onSave }) {
       {selectedDate && (
         <div className="mt-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md">
           <h4 className="font-semibold mb-3 text-center">{format(selectedDate, 'EEEE, MMMM d, yyyy')}</h4>
+          
+          {calendar.find(day => day.dateString === format(selectedDate, 'yyyy-MM-dd'))?.isBeforeStartDate && (
+            <div className="mb-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-center text-sm">
+              <span className="font-medium text-primary">This date is before your revision start date.</span>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">No study sessions can be scheduled for this day.</p>
+            </div>
+          )}
           
           {/* Exams on this day */}
           {calendar.find(day => day.dateString === format(selectedDate, 'yyyy-MM-dd'))?.exams.length > 0 && (
@@ -472,9 +549,9 @@ function AvailabilityCalendar({ preferences, onSave }) {
               if (!day) return null;
               
               const blockLower = block.toLowerCase();
-              const defaultAvailable = day?.defaultAvailability[blockLower] || false;
+              const defaultAvailable = !day.isBeforeStartDate && (day?.defaultAvailability[blockLower] || false);
               const customAvailable = day?.customAvailability[blockLower];
-              const isAvailable = customAvailable !== null ? customAvailable : defaultAvailable;
+              const isAvailable = !day.isBeforeStartDate && (customAvailable !== null ? customAvailable : defaultAvailable);
               
               // Check if there's an exam in this block
               const examInBlock = day?.exams.some(exam => exam.timeOfDay === block) || false;
@@ -485,7 +562,9 @@ function AvailabilityCalendar({ preferences, onSave }) {
                 <div key={block} className="flex items-center justify-between py-2 border-b dark:border-gray-700 last:border-0">
                   <span className="text-sm">{block} {timeInfo}</span>
                   
-                  {examInBlock ? (
+                  {day.isBeforeStartDate ? (
+                    <span className="text-gray-500 text-sm">Before start date</span>
+                  ) : examInBlock ? (
                     <span className="text-red-500 text-sm">Exam scheduled</span>
                   ) : (
                     <button
@@ -506,13 +585,15 @@ function AvailabilityCalendar({ preferences, onSave }) {
           
           {/* Show if this is a custom setting */}
           <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-            {['Morning', 'Afternoon', 'Evening'].some(block => {
-              const day = calendar.find(day => day.dateString === format(selectedDate, 'yyyy-MM-dd'));
-              const blockLower = block.toLowerCase();
-              return day?.customAvailability[blockLower] !== null;
-            }) 
-              ? 'This day has custom availability settings that override your default preferences'
-              : 'This day is using your default weekly availability preferences'}
+            {!calendar.find(day => day.dateString === format(selectedDate, 'yyyy-MM-dd'))?.isBeforeStartDate &&
+              (['Morning', 'Afternoon', 'Evening'].some(block => {
+                const day = calendar.find(day => day.dateString === format(selectedDate, 'yyyy-MM-dd'));
+                const blockLower = block.toLowerCase();
+                return day?.customAvailability[blockLower] !== null;
+              }) 
+                ? 'This day has custom availability settings that override your default preferences'
+                : 'This day is using your default weekly availability preferences')
+            }
           </div>
         </div>
       )}
