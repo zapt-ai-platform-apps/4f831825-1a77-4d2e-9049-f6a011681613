@@ -53,7 +53,7 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
     <div
       className={`relative border border-gray-200 dark:border-gray-700 cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200 ${
         isSelected ? 'border-2 border-primary ring-2 ring-primary/20 dark:ring-primary/40' : ''
-      } min-h-[50px] md:min-h-[60px] p-0.5`}
+      } min-h-[50px] md:min-h-[60px] p-0.5 overflow-hidden`}
       onClick={() => onDateClick(day)}
     >
       <div className="absolute top-0.5 left-0.5 font-sans font-semibold text-xs text-gray-700 dark:text-gray-300">
@@ -61,9 +61,9 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
       </div>
       
       {hasData && (
-        <div className="mt-3 md:mt-4 px-0.5 grid grid-rows-3 h-[calc(100%-16px)]">
+        <div className="mt-3 md:mt-4 px-0.5 grid grid-rows-3 h-[calc(100%-16px)] overflow-hidden">
           {/* Morning Block */}
-          <div className="row-start-1">
+          <div className="row-start-1 overflow-hidden">
             {itemsByBlock['Morning']?.exams.length > 0 && (
               <ExamItems exams={itemsByBlock['Morning'].exams} />
             )}
@@ -76,7 +76,7 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
           </div>
           
           {/* Afternoon Block */}
-          <div className="row-start-2">
+          <div className="row-start-2 overflow-hidden">
             {itemsByBlock['Afternoon']?.exams.length > 0 && (
               <ExamItems exams={itemsByBlock['Afternoon'].exams} />
             )}
@@ -89,7 +89,7 @@ function CalendarDay({ day, hasData, selectedDate, onDateClick, subjectColours }
           </div>
           
           {/* Evening Block */}
-          <div className="row-start-3">
+          <div className="row-start-3 overflow-hidden">
             {itemsByBlock['Evening']?.exams.length > 0 && (
               <ExamItems exams={itemsByBlock['Evening'].exams} />
             )}

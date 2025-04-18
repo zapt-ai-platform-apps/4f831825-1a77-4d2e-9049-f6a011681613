@@ -7,25 +7,16 @@ import React from 'react';
  * @returns {React.ReactElement} Exam items component
  */
 function ExamItems({ exams }) {
-  if (!exams) return null;
-
-  // Sort exams by time of day: Morning, Afternoon, Evening
-  const blockOrder = { Morning: 0, Afternoon: 1, Evening: 2 };
-  exams.sort((a, b) => blockOrder[a.timeOfDay] - blockOrder[b.timeOfDay]);
-
   return (
-    <div className="mb-0.5 space-y-0.5">
-      {exams.map((exam) => (
+    <div className="space-y-0.5 overflow-hidden max-w-full">
+      {exams.map((exam, idx) => (
         <div
-          key={exam.id}
-          className="py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer font-bold border border-red-700 shadow-sm"
-          style={{ backgroundColor: '#ff0000', color: 'white' }}
+          key={idx}
+          className="bg-destructive text-white py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs overflow-hidden"
+          title={`Exam: ${exam.subject} (${exam.timeOfDay || 'Morning'})`}
         >
-          <span className="font-semibold block truncate leading-tight">
-            <span className="inline xs:hidden">{exam.timeOfDay.charAt(0)}</span>
-            <span className="hidden xs:inline">{exam.timeOfDay}</span>
-          </span>
-          <span className="block truncate leading-tight">{exam.subject}</span>
+          <p className="font-bold truncate w-full">EXAM</p>
+          <p className="truncate w-full">{exam.subject}</p>
         </div>
       ))}
     </div>

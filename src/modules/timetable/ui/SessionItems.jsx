@@ -20,13 +20,13 @@ function SessionItems({ sortedSessions, subjectColours }) {
   };
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-0.5 overflow-hidden max-w-full">
       {sortedSessions.map((session, idx) => {
         const timeDisplay = getTimeInfo(session);
         return (
           <div
             key={idx}
-            className={`py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer leading-tight ${
+            className={`py-0.5 px-1 rounded text-[8px] xs:text-[9px] sm:text-xs cursor-pointer leading-tight overflow-hidden ${
               session.isComplete ? 'opacity-60' : ''
             }`}
             style={{ 
@@ -35,12 +35,12 @@ function SessionItems({ sortedSessions, subjectColours }) {
             }}
             title={`${session.block} Block${timeDisplay} ${session.isComplete ? '(Completed)' : ''}`}
           >
-            <p className="font-semibold truncate">
+            <p className="font-semibold truncate w-full">
               <span className="inline xs:hidden">{session.block.charAt(0)}</span>
               <span className="hidden xs:inline">{session.block}</span>
               <span className="hidden sm:inline">{timeDisplay}</span>
             </p>
-            <p className="truncate">{session.subject}</p>
+            <p className="truncate w-full">{session.subject}</p>
           </div>
         );
       })}
